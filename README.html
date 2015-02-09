@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
+	<title>The Motley IDL Library</title>
+	<meta name="generator" content="LibreOffice 4.3.5.2 (Windows)"/>
+	<meta name="author" content="Mark Hadfield"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="2015-02-10T10:43:28.032000000"/>
+	<meta name="description" content="The Motley IDL Library"/>
+	<style type="text/css">
+		p { color: #000000 }
+		h1 { color: #000000 }
+	</style>
+</head>
+<body lang="en-US" text="#000000" dir="ltr" style="background: transparent">
+<h1 lang="en-NZ">The Motley IDL Library 
+</h1>
+<p><span lang="en-NZ"><a href="mailto:m.hadfield@niwa.co.nz%20%28Mark%20Hadfield%29">Mark
+Hadfield</a> </span>
+</p>
+<p><span lang="en-NZ">Motley is a library of <a href="http://www.rsinc.com/idl/">IDL</a>
+code written largely by me at <a href="http://www.niwa.co.nz/">NIWA</a>.
+It is provided to the IDL community under the MIT Open Source
+License:</span></p>
+<p style="margin-left: 1cm; page-break-before: auto; page-break-after: auto">
+<a href="http://www.opensource.org/licenses/mit-license.php"><font color="#408080"><font size="3" style="font-size: 12pt"><span lang="en-NZ"><span style="background: #e8f2fe">http://www.opensource.org/licenses/mit-license.php</span></span></font></font></a></p>
+<p lang="en-NZ">The library is a collection of the routines that I
+use regularly and that I think might be of interest to others. There
+are several Object Graphics classes, a base class for widget
+applications and several applications built on it, functions that
+make it easy to represent scaled data on axes, classes for accessing
+netCDF files and several utility routines. You will notice that the
+names begin with my initials, MGH. This is not egotism (well, OK,
+just a little) but an attempt to avoid naming conflicts with other
+software collections. 
+</p>
+<p><span lang="en-NZ">This version of the library requires </span><em><span lang="en-NZ">IDL
+8.2</span></em><span lang="en-NZ">. It has been developed &amp;
+tested on Windows XP and Linux. If it doesn&rsquo;t work on your
+platform, I&rsquo;d love to hear about it. </span>
+</p>
+<p lang="en-NZ">I have made no effort to keep the routines in Motley
+independent of each other, so if you want to use one you're advised
+to install the lot. The procedure is: 
+</p>
+<ol>
+	<li/>
+<p style="margin-bottom: 0cm"><span lang="en-NZ">Download the
+	library in <a href="motley.zip">.zip</a> or <a href="motley.tar.gz">.tar.gz</a>
+	format. </span>
+	</p>
+	<li/>
+<p lang="en-NZ" style="margin-bottom: 0cm">Unpack the files to
+	a directory and add it to your IDL path. 
+	</p>
+	<li/>
+<p lang="en-NZ">Before using any of the routines in the
+	library in any IDL session, run the initialisation routine with the
+	command &quot;mgh_motley&quot;. You may eventually want to add this
+	command to your startup script. 
+	</p>
+</ol>
+<p lang="en-NZ">Generally the Motley library does not require any
+routines outside the standard IDL library. Occasionally I make
+exceptions; in this case my policy is to bundle a copy of the
+required routine, with permission of the author. I try to keep these
+bundled routines up to date, but you may want to check the author&rsquo;s
+WWW site for a more recent copy. Currently the bundled routines are: 
+</p>
+<ul>
+	<li/>
+<p style="margin-bottom: 0cm"><span lang="en-NZ">IMDISP by
+	<a href="http://www.gumley.com/">Liam Gumley</a>, used in an example
+	program. </span>
+	</p>
+	<li/>
+<p><span lang="en-NZ">CMUNIQUE_ID by <a href="http://astrog.physics.wisc.edu/%7Ecraigm/idl/idl.html">Craig
+	Markwardt</a>.</span></p>
+</ul>
+<p lang="en-NZ">Finally, the library includes a modified form of
+RSI&rsquo;s CW_PALETTE_EDITOR. The modified routine is called
+MGH_CW_PALETTE_EDITOR and is included with permission of RSI, who
+retain copyright. For a list of the modifications, see the modified
+source code. 
+</p>
+<hr size="3"/>
+
+<p><span lang="en-NZ"><a href="mailto:m.hadfield@niwa.co.nz%20%28Mark%20Hadfield%29">Mark
+Hadfield</a> 2015-02-10 </span>
+</p>
+</body>
+</html>
