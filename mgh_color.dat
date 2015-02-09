@@ -1,0 +1,48 @@
+# Colour-data file for function MGH_COLOR
+
+# Comment lines begin with a '#'.
+
+# Data lines are comma-separated, consisting of
+# a name followed by three integers representing
+# R, G & B values for that colour.
+
+# The following are copied from
+# David Fanning's GETCOLOR function
+# I think they are McIDAS standard colours 
+
+black       ,       0,   0,   0
+white       ,     255, 255, 255            
+red         ,     255,   0,   0
+green       ,       0, 255,   0
+blue        ,       0,   0, 255
+magenta     ,     255,   0, 255
+cyan        ,       0, 255, 255
+yellow      ,     255, 255,   0
+navy        ,       0,   0, 128
+pink        ,     255, 192, 203
+aqua        ,     127, 255, 212
+orchid      ,     218, 112, 214
+sky         ,     135, 206, 235
+beige       ,     245, 245, 220
+gold        ,     255, 215,   0
+grey        ,     190, 190, 190
+
+# Here are some more colours from GETCOLOR
+
+charcoal    ,      70,  70,  70
+
+# These were originally written in the MGH_COLOR
+# code
+
+mid grey    ,     140, 140, 140
+dark grey   ,      70,  70,  70
+dark red    ,     127,   0,   0
+light red   ,     255, 127, 127
+dark green  ,       0, 127,   0
+light green ,     127, 255, 127
+dark blue   ,       0,   0, 127
+light blue  ,     127, 127, 255
+
+# Some colours from the !color structure
+
+purple     ,      127,   0, 127
