@@ -100,6 +100,12 @@
 ;     Fixed bug introduced by IDL 8.0: the datatype name returned for 
 ;     short-integer netCDF variables changed from "SHORT" to "INT', breaking
 ;     the data-unpacking code. 
+;   Mark Hadfield, 2015-03:
+;     The Add method no longer checks that the objects being added are of type
+;     MGHncReadFile. This allows, for example, the addition of MGHncSequence
+;     objects to allow concatenation in more than one dimension. However this
+;     functionality still has some bugs: something to do with recursive calls
+;     to VarGet.
 ;-
 ; MGHncSequence::Init
 ;
@@ -329,50 +335,48 @@ end
 ;   to the ncfiles container, checking to ensure they all have the
 ;   same unlimited dimension.
 ;
-pro MGHncSequence::Add, files, _REF_EXTRA=extra
+pro MGHncSequence::Add, file, _REF_EXTRA=extra
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   n_add = n_elements(files)
-
-   if n_add eq 0 then return
-
-   if size(files, /TNAME) ne 'OBJREF' then $
-        message, 'A list of MGHncReadFile object references must be supplied'
-
-   if min(obj_isa(files, 'MGHncReadFile')) eq 0 then $
-        message, 'A list of MGHncReadFile object references must be supplied'
-
-   for f=0,n_add-1 do begin
-
-      onc = files[f]
-
-      if ~ self.ensemble then begin
-
-         ;; If the name of the sequence's unlimited dimension has not
-         ;; yet been established, take it from the current
-         ;; file. Otherwise check that the current file has the
-         ;; unlimited dimension. This code allows there to be only one
-         ;; file in the sequence, with no unlimited dimension. In that
-         ;; case the MGHncSequence object should act like an
-         ;; MGHncReadFile object with no unlimited dimension.
-
-         case strlen(self.unlimited) gt 0 of
-            0: self.unlimited = onc->DimNames(/UNLIMITED)
-            1: begin
-               if ~ onc->HasDim(self.unlimited) then $
-                    message, 'Sequence unlimited dimension not found in netCDF file'
-            end
-         endcase
-
-      endif
-
-      self.ncfiles->Add, onc, _STRICT_EXTRA=extra
-
-   endfor
+  if size(file, /TNAME) ne 'OBJREF' then $
+    message, 'A list of object references must be supplied'
+    
+  n_file = n_elements(file)
+  
+  if n_file eq 0 then return
+  
+  for i_file=0,n_file-1 do begin
+  
+    ofile = file[i_file]
+    
+    if ~ self.ensemble then begin
+    
+      ;; If the name of the sequence's unlimited dimension has not
+      ;; yet been established, take it from the current
+      ;; file. Otherwise check that the current file has the
+      ;; unlimited dimension. This code allows there to be only one
+      ;; file in the sequence, with no unlimited dimension. In that
+      ;; case the MGHncSequence object should act like an
+      ;; MGHncReadFile object with no unlimited dimension.
+      
+      if strlen(self.unlimited) eq 0 then begin
+        self.unlimited = ofile->DimNames(/UNLIMITED)
+      endif else begin
+        if ~ ofile->HasDim(self.unlimited) then begin
+          fmt = '(%"Sequence unlimited dimension not found in netCDF file at index %d")'
+          message, string(FORMAT=fmt, i_file)
+        endif
+      endelse
+      
+    endif
+    
+    self.ncfiles->Add, ofile, _STRICT_EXTRA=extra
+    
+  endfor
 
 end
 
@@ -819,23 +823,20 @@ function MGHncSequence::VarGet, VarName, $
                bget[locs] = 1B
 
                onc = self.ncfiles->Get(POSITION=f)
-
-               case self.ensemble of
-                  0: begin
-                     count_f = my_count
-                     count_f[n_dims-1] = n
-                     offset_f = my_offset
-                     offset_f[n_dims-1] = rget[locs[0]] - file_offset[f]
-                     n0 = locs[0]
-                     n1 = locs[0]+count_f[n_dims-1]-1
-                  end
-                  1: begin
-                     ;; Still some bugs here
-                     count_f = n_dims lt 2 ? [1] : my_count[0:n_dims-2]
-                     offset_f = n_dims lt 2 ? [0] : my_offset[0:n_dims-2]
-                     n0 = locs[0]  &  n1 = n0
-                  end
-               end
+               
+               if self.ensemble then begin
+                 ;; Still some bugs here
+                 count_f = n_dims lt 2 ? [1] : my_count[0:n_dims-2]
+                 offset_f = n_dims lt 2 ? [0] : my_offset[0:n_dims-2]
+                 n0 = locs[0]  &  n1 = n0
+               endif else begin
+                 count_f = my_count
+                 count_f[n_dims-1] = n
+                 offset_f = my_offset
+                 offset_f[n_dims-1] = rget[locs[0]] - file_offset[f]
+                 n0 = locs[0]
+                 n1 = locs[0]+count_f[n_dims-1]-1
+               endelse
 
                ;; Below the STRIDE keyword is omitted if possible,
                ;; because NCDF_VGET appears to be less efficient when
