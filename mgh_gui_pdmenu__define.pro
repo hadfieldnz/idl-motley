@@ -403,18 +403,16 @@ pro MGH_GUI_PDmenu::NewItem, items, $
       value = items[i]
       uname = strupcase(mgh_str_subst(strtrim(value,2),self.sep,''))
       if strlen(parent_name) gt 0 then uname = parent_name + self.sep + uname
-      case menu[i] of
-         0B: begin
-            void = widget_button(parentID, ACCELERATOR=accelerator[i], CHECKED_MENU=checked_menu[i], $
-                           SEPARATOR=separator[i], UNAME=uname, VALUE=value)
-         end
-         1B: begin
-            if strlen(accelerator[i]) gt 0 then $
-                 message, 'ACCELERATOR string must be empty for pull-down menus'
-            void = widget_button(parentID, CHECKED_MENU=checked_menu[i], /MENU, $
-                           SEPARATOR=separator[i], UNAME=uname, VALUE=value)
-         end
-      endcase
+      if menu[i] then begin
+         if strlen(accelerator[i]) gt 0 then $
+            message, 'ACCELERATOR string must be empty for pull-down menus'
+         void = widget_button(parentID, CHECKED_MENU=checked_menu[i], /MENU, $
+                              SEPARATOR=separator[i], UNAME=uname, VALUE=value)
+        
+      endif else begin
+         void = widget_button(parentID, ACCELERATOR=accelerator[i], CHECKED_MENU=checked_menu[i], $
+                              SEPARATOR=separator[i], UNAME=uname, VALUE=value)
+      endelse
    endfor
 
 end
