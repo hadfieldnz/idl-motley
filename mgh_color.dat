@@ -34,8 +34,9 @@ charcoal    ,      70,  70,  70
 # These were originally written in the MGH_COLOR
 # code
 
-mid grey    ,     140, 140, 140
 dark grey   ,      70,  70,  70
+mid grey    ,     140, 140, 140
+light grey    ,     200, 200, 200
 dark red    ,     127,   0,   0
 light red   ,     255, 127, 127
 dark green  ,       0, 127,   0
