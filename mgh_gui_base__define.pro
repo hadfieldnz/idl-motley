@@ -532,122 +532,98 @@ function MGH_GUI_Base::Init, $
      PARENT=parent, PROCESS_EVENTS=process_events, $
      TITLE=title, VISIBLE=visible, _REF_EXTRA=extra
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   ;; Create a disposal container for easy clean up of resources.
-
-   self.disposal = obj_new('IDL_Container')
-
-   ;; Much of the widget base's behaviour depends on whether it is a
-   ;; top-level base or a child. The former is the default; the latter
-   ;; is achieved by specifying a PARENT property
-
-   self.parent = n_elements(parent) gt 0 ? parent : 0
-
-   ;; Specify a few key properties and create the main base. Pass to
-   ;; it keywords related to TLB behaviour (adult only) and alignment
-   ;; relative to parents (child only?). Keywords specifying layout of
-   ;; children are passed to the layout base (later).
-
-   case self->IsTLB() of
-
-      0: begin
-
-         self.block = 0B
-
-         self.mbar = 0B
-
-         self.modal = 0B
-
-         self.destroy = 1B
-
-         self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
-
-         self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
-
+  ;; Create a disposal container for easy clean up of resources.
+  
+  self.disposal = obj_new('IDL_Container')
+  
+  ;; Much of the widget base's behaviour depends on whether it is a
+  ;; top-level base or a child. The former is the default; the latter
+  ;; is achieved by specifying a PARENT property
+  
+  self.parent = n_elements(parent) gt 0 ? parent : 0
+  
+  ;; Specify a few key properties and create the main base. Pass to
+  ;; it keywords related to TLB behaviour (adult only) and alignment
+  ;; relative to parents (child only?). Keywords specifying layout of
+  ;; children are passed to the layout base (later).
+  
+  if self->IsTLB() then begin
+    self.block = keyword_set(block)
+    self.modal = keyword_set(modal)
+    self.destroy = n_elements(destroy) gt 0  $
+      ? keyword_set(destroy) : ~ (self.block || self.modal)
+    self.mbar = keyword_set(mbar) && ~ self.modal
+    self.visible = n_elements(visible) gt 0  $
+      ? keyword_set(visible) && ~ self.modal : 1B
+    ;; The following nonsense arises because WIDGET_BASE allows
+    ;; different combinations of keywords in different cases
+    case 1B of
+      self.modal: begin
+        self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
       end
-
-      1: begin
-
-         self.block = keyword_set(block)
-
-         self.modal = keyword_set(modal)
-
-         self.destroy = n_elements(destroy) gt 0  $
-              ? keyword_set(destroy) : ~ (self.block || self.modal)
-
-         self.mbar = keyword_set(mbar) && ~ self.modal
-
-         self.visible = n_elements(visible) gt 0  $
-              ? keyword_set(visible) && ~ self.modal : 1B
-
-         ;; All this nonsense arises because WIDGET_BASE allows
-         ;; different combinations of keywords in different cases
-
-         case 1B of
-
-            self.modal: begin
-               self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
-            end
-
-            self.mbar: begin
-               self.base = widget_base(MAP=self.visible, MBAR=menu_bar, $
-                                       _STRICT_EXTRA=extra)
-               self.menu_bar = menu_bar
-            end
-
-            else: begin
-               self.base = widget_base(MAP=self.visible, _STRICT_EXTRA=extra)
-            endelse
-
-         endcase
-
+      self.mbar: begin
+        self.base = widget_base(MAP=self.visible, MBAR=menu_bar, $
+          _STRICT_EXTRA=extra)
+        self.menu_bar = menu_bar
       end
-
-   endcase
-
-   ;; In IDL 5.4 a child base was created, called the "layout
-   ;; base". This was the base to which other children were added and
-   ;; it was also used to store a reference to the current object in
-   ;; its UVALUE. It was done this way because it was necessary to
-   ;; store the object reference in a child of the main widget and
-   ;; there was no way of creating a zero-size, invisible child. The
-   ;; context-menu bases introduced in IDL 5.5 meet this requirement
-   ;; so we can dispense with the multi-tiered structure. The LAYOUT
-   ;; tag in the class structure is retained for backward
-   ;; compatibility.
-
-   void = widget_base(self.base, /CONTEXT_MENU, $
-                      KILL_NOTIFY='MGH_GUI_BASE_KILL_NOTIFY', $
-                      UVALUE=mgh_widget_self(STORE=self))
-
-   self.layout = self.base
-
-   ;; Set the base's NOTIFY_REALIZE property.
-
-   self.notify_realize = keyword_set(notify_realize)
-   if self.notify_realize then $
-        widget_control, self.base, NOTIFY_REALIZE='MGH_GUI_BASE_NOTIFY_REALIZE'
-
-   ;; Set remaining properties & return
-
-   case self->IsTLB() of
-      0: process_events = n_elements(process_events) gt 0 ? process_events : 1
-      1: process_events = 0
-   endcase
-
-   ;; I don't think there is any valid reason to set UVALUE and UNAME
-   ;; for a top-level base but I may change my mind.
-
-   self->MGH_GUI_Base::SetProperty, PROCESS_EVENTS=process_events, $
-        TITLE=title, UNAME=uname, UVALUE=uvalue
-
-   self->Finalize, 'MGH_GUI_Base'
-
-   return, 1
+      else: begin
+        self.base = widget_base(MAP=self.visible, _STRICT_EXTRA=extra)
+      endelse
+    endcase
+  endif else begin
+    self.block = 0B
+    self.mbar = 0B
+    self.modal = 0B
+    self.destroy = 1B
+    self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
+    self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
+  endelse
+  
+  ;; In IDL 5.4 the present function created a child base, called the "layout
+  ;; base". This was the base to which other children were added and
+  ;; it was also used to store a reference to the current object in
+  ;; its UVALUE. It was done this way because it was necessary to
+  ;; store the object reference in a child of the main widget and
+  ;; there was no way of creating a zero-size, invisible child. The
+  ;; context-menu bases introduced in IDL 5.5 meet this requirement
+  ;; so we can dispense with the multi-tiered structure. The LAYOUT
+  ;; tag in the class structure is retained for backward
+  ;; compatibility.
+  
+  void = widget_base(self.base, /CONTEXT_MENU, $
+    KILL_NOTIFY='MGH_GUI_BASE_KILL_NOTIFY', $
+    UVALUE=mgh_widget_self(STORE=self))
+    
+  self.layout = self.base
+  
+  ;; Set the base's NOTIFY_REALIZE property.
+  
+  self.notify_realize = keyword_set(notify_realize)
+  if self.notify_realize then $
+    widget_control, self.base, NOTIFY_REALIZE='MGH_GUI_BASE_NOTIFY_REALIZE'
+    
+  ;; Set remaining properties & return
+  
+  if self->IsTLB() then begin
+    process_events = 0
+  endif else begin
+    process_events = n_elements(process_events) gt 0 ? process_events : 1
+  endelse
+  
+  ;; I don't think there is any valid reason to set UVALUE and UNAME
+  ;; for a top-level base but I may change my mind.
+  
+  self->MGH_GUI_Base::SetProperty, PROCESS_EVENTS=process_events, $
+    TITLE=title, UNAME=uname, UVALUE=uvalue
+    
+  self->Finalize, 'MGH_GUI_Base'
+  
+  return, 1
 
 end
 
@@ -656,15 +632,15 @@ end
 ;
 pro MGH_GUI_Base::Cleanup
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   obj_destroy, self.disposal
-
-   if widget_info(self.base, /VALID_ID) then $
-        widget_control, self.base, /DESTROY
+  obj_destroy, self.disposal
+  
+  if widget_info(self.base, /VALID_ID) then $
+    widget_control, self.base, /DESTROY
 
 end
 
