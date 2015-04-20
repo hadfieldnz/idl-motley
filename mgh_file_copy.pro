@@ -102,9 +102,8 @@ pro mgh_file_copy, InFile, OutFile, $
       msg = string(FORMAT='(%"Copying file %s to %s")', infile, outfile)
       message, /INFORM, temporary(msg)
     endif
-    
-    cmd = string(FORMAT='(%"bunzip2 -c \"%s\" > \"%s\"")', InFile, OutFile)
-    
+
+    cmd = string(FORMAT='(%"bunzip2 -c \"%s\" > \"%s\"")', infile, outfile)
     if !version.os_family eq 'Windows' then begin
       spawn, /HIDE, cmd
     endif else begin
