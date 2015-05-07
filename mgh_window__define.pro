@@ -2331,8 +2331,7 @@ pro MGH_Window::WritePictureToGraphicsFile, File, $
    oclip->GetProperty, $
         UNITS=actual_units, DIMENSIONS=actual_dimensions, RESOLUTION=actual_resolution
 
-   fmt = '(%"Drawing picture (dim %f x %f, units %d, res %f x %f) ' + $
-         'to output file %s")'
+   fmt = '(%"Drawing picture (dim %f x %f, units %d, res %f x %f) to output file %s")'
    message, /INFORM, string(actual_dimensions, actual_units, actual_resolution, $
                             file, FORMAT=fmt)
 
