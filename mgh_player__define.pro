@@ -84,6 +84,9 @@
 ;       set by the HIGH_RESOLUTION property inherited from MGH _Window.
 ;       The default value is reduced from 2.54/360 to the MGH_Window default,
 ;       currently 2.54/240.
+;   Mark Hadfield, 2015-04:
+;     - Removed an extraneous test for the existence of the (obsolete) AVI
+;       DLL when writing an animation to a multi-page PDF file.
 ;-
 
 ; MGH_Player::Init
@@ -300,7 +303,7 @@ pro MGH_Player::BuildMenuBar
            ACCELERATOR=['Ctrl+S','','','','','Ctrl+F4']
    endelse
 
-   fmt = ['FLC...','MJ2...','TIFF...','PDF...','ZIP (h-r)...','ZIP...']
+   fmt = ['FLC...','MJ2...','TIFF (h-r)...','TIFF...','PDF...','ZIP (h-r)...','ZIP...']
    if mgh_has_video(FORMAT='avi', CODEC='mpeg4') then fmt = [fmt,'AVI...']
    if mgh_has_video(FORMAT='mp4') then fmt = [fmt,'MP4...']
    if mgh_has_video(FORMAT='webm') then fmt = [fmt,'WEBM...']
@@ -550,6 +553,22 @@ function MGH_Player::EventMenuBar, event
          return, 0
       end
 
+      'FILE.EXPORT ANIMATION.TIFF (H-R)': begin
+        self->GetProperty, GRAPHICS_TREE=graphics_tree
+        if obj_valid(graphics_tree) then begin
+          graphics_tree->GetProperty, NAME=name
+          ext = '.tif'
+          default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
+          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
+          if strlen(filename) gt 0 then begin
+            widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
+            self->WriteAnimationToMovieFile, filename, TYPE='TIFF', RESOLUTION=self.high_resolution
+          endif
+        endif
+        return, 0
+      end
+      
       'FILE.EXPORT ANIMATION.ZIP': begin
          self->GetProperty, GRAPHICS_TREE=graphics_tree
          if obj_valid(graphics_tree) then begin
@@ -1033,7 +1052,6 @@ pro MGH_Player::WriteAnimationToMovieFile, file, $
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-
    if n_elements(type) eq 0 then type = 'FLC'
 
    type = strupcase(type)
@@ -1215,9 +1233,6 @@ pro MGH_Player::WriteAnimationToPDFFile, file, $
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-
-   if ~ file_test(mgh_avi_dll()) then $
-        message, 'AVI DLL is not available'
 
    if n_elements(display) eq 0 then display = 1B
 

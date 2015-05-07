@@ -3,10 +3,10 @@
 ;   MGHgrMovieFile
 ;
 ; PURPOSE:
-;   This class generates an animation file from a sequence of image arrays.
+;   This class generates an animation file from a sequence of images.
 ;
 ;   The MGHgrMovieFile class is modelled on the IDLgrMPEG class. It stores
-;   images on disk in a sequence of PPM files (Put method) then combines them
+;   images on disk in a sequence of PPM or TIFF files (Put method) then combines them
 ;   into a multiple-image file (Save method) by spawning one of the following
 ;   programs:
 ;
@@ -67,13 +67,6 @@
 ;       images to an HDF file, but messages on the ImageMagick
 ;       mailing list say that HDF is no longer supported.
 ;
-;     MNG
-;       MNG (Multiple-Image Network Graphics) is an image format based
-;       on PNG (Portable Network Graphics) but supporting multiple
-;       images, animation and transparent JPEGs. It's not widely
-;       supported at the moment. See http://www.libpng.org/pub/mng/
-;       and http://www.libpng.org/pub/png/.
-;
 ;     PDF, PS
 ;       Images are written to a PDF or PS file, one image per page.
 ;       This could be used for printing, I guess.
@@ -86,6 +79,9 @@
 ;       (cf. GIF above).  I have found Zip compression the best. It is
 ;       supported by ImageMagick and also by my preferred TIFF viewer,
 ;       Xnview (http://perso.wanadoo.fr/pierre.g/xnview/enhome.html).
+;       Note that, for medium-to-large animations, memory is an issue, as 
+;       the convert command that gathers the image sequence appears to 
+;       keep the whole thing in memory
 ;
 ;   The following are handled by applications other than ImageMagick:
 ;
@@ -125,24 +121,38 @@
 ;   Mark Hadfield, 2013-01:
 ;     Another fix to the Save method to make it more Cygwin-friendly on
 ;     Windows.
+;   Mark Hadfield, 2015-05:
+;     - The temporary image file sequence is now in TIFF format, unless
+;       the the output format is FLC, in which case the original PPM format
+;       is retained.
+;     - The FORMAT property can no longer be changed after object is initialised.
+;     - Dropped references to MNG support. (MNG may or may not still be
+;       supported via ImageMagick.)
+;     - Reformatted source code. 
 ;-
 function MGHgrMovieFile::Init, $
      FILE=file, FORMAT=format
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   if n_elements(format) ne 1 then format = 'MNG'
-
-   self.tempdir = filepath('', ROOT=filepath('', /TMP), SUBDIR=cmunique_id())
-
-   file_mkdir, self.tempdir
-
-   self->SetProperty, FILE=file, FORMAT=format
-
-   return, 1
+  if n_elements(format) eq 0 then format = 'ZIP'
+  self.format = strupcase(format)
+  
+  case self.format of
+    'FLC': self.extension = 'ppm'
+    else : self.extension = 'tif'
+  endcase
+  
+  self.tempdir = filepath('', ROOT=filepath('', /TMP), SUBDIR=cmunique_id())
+  
+  file_mkdir, self.tempdir
+  
+  self->SetProperty, FILE=file
+  
+  return, 1
 
 end
 
@@ -151,14 +161,14 @@ end
 ;
 pro MGHgrMovieFile::Cleanup
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   for p=0,self.count-1 do file_delete, self->FrameFileName(p)
-
-   file_delete, self.tempdir
+  for p=0,self.count-1 do file_delete, self->FrameFileName(p)
+  
+  file_delete, self.tempdir
 
 end
 
@@ -167,41 +177,39 @@ end
 pro MGHgrMovieFile::GetProperty, $
      COUNT=count, DIMENSIONS=dimensions, FILE=file, FORMAT=format
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   count = self.count
-
-   dimensions = self.dimensions
-
-   file = self.file
-
-   format = self.format
+  count = self.count
+  
+  dimensions = self.dimensions
+  
+  file = self.file
+  
+  format = self.format
 
 end
 
 ; MGHgrMovieFile::SetProperty
 ;
 pro MGHgrMovieFile::SetProperty, $
-     FILE=file, FORMAT=format
+     FILE=file
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   if n_elements(file) gt 0 then begin
-      self.file = file
-      if strlen(self.base) eq 0 then begin
-         self.base = file_basename(self.file)
-         p = strpos(self.base, '.')
-         if p gt 0 then self.base = strmid(self.base, 0, p)
-      endif
-   endif
-
-   if n_elements(format) gt 0 then self.format = strupcase(format)
+  if n_elements(file) gt 0 then begin
+    self.file = file
+    if strlen(self.base) eq 0 then begin
+      self.base = file_basename(self.file)
+      p = strpos(self.base, '.')
+      if p gt 0 then self.base = strmid(self.base, 0, p)
+    endif
+  endif
 
 end
 
@@ -209,12 +217,12 @@ end
 ;
 function MGHgrMovieFile::Count
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   return, self.count
+  return, self.count
 
 end
 
@@ -223,20 +231,19 @@ end
 ;
 function MGHgrMovieFile::FrameFileName, position
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   if n_elements(position) eq 0 then position = 0
+  if n_elements(position) eq 0 then position = 0
+  
+  result = mgh_reproduce('', position)
+  fmt = '(%"%s.%6.6d.%s")'
+  for i=0,n_elements(position)-1 do $
+    result[i] = filepath(string(FORMAT=fmt, self.base, position[i], self.extension), ROOT=self.tempdir)
 
-   result = mgh_reproduce('', position)
-
-   for i=0,n_elements(position)-1 do $
-        result = filepath(string(self.base, position[i], FORMAT='(%"%s.%6.6d.ppm")'), $
-                          ROOT=self.tempdir)
-                          
-   return, result
+  return, result
 
 end
 
@@ -245,28 +252,31 @@ end
 ;
 pro MGHgrMovieFile::Put, image
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   position = self.count
-
-   n_dims = size(image, /N_DIMENSIONS)
-
-   if (n_dims lt 2) || (n_dims gt 3) then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'image'
-
-   if product(self.dimensions) eq 0 then $
-        self.dimensions=(size(image, /DIMENSIONS))[n_dims-2:n_dims-1]
-
-   ;; Generate PPM file
-
-   file = self->FrameFileName(position)
-
-   write_ppm, file, image
-
-   self.count += 1
+  position = self.count
+  
+  n_dims = size(image, /N_DIMENSIONS)
+  
+  if (n_dims lt 2) || (n_dims gt 3) then $
+    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'image'
+    
+  if product(self.dimensions) eq 0 then $
+    self.dimensions=(size(image, /DIMENSIONS))[n_dims-2:n_dims-1]
+    
+  ;; Generate image file
+  
+  file = self->FrameFileName(position)
+  
+  case self.extension of
+    'ppm': write_ppm, file, image 
+    'tif': write_tiff, file, image, ORIENTATION=1
+  endcase
+  
+  self.count += 1
 
 end
 
@@ -275,97 +285,97 @@ end
 ;
 pro MGHgrMovieFile::Save
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   if file_test(self.file) then file_delete, self.file
-
-   ;; Most of the programs can or must read input file names
-   ;; from a list file
-
-   file_list = filepath('list.dat', ROOT=self.tempdir)
-
-   ;; Spawn a program to build the file. The default
-   ;; frame rate can be set via CONVERT's -delay switch
-   ;; (delay in units of 10 ms) and PPM2FLI's -s switch
-   ;; (delay in ms). It would be nice to be able to alter
-   ;; this but I haven't got around to it. Handling of options
-   ;; generally needs to be cleaned up.
-
-   case 1B of
-
-      self.format eq 'FLC': begin
-         openw, lun, file_list, /GET_LUN
-         ;; Write file in Unix format to allow the use of Cygwin ppm2fli
-         for i=0,self.count-1 do $
-               writeu, lun, self->FrameFileName(i)+string(10B)
-         free_lun, lun
-         sdim = string(FORMAT='(%"%dx%d")', 2*(self.dimensions/2))
-         fmt = '(%"ppm2fli -vv -Qn 1024 -s 67 -g %s \"%s\" \"%s\"")'
-         if !version.os_family eq 'Windows' then begin
-            spawn, LOG_OUTPUT=1, $
-                   string(FORMAT=fmt, sdim, file_list, self.file)
-         endif else begin
-            spawn, string(FORMAT=fmt, sdim, file_list, self.file)
-         endelse
-         file_delete, file_list
-      end
-
-      self.format eq 'ZIP': begin
-         openw, lun, file_list, /GET_LUN
-         for i=0,self.count-1 do $
-               printf, lun, self->FrameFileName(i)
-         free_lun, lun
-         fmt = '(%"zip -v -j -D \"%s\" -@ < \"%s\"")'
-         if !version.os_family eq 'Windows' then begin
-            spawn, LOG_OUTPUT=1, $
-                   string(FORMAT=fmt, self.file, file_list)
-         endif else begin
-            spawn, string(FORMAT=fmt, self.file, file_list)
-         endelse
-
-         file_delete, file_list
-      end
-
-      self.format eq 'TIFF': begin
-         openw, lun, file_list, /GET_LUN
-         for i=0,self.count-1 do $
-               printf, lun, self->FrameFileName(i)
-         free_lun, lun
-         fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" -compress ' + $
-               'Zip %s:\"%s\"")'
-         if !version.os_family eq 'Windows' then begin
-            ;; This command will fail if the size of the list file exceeds
-            ;; 8192 characters. One could work around this limit by
-            ;; including only the bare image file names in the list file
-            ;; and cd'ing to the temporary directory before running the
-            ;; command.
-            spawn, LOG_OUTPUT=1, $
-                   string(FORMAT=fmt, file_list, self.format, self.file)
-         endif else begin
-            spawn, string(FORMAT=fmt, file_list, self.format, self.file)
-         endelse
-         file_delete, file_list
-      end
-
-      else: begin
-         openw, lun, file_list, /GET_LUN
-         for i=0,self.count-1 do $
-               printf, lun, self->FrameFileName(i)
-         free_lun, lun
-         fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
-         if !version.os_family eq 'Windows' then begin
-            spawn, LOG_OUTPUT=1, $
-                   string(FORMAT=fmt, file_list, self.format, self.file)
-         endif else begin
-            spawn, string(FORMAT=fmt, file_list, self.format, self.file)
-         endelse
-         file_delete, file_list
-      end
-
-   endcase
+  if file_test(self.file) then file_delete, self.file
+  
+  ;; Most of the programs can or must read input file names
+  ;; from a list file
+  
+  file_list = filepath('list.dat', ROOT=self.tempdir)
+  
+  ;; Spawn a program to build the file. The default
+  ;; frame rate can be set via CONVERT's -delay switch
+  ;; (delay in units of 10 ms) and PPM2FLI's -s switch
+  ;; (delay in ms). It would be nice to be able to alter
+  ;; this but I haven't got around to it. Handling of options
+  ;; generally needs to be cleaned up.
+  
+  case 1B of
+  
+    self.format eq 'FLC': begin
+      openw, lun, file_list, /GET_LUN
+      ;; Write file in Unix format to allow the use of Cygwin ppm2fli
+      for i=0,self.count-1 do $
+        writeu, lun, self->FrameFileName(i)+string(10B)
+      free_lun, lun
+      sdim = string(FORMAT='(%"%dx%d")', 2*(self.dimensions/2))
+      fmt = '(%"ppm2fli -vv -Qn 1024 -s 67 -g %s \"%s\" \"%s\"")'
+      if !version.os_family eq 'Windows' then begin
+        spawn, LOG_OUTPUT=1, $
+          string(FORMAT=fmt, sdim, file_list, self.file)
+      endif else begin
+        spawn, string(FORMAT=fmt, sdim, file_list, self.file)
+      endelse
+      file_delete, file_list
+    end
+    
+    self.format eq 'ZIP': begin
+      openw, lun, file_list, /GET_LUN
+      for i=0,self.count-1 do $
+        printf, lun, self->FrameFileName(i)
+      free_lun, lun
+      fmt = '(%"zip -v -j -D \"%s\" -@ < \"%s\"")'
+      if !version.os_family eq 'Windows' then begin
+        spawn, LOG_OUTPUT=1, $
+          string(FORMAT=fmt, self.file, file_list)
+      endif else begin
+        spawn, string(FORMAT=fmt, self.file, file_list)
+      endelse
+      
+      file_delete, file_list
+    end
+    
+    self.format eq 'TIFF': begin
+      openw, lun, file_list, /GET_LUN
+      for i=0,self.count-1 do $
+        printf, lun, self->FrameFileName(i)
+      free_lun, lun
+      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" -compress Zip %s:\"%s\"")'
+      if !version.os_family eq 'Windows' then begin
+        ;; This command will fail if the size of the list file exceeds
+        ;; 8192 characters. One could work around this limit by
+        ;; including only the bare image file names in the list file
+        ;; and cd'ing to the temporary directory before running the
+        ;; command. (MGH 2015-05-05: Not sure if this restrictions still
+        ;; applies.)
+        spawn, LOG_OUTPUT=1, $
+          string(FORMAT=fmt, file_list, self.format, self.file)
+      endif else begin
+        spawn, string(FORMAT=fmt, file_list, self.format, self.file)
+      endelse
+      file_delete, file_list
+    end
+    
+    else: begin
+      openw, lun, file_list, /GET_LUN
+      for i=0,self.count-1 do $
+        printf, lun, self->FrameFileName(i)
+      free_lun, lun
+      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
+      if !version.os_family eq 'Windows' then begin
+        spawn, LOG_OUTPUT=1, $
+          string(FORMAT=fmt, file_list, self.format, self.file)
+      endif else begin
+        spawn, string(FORMAT=fmt, file_list, self.format, self.file)
+      endelse
+      file_delete, file_list
+    end
+    
+  endcase
 
 end
 
@@ -374,14 +384,14 @@ end
 ;
 pro MGHgrMovieFile__Define
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   struct_hide, {MGHgrMovieFile, inherits IDL_Object, $
-                 dimensions: lonarr(2), format: '', $
-                 file: '', tempdir: '', base: '', count: 0}
+  struct_hide, {MGHgrMovieFile, inherits IDL_Object, $
+    dimensions: lonarr(2), format: '', extension: '', $
+    file: '', tempdir: '', base: '', count: 0}
 
 end
 
