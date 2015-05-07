@@ -22,9 +22,9 @@
 ;   IDL. This can be done in a variety of ways depending on the
 ;   operating system and shell.
 ;   
-;   On Windows, best results are achieved by invoking Cygwin versions
-;   of the commands. This is best done via a batch shell that
-;   initialises the PATH variable appropriately.
+;   On Windows, the commands can be invoked through wrapper .bat files,
+;   placed in a directory on the PATH. Either Cygwin or Windows-native
+;   (eg. GnuWin32) executables can be used.
 ;
 ;   In the current version, frames can only be added at the end of the
 ;   sequence.
@@ -126,9 +126,12 @@
 ;       the the output format is FLC, in which case the original PPM format
 ;       is retained.
 ;     - The FORMAT property can no longer be changed after object is initialised.
-;     - Dropped references to MNG support. (MNG may or may not still be
+;     - References to MNG support have been dropped. (MNG may or may not still be
 ;       supported via ImageMagick.)
 ;     - Reformatted source code. 
+;     - File lists used by the Save method are now all written in Unix text file
+;       format, with backslashes path seprators replaced by forward slashes. The
+;       latter change was needed to get things working with the Cygwin ZIP command.
 ;-
 function MGHgrMovieFile::Init, $
      FILE=file, FORMAT=format
@@ -292,12 +295,22 @@ pro MGHgrMovieFile::Save
 
   if file_test(self.file) then file_delete, self.file
   
-  ;; Most of the programs can or must read input file names
-  ;; from a list file
+  ;; Construct a file-list file. On Windows, convert the backslash directory
+  ;; separators to foward slashes to avoid problems with Cygwin
+  ;; commands (specifically Cygwin zip, which otherwise botches writing
+  ;; the ZIP file index).
   
   file_list = filepath('list.dat', ROOT=self.tempdir)
   
-  ;; Spawn a program to build the file. The default
+  openw, lun, file_list, /GET_LUN
+  for i=0,self.count-1 do begin
+    f = self->FrameFileName(i)
+    if !version.os_family eq 'Windows' then f = mgh_str_subst(f, '\', '/')
+    writeu, lun, f+string(10B)
+  endfor
+  free_lun, lun
+
+  ;; Spawn a program to build the output file. The default
   ;; frame rate can be set via CONVERT's -delay switch
   ;; (delay in units of 10 ms) and PPM2FLI's -s switch
   ;; (delay in ms). It would be nice to be able to alter
@@ -307,11 +320,6 @@ pro MGHgrMovieFile::Save
   case 1B of
   
     self.format eq 'FLC': begin
-      openw, lun, file_list, /GET_LUN
-      ;; Write file in Unix format to allow the use of Cygwin ppm2fli
-      for i=0,self.count-1 do $
-        writeu, lun, self->FrameFileName(i)+string(10B)
-      free_lun, lun
       sdim = string(FORMAT='(%"%dx%d")', 2*(self.dimensions/2))
       fmt = '(%"ppm2fli -vv -Qn 1024 -s 67 -g %s \"%s\" \"%s\"")'
       if !version.os_family eq 'Windows' then begin
@@ -320,14 +328,9 @@ pro MGHgrMovieFile::Save
       endif else begin
         spawn, string(FORMAT=fmt, sdim, file_list, self.file)
       endelse
-      file_delete, file_list
     end
     
     self.format eq 'ZIP': begin
-      openw, lun, file_list, /GET_LUN
-      for i=0,self.count-1 do $
-        printf, lun, self->FrameFileName(i)
-      free_lun, lun
       fmt = '(%"zip -v -j -D \"%s\" -@ < \"%s\"")'
       if !version.os_family eq 'Windows' then begin
         spawn, LOG_OUTPUT=1, $
@@ -335,16 +338,10 @@ pro MGHgrMovieFile::Save
       endif else begin
         spawn, string(FORMAT=fmt, self.file, file_list)
       endelse
-      
-      file_delete, file_list
     end
     
-    self.format eq 'TIFF': begin
-      openw, lun, file_list, /GET_LUN
-      for i=0,self.count-1 do $
-        printf, lun, self->FrameFileName(i)
-      free_lun, lun
-      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" -compress Zip %s:\"%s\"")'
+    else: begin
+      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
       if !version.os_family eq 'Windows' then begin
         ;; This command will fail if the size of the list file exceeds
         ;; 8192 characters. One could work around this limit by
@@ -357,25 +354,11 @@ pro MGHgrMovieFile::Save
       endif else begin
         spawn, string(FORMAT=fmt, file_list, self.format, self.file)
       endelse
-      file_delete, file_list
-    end
-    
-    else: begin
-      openw, lun, file_list, /GET_LUN
-      for i=0,self.count-1 do $
-        printf, lun, self->FrameFileName(i)
-      free_lun, lun
-      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
-      if !version.os_family eq 'Windows' then begin
-        spawn, LOG_OUTPUT=1, $
-          string(FORMAT=fmt, file_list, self.format, self.file)
-      endif else begin
-        spawn, string(FORMAT=fmt, file_list, self.format, self.file)
-      endelse
-      file_delete, file_list
     end
     
   endcase
+
+  file_delete, file_list
 
 end
 
