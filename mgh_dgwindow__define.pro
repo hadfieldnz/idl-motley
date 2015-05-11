@@ -102,6 +102,9 @@
 ;     - Added a "WriteToImageFile" method..
 ;   Mark Hadfield, 2015-02:
 ;     - Default DIMENSIONS now 600x600.
+;   Mark Hadfield, 2015-05:
+;     Removed the facility to launch a clipboard viewer: the viewer is no
+;     longer available in Windows.
 ;-
 ; MGH_DGwindow::Init
 ;
@@ -445,9 +448,6 @@ pro MGH_DGwindow::BuildMenuBar
 
    ;; ...Tools menu
 
-   if iswin then $
-        obar->NewItem, PARENT='Tools', ['Clipboard Viewer']
-
    obar->NewItem, PARENT='Tools', ['Export Data...']
 
    ;; ...Window menu
@@ -740,11 +740,6 @@ function MGH_DGwindow::EventMenuBar, event
       'EDIT.COPY': begin
          widget_control, HOURGLASS=1
          self->WritePictureToClipboard
-         return, 0
-      end
-
-      'TOOLS.CLIPBOARD VIEWER': begin
-         spawn, /NOSHELL, /NOWAIT, 'clipbrd.exe'
          return, 0
       end
 
