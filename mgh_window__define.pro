@@ -217,6 +217,9 @@
 ;       called HIGH_RESOLUTION (clever eh?). The default value is unchanged
 ;       at 2.54/240. The image now produced from the window displayed by
 ;       MGH_EXAMPLE_PLOT on Windows is now 2102x2102.
+;   Mark Hadfield, 2015-05:
+;     Removed the facility to launch a clipboard viewer: the viewer is no
+;     longer available in Windows.
 ;-
 
 ; MGH_Window::Init
@@ -731,9 +734,6 @@ pro MGH_Window::BuildMenuBar
 
    ;; ...Tools menu
 
-   if iswin then $
-        obar->NewItem, PARENT='Tools', ['Clipboard Viewer']
-
    obar->NewItem, PARENT='Tools', ['Export Data...']
 
    ;; ...Window menu
@@ -1175,11 +1175,6 @@ function MGH_Window::EventMenuBar, event
       'EDIT.COPY.VECTOR': begin
          widget_control, HOURGLASS=1
          self->WritePictureToClipboard, /VECTOR
-         return, 0
-      end
-
-      'TOOLS.CLIPBOARD VIEWER': begin
-         spawn, /NOSHELL, /NOWAIT, 'clipbrd.exe'
          return, 0
       end
 
