@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; CLASS:
 ;   MGH_DGplayer
