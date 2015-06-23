@@ -684,35 +684,25 @@ pro MGH_GUI_Base::GetProperty, $
    valid = widget_info(self.base, /VALID_ID)
 
    visible = self.visible
-
-   case valid of
-
-      0: begin
-
-         geometry = 0B
-         managed = 0B
-         realized = 0B
-         sensitive = 0B
-         tlb_size_events = 0B
-         uname = 0B
-         update = 0B
-
-      end
-
-      1: begin
-
-         geometry = widget_info(self.base, /GEOMETRY)
-         managed = widget_info(self.base, /MANAGED)
-         realized = widget_info(self.base, /REALIZED)
-         sensitive = widget_info(self.base, /SENSITIVE)
-         tlb_size_events = widget_info(self.base, /TLB_SIZE_EVENTS)
-         uname = widget_info(self.base, /UNAME)
-         update = widget_info(self.base, /UPDATE)
-         widget_control, self.base, GET_UVALUE=uvalue
-
-      end
-
-   endcase
+   
+   if valid then begin
+     geometry = widget_info(self.base, /GEOMETRY)
+     managed = widget_info(self.base, /MANAGED)
+     realized = widget_info(self.base, /REALIZED)
+     sensitive = widget_info(self.base, /SENSITIVE)
+     tlb_size_events = widget_info(self.base, /TLB_SIZE_EVENTS)
+     uname = widget_info(self.base, /UNAME)
+     update = widget_info(self.base, /UPDATE)
+     widget_control, self.base, GET_UVALUE=uvalue
+   endif else begin
+     geometry = 0B
+     managed = 0B
+     realized = 0B
+     sensitive = 0B
+     tlb_size_events = 0B
+     uname = 0B
+     update = 0B
+   endelse
 
    if arg_present(all) then begin
       all = { base:base, block:block, destroy:destroy, geometry:geometry, $
