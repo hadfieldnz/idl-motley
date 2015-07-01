@@ -29,7 +29,7 @@
 ;     8601 date (e.g. 2000-08-03) otherwise it generates an ISO 8601
 ;     date-time (e.g. 2000-08-03T11:03:13)
 ;
-;   DATE_ONLY (input, string)
+;   FORMAT (input, string)
 ;     Pass a valid calendar format to this keyword to override the default
 ;     format.
 ;
@@ -60,23 +60,23 @@
 function mgh_dt_string, dtval, $
      DATE_ONLY=date_only, FORMAT=format, ZONE=zone
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   if n_elements(format) eq 0 then begin
-      format = '(C(CYI4.4,"-",CMOI2.2,"-",CDI2.2'
-      if ~ keyword_set(date_only) then $
-           format += ',"T",CHI2.2,":",CMI2.2,":",CSI2.2'
-      format += '))'
-   endif
-
-   if n_elements(zone) gt 0 then begin
-      return, string(dtval+zone/24.D0, FORMAT=format) + $
-              mgh_str_subst(string(zone, FORMAT='("Z",I3.2)'),' ','+')
-   endif else begin
-      return, string(dtval, FORMAT=format)
-   endelse
+  if n_elements(format) eq 0 then begin
+    fmt = 'CYI4.4,"-",CMOI2.2,"-",CDI2.2'
+    if ~ keyword_set(date_only) then $
+      fmt += ',"T",CHI2.2,":",CMI2.2,":",CSI2.2'
+    format = '(C('+fmt+'))'
+  endif
+  
+  if n_elements(zone) gt 0 then begin
+    return, string(dtval+zone/24.D0, FORMAT=format) + $
+      mgh_str_subst(string(zone, FORMAT='("Z",I3.2)'),' ','+')
+  endif else begin
+    return, string(dtval, FORMAT=format)
+  endelse
 
 end
