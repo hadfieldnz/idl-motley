@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; NAME:
 ;   MGH_LOCATE2A
@@ -15,8 +14,22 @@
 ;     X & Y positions of the vertices of the curvilinear input grid.
 ;
 ; KEYWORD PARAMETERS:
-;   This function accepts the same keywords as GRIDDATA to define the
-;   output grid, ie: DELTA, DIMENSION, GRID, START, XOUT, YOUT.
+;   To define the output locations, this function accepts the
+;   following keywords and passes them to GRIDDATA: DELTA, DIMENSION,
+;   GRID, START, XOUT, YOUT. In addition the following keywords are
+;   supported:
+;   
+;   DOUBLE (input, switch)
+;     For double-precision output.
+;
+;   MISSING (input, numeric scalar)
+;     The value to assign to the result for points outside the input grid.
+;     The default is NaN. This keyword is ignored if the OUTSIDE_NEAREST
+;     keyword is set. 
+;
+;   OUTSIDE_NEAREST (input, switch)
+;     Set this keyword to return the nearest grid location for points
+;     outside the input grid.
 ;
 ; RETURN_VALUE:
 ;   The function returns a floating array representing the output
@@ -39,26 +52,19 @@
 ;   but is faster on larger output grids.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2002-2015 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2000-12:
 ;     Written.
+;   Mark Hadfield, 2015-07:
+;     - Updated and documentation of keywords completed.
+;     - Added OUTSIdE_NEAREST functionality.
 ;-
-
 function mgh_locate2a_evaluate, p
 
    compile_opt DEFINT32
@@ -89,169 +95,145 @@ function mgh_locate2a_evaluate, p
 
 end
 
-
 function mgh_locate2a, xin, yin, $
      DELTA=delta, DIMENSION=dimension, GRID=grid, START=start, XOUT=xout, YOUT=yout, $
-     DOUBLE=double, ITERATIONS=iterations, MISSING=missing
+     DOUBLE=double, ITERATIONS=iterations, MISSING=missing, OUTSIDE_NEAREST=outside_nearest
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+  compile_opt DEFINT32
+  compile_opt STRICTARR
+  compile_opt STRICTARRSUBS
+  compile_opt LOGICAL_PREDICATE
 
-   compile_opt LOGICAL_PREDICATE
+  common mgh_locate2a_common, $
+    cxin, cyin, cxval, cyval, cxmiss, cymiss , cxrange, cyrange
 
-   common mgh_locate2a_common, $
-        cxin, cyin, cxval, cyval, cxmiss, cymiss , cxrange, cyrange
+  if n_elements(missing) eq 0 then $
+    missing = keyword_set(double) ? !values.d_nan : !values.f_nan
 
-   if n_elements(missing) eq 0 then $
-        missing = keyword_set(double) ? !values.d_nan : !values.f_nan
+  ;; Process input grid
 
-   ;; Process input grid
+  if size(xin, /N_DIMENSIONS) ne 2 then message, 'XIN must be 2D'
+  if size(yin, /N_DIMENSIONS) ne 2 then message, 'YIN must be 2D'
 
-   if size(xin, /N_DIMENSIONS) ne 2 then message, 'XIN must be 2D'
-   if size(yin, /N_DIMENSIONS) ne 2 then message, 'YIN must be 2D'
+  dims = size(xin, /DIMENSIONS)
 
-   dims = size(xin, /DIMENSIONS)
+  if max(abs(size(yin, /DIMENSIONS) - dims)) gt 0 then $
+    message, 'XIN and YIN do not match'
 
-   if max(abs(size(yin, /DIMENSIONS) - dims)) gt 0 then $
-        message, 'XIN and YIN do not match'
+  ;; Abbreviations for input grid dimensions
 
-   ;; Abbreviations for input grid dimensions
+  n0 = dims[0]  &  n1 = dims[1]
 
-   n0 = dims[0]  &  n1 = dims[1]
+  ;; Process output-grid keywords and set up result array
+  
+  if n_elements(xout)*n_elements(yout) gt 0 then begin
+    
+    if keyword_set(grid) then begin
+      xx = xout # mgh_reproduce(1,yout)
+      yy = mgh_reproduce(1,xout) # yout
+      nout = n_elements(xout)*n_elements(yout)
+      dout = [n_elements(xout),n_elements(yout)]
+    endif else begin
+      xx = xout
+      yy = yout
+      nout = n_elements(xx)
+      dout = [nout]
+    endelse
 
-   ;; Process output-grid keywords and set up result array
+  endif else begin
+    
+    if n_elements(dimension) eq 0 then dimension = 51
+    if n_elements(start) eq 0 then start = [min(xin),min(yin)]
+    if n_elements(delta) eq 0 then $
+         delta = [max(xin)-min(xin),max(yin)-min(yin)]/(dimension-1)
 
-   case n_elements(xout)*n_elements(yout) gt 0 of
+    if n_elements(dimension) eq 1 then dimension = [dimension,dimension]
+    if n_elements(start) eq 1 then start = [start,start]
+    if n_elements(delta) eq 1 then delta = [delta,delta]
 
-      0: begin
+    xx = start[0]+delta[0]*lindgen(dimension[0]) # replicate(1,dimension[1])
+    yy = replicate(1,dimension[0]) # start[1]+delta[1]*lindgen(dimension[1])
 
-         if n_elements(dimension) eq 0 then dimension = 51
-         if n_elements(start) eq 0 then start = [min(xin),min(yin)]
-         if n_elements(delta) eq 0 then $
-              delta = [max(xin)-min(xin),max(yin)-min(yin)]/(dimension-1)
+    nout = dimension[0]*dimension[1]
+    dout = dimension
 
-         if n_elements(dimension) eq 1 then dimension = [dimension,dimension]
-         if n_elements(start) eq 1 then start = [start,start]
-         if n_elements(delta) eq 1 then delta = [delta,delta]
+  endelse
 
-         xx = start[0]+delta[0]*lindgen(dimension[0]) # replicate(1,dimension[1])
-         yy = replicate(1,dimension[0]) # start[1]+delta[1]*lindgen(dimension[1])
+  ;; Set up result array. Make sure it is (at least) single-precision
+  ;; floating point
 
-         nout = dimension[0]*dimension[1]
-         dout = dimension
+  result = replicate(1.*missing, 2, nout)
 
+  ;; Load grid data into common block arrays
 
-      end
+  cxin = xin
+  cyin = yin
 
-      1: begin
+  ;; Specify missing values for the interpolation function
+  ;; These are set well outside the range of real X & Y values to
+  ;; discourage the minimiser from seeking a minimum outside the domain.
 
-         case keyword_set(grid) of
+  cxmiss = 1000*max(xin) - 999*min(xin)
+  cymiss = 1000*max(yin) - 999*min(yin)
 
-            0: begin
+  ;; Calculate numbers specifying the sizes of the grid
+  ;; in the x & y dimensions. These is included in the distance
+  ;; function to ensure x & y distances are more or less evenly weighted.
 
-               xx = xout
-               yy = yout
+  cxrange = abs(max(xin)-min(xin))
+  cyrange = abs(max(yin)-min(yin))
 
-               nout = n_elements(xx)
-               dout = [nout]
+  ;; Set up X & Y arrays describing the grid perimeter
 
-            end
+  xper = [ xin[0:n0-2,0], $
+           reform(xin[n0-1,0:n1-2]), $
+           reverse(xin[1:n0-1,n1-1]), $
+           reverse(reform(xin[0,*])) ]
+  yper = [ yin[0:n0-2,0], $
+           reform(yin[n0-1,0:n1-2]), $
+           reverse(yin[1:n0-1,n1-1]), $
+           reverse(reform(yin[0,*])) ]
 
-            1: begin
+  if arg_present(iterations) then iterations = lonarr(num)
 
-               xx = xout # mgh_reproduce(1,yout)
-               yy = mgh_reproduce(1,xout) # yout
+  ;; Process one output point at a time
 
-               nout = n_elements(xout)*n_elements(yout)
-               dout = [n_elements(xout),n_elements(yout)]
+  for i=0,nout-1 do begin
+  
+    if ~ keyword_set(outside_nearest) && ~ mgh_poly_inside(xx[i], yy[i], xper, yper, /EDGE) then continue
 
-            end
+    ;; Load current position into common block
 
-         endcase
+    cxval = xx[i]
+    cyval = yy[i]
 
-      end
+    ;; The starting point for the minimisation is saved
+    ;; between loop iterations, on the assumption that consecutive
+    ;; points are likely to be close to each other. The initial value is near
+    ;; the middle of the domain
 
-   endcase
+    if n_elements(p) eq 0 then p = float(dims)/2
 
-   ;; Set up result array. Make sure it is (at least) single-precision
-   ;; floating point
+    ;; Starting direction:
 
-   result = replicate(1.*missing, 2, nout)
+    xi = [[1,0],[0,1]]
 
-   ;; Load grid data into common block arrays
+    ;; Minimize using Powell's procedure (function POWELL). I also
+    ;; tried a couple of other methods:
+    ;;   * Minimising using the AMOEBA function (much slower and
+    ;;   less reliable) .
+    ;;   * Brute force: evaluating the distance to each (x,y) at
+    ;;   every point on the grid then taking the minimum in the
+    ;;   resulting array (also slower).
 
-   cxin = xin
-   cyin = yin
+    powell, p, xi, 1.0E-5, fmin, 'mgh_locate2a_evaluate', DOUBLE=double, ITER=it
 
-   ;; Specify missing values for the interpolation function
-   ;; These are set well outside the range of real X & Y values to
-   ;; discourage the minimiser from seeking a minimum outside the domain.
+    result[0,i] = p
 
-   cxmiss = 1000*max(xin) - 999*min(xin)
-   cymiss = 1000*max(yin) - 999*min(yin)
+    if arg_present(iterations) then iterations[i] = it
 
-   ;; Calculate numbers specifying the sizes of the grid
-   ;; in the x & y dimensions. These is included in the distance
-   ;; function to ensure x & y distances are more or less evenly weighted.
+  endfor
 
-   cxrange = abs(max(xin)-min(xin))
-   cyrange = abs(max(yin)-min(yin))
-
-   ;; Set up X & Y arrays describing the grid perimeter
-
-   xper = [ xin[0:n0-2,0], $
-            reform(xin[n0-1,0:n1-2]), $
-            reverse(xin[1:n0-1,n1-1]), $
-            reverse(reform(xin[0,*])) ]
-   yper = [ yin[0:n0-2,0], $
-            reform(yin[n0-1,0:n1-2]), $
-            reverse(yin[1:n0-1,n1-1]), $
-            reverse(reform(yin[0,*])) ]
-
-   if arg_present(iterations) then iterations = lonarr(num)
-
-   ;; Process one output point at a time
-
-   for i=0,nout-1 do begin
-
-      ;; For points outside the domain, return NaN.
-
-      if ~ mgh_poly_inside(xx[i], yy[i], xper, yper, /EDGE) then continue
-
-      ;; Load current position into common block
-
-      cxval = xx[i]
-      cyval = yy[i]
-
-      ;; The starting point for the minimisation is saved
-      ;; between loop iterations, on the assumption that consecutive
-      ;; points are likely to be close to each other. The initial value is near
-      ;; the middle of the domain
-
-      if n_elements(p) eq 0 then p = float(dims)/2
-
-      ;; Starting direction:
-
-      xi = [[1,0],[0,1]]
-
-      ;; Minimize using Powell's procedure (function POWELL). I also
-      ;; tried a couple of other methods:
-      ;;   * Minimising using the AMOEBA function (much slower and
-      ;;   less reliable) .
-      ;;   * Brute force: evaluating the distance to each (x,y) at
-      ;;   every point on the grid then taking the minimum in the
-      ;;   resulting array (also slower).
-
-      powell, p, xi, 1.0E-5, fmin, 'mgh_locate2a_evaluate', DOUBLE=double, ITER=it
-
-      result[0,i] = p
-
-      if arg_present(iterations) then iterations[i] = it
-
-   endfor
-
-   return, reform(result, [2,dout])
+  return, reform(result, [2,dout])
 
 end
