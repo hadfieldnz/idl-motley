@@ -38,18 +38,18 @@ function mgh_struct_equal, struct0, struct1
 
   if n_elements(struct0) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'struct0'
-    
+
   if size(struct0, /TYPE) ne 8 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'struct0'
-     
+
    if n_elements(struct1) eq 0 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'struct1'
-     
+
    if size(struct1, /TYPE) ne 8 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'struct1'
-     
+
    ;; For now, just form a hash from each structure and test equality
-   
-   return, mgh_struct_hash(struct0) eq mgh_struct_hash(struct1) 
-     
+
+   return, mgh_struct_hash(struct0) eq mgh_struct_hash(struct1)
+
 end

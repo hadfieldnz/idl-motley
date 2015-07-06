@@ -49,7 +49,7 @@ pro mgh_example_density, m, n, $
    ;; Create the graph & set options.
 
    ograph = obj_new('MGHgrGraph2D')
-   
+
    if vertical then begin
       ograph->GetProperty, XMARGIN=xmargin
       xmargin[1] = 0.40
@@ -77,7 +77,7 @@ pro mgh_example_density, m, n, $
    endif
 
    ;; Set up arrays defining the location of the data values
-   
+
    if keyword_set(xy2d) then begin
      xx = mgh_range(0,2,N_ELEMENTS=m) # replicate(1,n)
      yy = replicate(1,m) # mgh_range(0,2,N_ELEMENTS=n)

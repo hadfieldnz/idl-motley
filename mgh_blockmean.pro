@@ -60,7 +60,7 @@
 ;
 ; RETURN VALUE:
 ;    The function returns a [3,n] array containing the filtered
-;    (x,y,z) data. Note that the order of the original data will 
+;    (x,y,z) data. Note that the order of the original data will
 ;    be lost.
 ;
 ; MODIFICATION HISTORY:
@@ -83,11 +83,11 @@ function mgh_blockmean, x, y, z, w, $
 
    if n_elements(z) ne n_data then $
         message, 'Input vectors do not agree'
-   
+
    use_weight = n_elements(w) gt 0
-   
+
    if use_weight && n_elements(w) ne n_data then $
-        message, 'Input vectors do not agree' 
+        message, 'Input vectors do not agree'
 
    ;; Generate the output grid and locate each data point within it
 
@@ -112,7 +112,7 @@ function mgh_blockmean, x, y, z, w, $
 
       xx = (x-my_start[0])/double(my_delta[0])
       yy = (y-my_start[1])/double(my_delta[1])
-      
+
       mgh_undefine, my_start, my_delta
 
    endif else begin

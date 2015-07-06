@@ -75,5 +75,5 @@ pro mgh_reform_xyz, x, y, z, grid_x, grid_y, grid_z
    jj = round(mgh_locate(grid_y, XOUT=y))
 
    grid_z[ii,jj] = z
-   
+
 end

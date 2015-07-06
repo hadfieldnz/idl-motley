@@ -4,7 +4,7 @@
 ;
 ; PURPOSE:
 ;   For a specified structure, calculate and return an integer hash value:
-;   
+;
 ;     http://en.wikipedia.org/wiki/Hash_function
 ;
 ; CALLING SEQUENCE:
@@ -41,22 +41,22 @@ function mgh_struct_hash, struct
 
   if n_elements(struct) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'struct'
-    
+
   if size(struct, /TYPE) ne 8 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'struct'
-     
+
   result = 0LL
-  
+
   checksum32, byte(tag_names(struct)), csum
-  
+
   result += csum
-  
+
   for i=0,n_tags(struct)-1 do begin
     s = struct.(i)
     case size(s, /TYPE) of
-      7: checksum32, byte(s), csum 
+      7: checksum32, byte(s), csum
       8: csum = mgh_struct_hash(s)
-      else: checksum32, s, csum 
+      else: checksum32, s, csum
     endcase
     result += csum
   endfor

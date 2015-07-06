@@ -76,11 +76,11 @@ function MGH_TF_NEGATIVE, direction, index, value, DATA=data
       1: result = string(-value, FORMAT=format)
       0: result = mgh_format_float(-value)
    endcase
-   
+
    result = strtrim(result[0], 2)
 
    if abs(value) eq 0 && strmatch(result, '-*') then result = strmid(result, 1)
-   
+
    return, result
 
 end

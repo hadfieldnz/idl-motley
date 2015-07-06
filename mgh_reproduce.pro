@@ -52,10 +52,10 @@ function mgh_reproduce, value, template
 
   if n_elements(value) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'value'
-    
+
   if n_elements(template) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'template'
-    
+
   if size(template, /N_DIMENSIONS) gt 0 then begin
     return, make_array(VALUE=value[0], DIMENSION=size(template, /DIMENSIONS))
   endif else begin

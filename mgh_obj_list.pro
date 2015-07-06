@@ -25,14 +25,14 @@ function mgh_obj_list, class, COUNT=count
    ;; list.
 
    obj = obj_valid()
-   
+
    ;; Create a list object and add all objects of the specified
    ;; class[es] to it.
 
    olist = mgh_vector()
 
    foreach c, class do olist.Add, obj[where(obj_isa(obj, c), /NULL)]
-   
+
    ;; Return reslts
 
    count = olist.Count()

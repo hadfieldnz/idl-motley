@@ -91,15 +91,15 @@ function mgh_polyclip2, poly, clip, COUNT=count, DOUBLE=double
 
   ;; The total number of vertices in the result will be the sum of the
   ;; "in" and "inx" vectors
-  
+
   count = total(inx, /INTEGER) + total(in, /INTEGER)
   if count eq 0 then return, -1
-  
+
   ;; We can now allocate the result array
 
   item = poly[0] * (keyword_set(double) ? 0.0D : 0.0)
   result = replicate(item, 2, count)
-  
+
   ;; Precalculate an array of shifted vertices, used in calculating
   ;; intersection points in the loop.
 
@@ -110,13 +110,13 @@ function mgh_polyclip2, poly, clip, COUNT=count, DOUBLE=double
   np = n_elements(in)
 
   n = 0
-  
+
   for k=0,np-1 do begin
-  
+
     ;; If this segment crosses the clipping line, add the intersection
     ;; to the output list. I tried calculating the intersection points
     ;; outside the loop in an array operation but it turned out slower.
-    
+
     if inx[k] then begin
       ap = ps[k]/(ps[k]-pp[k])
       ci = ap*poly[*,k] + (1-ap)*pols[*,k]
@@ -131,11 +131,11 @@ function mgh_polyclip2, poly, clip, COUNT=count, DOUBLE=double
       result[*,n] = poly[*,k]
       n ++
     endif
-    
+
   endfor
-  
+
   if n ne count then message, 'WTF?!'
-  
+
   return, result
 
 end

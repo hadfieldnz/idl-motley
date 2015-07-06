@@ -71,7 +71,7 @@ function mgh_struct_build, tags, values, POINTER=pointer
         message, 'Number of values does not match number of tags'
 
    n0 = 0
-   
+
    result = !null
 
    while n0 lt n_tags do begin

@@ -116,7 +116,7 @@ function MGHgrBarb::Init, $
 
    self.head_atom = obj_new('IDLgrPolyline', /DOUBLE, _STRICT_EXTRA=extra)
    self->Add, self.head_atom
-   
+
    self.symbol_atom = obj_new('IDLgrPolyline', LINESTYLE=6)
    self->Add, self.symbol_atom
 
@@ -128,7 +128,7 @@ function MGHgrBarb::Init, $
 
    self.show_head = 0
    self.head_size = 0.3
-   
+
    self.xcoord_conv = [0,1]
    self.ycoord_conv = [0,1]
    self.zcoord_conv = [0,1]
@@ -326,12 +326,12 @@ pro MGHgrBarb::SetProperty, $
      recalc = 1B
      self.head_size = head_size
    endif
-   
+
    if n_elements(show_head) gt 0 then begin
      recalc = 1B
      self.show_head = show_head
    endif
-   
+
    if n_elements(xcoord_conv) gt 0 then begin
       recalc = 1B
       self.xcoord_conv = xcoord_conv
@@ -361,31 +361,31 @@ pro MGHgrBarb::CalculateDimensions
   compile_opt LOGICAL_PREDICATE
 
   ;; Get data and/or provide defaults.
-  
+
   datax = ptr_valid(self.datax) ? *self.datax : 0
   datay = ptr_valid(self.datay) ? *self.datay : 0
-  
+
   datau = ptr_valid(self.datau) ? *self.datau : 0
   datav = ptr_valid(self.datav) ? *self.datav : 0
-  
+
   use_z = ptr_valid(self.dataz) || ptr_valid(self.dataw)
-  
+
   if use_z then begin
     dataz = ptr_valid(self.dataz) ? *self.dataz : 0
     dataw = ptr_valid(self.dataw) ? *self.dataw : 0
   endif
-  
+
   ;; Calculate number of barbs
-  
+
   n_barb = $
     n_elements(datax) > n_elements(datay) > $
     n_elements(datau) > n_elements(datav)
-    
+
   if use_z then $
     n_barb = n_barb > n_elements(dataz) > n_elements(dataw)
-    
+
   ;; Determine which barbs have good data
-  
+
   if use_z then begin
     l_barb_good = where(finite(datax) and finite(datay) and finite(dataz) and $
                         finite(datau) and finite(datav) and finite(dataw), n_barb_good)
@@ -393,18 +393,18 @@ pro MGHgrBarb::CalculateDimensions
     l_barb_good = where(finite(datax) and finite(datay) and $
                         finite(datau) and finite(datav), n_barb_good)
   endelse
-  
+
   ;; Calculate velocity scale in data coordinates
-  
+
   data_scale = self.scale
   if self.norm_scale[0] then data_scale[0] /= self.xcoord_conv[1]
   if self.norm_scale[1] then data_scale[1] /= self.ycoord_conv[1]
   if self.norm_scale[2] then data_scale[2] /= self.zcoord_conv[1]
-  
+
   ;; Create & fill a polyline vertex array for the barbs
-  
+
   self->GetProperty, DOUBLE=double
-  
+
   if use_z then begin
     vert = make_array(3, 2*n_barb, DOUBLE=double)
     vert[6*lindgen(n_barb)  ] = datax
@@ -420,18 +420,18 @@ pro MGHgrBarb::CalculateDimensions
     vert[4*lindgen(n_barb)+2] = datax + datau*data_scale[0]
     vert[4*lindgen(n_barb)+3] = datay + datav*data_scale[1]
   endelse
-  
+
   ;; Handle missing vertex values. An IDLgrPolyline does not permit
   ;; non-finite vertices so set them to 0 (the associated line segments
   ;; will be omitted from the connectivity array.
-  
+
   l_miss = where(~ finite(vert), n_miss)
   if n_miss gt 0 then vert[l_miss] = 0
-  
+
   ;; Specify connections between polyline vertices.
-  
+
   conn = lonarr(3*n_barb)
-  
+
   if n_barb_good lt n_barb then begin
     for g=0,n_barb_good-1 do begin
       i = l_barb_good[g]
@@ -445,13 +445,13 @@ pro MGHgrBarb::CalculateDimensions
     conn[3*lindgen(n_barb)+1] = 2*lindgen(n_barb)
     conn[3*lindgen(n_barb)+2] = 2*lindgen(n_barb)+1
   endelse
-  
+
   ;; Specify vertex colours
-  
+
   if ptr_valid(self.barb_colors) then begin
-  
+
     barb_colors = *(self.barb_colors)
-    
+
     dims = size(barb_colors, /DIMENSIONS)
     case size(barb_colors, /N_DIMENSIONS) of
       1: begin
@@ -467,40 +467,40 @@ pro MGHgrBarb::CalculateDimensions
         vert_colors = reform(vert_colors, 3, 2*dims[1])
       end
     endcase
-    
+
   endif else begin
-  
+
     vert_colors = -1
-    
+
   endelse
-  
+
   ;; Set up barb polyline.
-  
+
   self.barb_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
-    
+
   ;; Set up symbol polyline (if any) using the a subset (0, 2, 4, ...) of
   ;; the barb polyline vertices.  If a symbol is added then deleted, then the
   ;; symbol polyline vertices hang around but they're invisible.
-  
+
   self.symbol_atom->GetProperty, SYMBOL=symbol
-  
+
   if n_elements(symbol) gt 0 then $
     self.symbol_atom->SetProperty, DATA=vert[*,2*lindgen(n_barb)]
-    
+
   mgh_undefine, vert, conn, vert_colors
 
   ;; Set up the head
-  
+
   if self.show_head then begin
-    
+
     ;; Create & fill a polyline vertex array for the head
-    
+
     ;; Heads are drawn on 3D arrays but are in the xy plane only
-    
+
     self->GetProperty, DOUBLE=double
-    
+
     hs = self.head_size
-    
+
     lenu = datau*data_scale[0]
     lenv = datav*data_scale[1]
     if use_z then lenw = dataw*data_scale[2]
@@ -508,12 +508,12 @@ pro MGHgrBarb::CalculateDimensions
     ;; Length and angle of arrows
     len = sqrt(lenu*lenu+lenv*lenv)
     ang = atan(lenv, lenu)
-    
+
     ;; Angle of head lines (actually I think these are the things
     ;; I should call barbs)
     a1 = 150*!dtor + ang
     a2 = 210*!dtor + ang
-    
+
     if use_z then begin
       vert = make_array(3, 3*n_barb, DOUBLE=double)
       vert[9*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
@@ -534,18 +534,18 @@ pro MGHgrBarb::CalculateDimensions
       vert[6*lindgen(n_barb)+4] = datax + lenu + len*hs*cos(a2)
       vert[6*lindgen(n_barb)+5] = datay + lenv + len*hs*sin(a2)
     endelse
-    
+
     ;; Handle missing vertex values. An IDLgrPolyline does not permit
     ;; non-finite vertices so set them to 0. The associated line segments
     ;; will be omitted from the connectivity array below.
-    
+
     l_miss = where(~ finite(vert), n_miss)
     if n_miss gt 0 then vert[l_miss] = 0
-    
+
     ;; Specify connections between polyline vertices.
-    
+
     conn = lonarr(4*n_barb)
-    
+
     if n_barb_good lt n_barb then begin
       for g=0,n_barb_good-1 do begin
         i = l_barb_good[g]
@@ -561,13 +561,13 @@ pro MGHgrBarb::CalculateDimensions
       conn[4*lindgen(n_barb)+2] = 3*lindgen(n_barb)+1
       conn[4*lindgen(n_barb)+3] = 3*lindgen(n_barb)+2
     endelse
-    
+
     ;; Specify vertex colours
-    
+
     if ptr_valid(self.barb_colors) then begin
-    
+
       barb_colors = *(self.barb_colors)
-      
+
       dims = size(barb_colors, /DIMENSIONS)
       case size(barb_colors, /N_DIMENSIONS) of
         1: begin
@@ -585,28 +585,28 @@ pro MGHgrBarb::CalculateDimensions
           vert_colors = reform(vert_colors, 3, 3*dims[1])
         end
       endcase
-      
+
     endif else begin
-    
+
       vert_colors = -1
-      
+
     endelse
-    
+
     ;; Set up head polyline.
-    
+
     self.head_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
-    
+
     mgh_undefine, vert, conn, vert_colors
-      
+
   endif
-  
+
   ;; Scale & translate the model
-  
+
   self->IDLgrModel::Reset
-  
+
   self->IDLgrModel::Scale, $
     self.xcoord_conv[1], self.ycoord_conv[1], self.zcoord_conv[1]
-    
+
   self->IDLgrModel::Translate, $
     self.xcoord_conv[0], self.ycoord_conv[0], self.zcoord_conv[0]
 

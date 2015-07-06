@@ -110,20 +110,20 @@ function MGH_Density::Init, values, datax, datay, $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'data_values'
 
    dim = size(data_values, /DIMENSIONS)
-   
+
    ;; Sort out data positions
 
    if n_elements(datax) eq 0 then datax = findgen(dim[0])
    if n_elements(datay) eq 0 then datay = findgen(dim[1])
-   
+
    xy2d = size(datax, /N_DIMENSIONS) eq 2
-   
+
    if xy2d then begin
       if ~ array_equal(size(datax, /DIMENSIONS), size(datay, /DIMENSIONS)) then $
-           message, 'DATAX & DATAY dimensions mismatch' 
+           message, 'DATAX & DATAY dimensions mismatch'
    endif else begin
       if ~ (size(datax, /N_DIMENSIONS) eq 1 && size(datay, /N_DIMENSIONS) eq 1) then $
-           message, 'DATAX & DATAY dimensions mismatch' 
+           message, 'DATAX & DATAY dimensions mismatch'
    endelse
 
    self.datax = ptr_new(datax)
@@ -133,8 +133,8 @@ function MGH_Density::Init, values, datax, datay, $
    verty = mgh_stagger(datay, DELTA=(style eq 0))
 
    ;; Other defaults
-   
-   aspect = keyword_set(preserve_aspect) ? mgh_aspect(vertx, verty) : 1 
+
+   aspect = keyword_set(preserve_aspect) ? mgh_aspect(vertx, verty) : 1
 
    if n_elements(data_range) eq 0 then begin
       data_range = mgh_minmax(data_values, /NAN)
@@ -257,7 +257,7 @@ PRO MGH_Density::GetProperty, $
    bar = self.bar
 
    implementation = self.implementation
-   
+
    plane = self.plane
 
    if obj_valid(self.bar) then begin
@@ -374,7 +374,7 @@ function MGH_Density::EventMenuBar, event
       'FILE.EXPORT.NETCDF': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.nc'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''  
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -466,7 +466,7 @@ pro MGH_Density::ExportData, values, labels
    self->GetProperty, DATAX=datax, DATAY=datay, DATA_VALUES=data_values
    labels = [labels,'Data X','Data Y','Data Values']
    values = [values,ptr_new(datax),ptr_new(datay),ptr_new(data_values)]
-   
+
 end
 
 ; MGH_Density::ExportToNcFile
@@ -477,11 +477,11 @@ pro MGH_Density::ExportToNcFile, file
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    self->GetProperty, DATAX=datax, DATAY=datay, DATA_VALUES=data_values
-   
+
    xy2d = size(datax, /N_DIMENSIONS) eq 2
-   
+
    if xy2d then begin
       dim = size(datax, /DIMENSIONS)
    endif else begin
@@ -509,7 +509,7 @@ pro MGH_Density::ExportToNcFile, file
    x_name = 'x'
    y_name = 'y'
    v_name = 'data'
-   
+
    if xy2d then begin
       onc->VarAdd, x_name, ['x','y'], DOUBLE=size(datax, /TYPE) eq 5
       onc->VarAdd, y_name, ['x','y'], DOUBLE=size(datay, /TYPE) eq 5

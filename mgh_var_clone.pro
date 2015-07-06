@@ -31,11 +31,11 @@ function mgh_var_clone, var
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-   
-  result = var 
+
+  result = var
 
   return, result
-  
+
 end
 
 

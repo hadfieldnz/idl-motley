@@ -33,11 +33,11 @@ pro MGHncHelper::About, lun
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(lun) eq 0 then lun = -1
-  
+
   self->Info, N_ATTS=n_atts, ATT_NAMES=att_names, N_DIMS=n_dims, $
     DIM_NAMES=dim_names, DIMENSIONS=dimensions, N_VARS=n_vars, $
     VAR_NAMES=var_names
-    
+
   printf, lun, self, 'Catalogue of netCDF '+self->Info(/FILE_NAME)+':'
   printf, lun, self,'Global attributes:'
   printf, lun, self, (n_atts gt 0) ? att_names : '(none)'
@@ -140,36 +140,36 @@ function MGHncHelper::Retrieve, vars, $
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(autoscale) eq 0 then autoscale = 1B
-  
+
   count = n_elements(vars)
-  
+
   if count eq 0 then $
     self->GetProperty, VAR_NAMES=vars, N_VARS=count
-    
+
   if keyword_set(hash) then begin
-  
+
     result = hash()
-    
+
     for i=0,count-1 do begin
       result += hash(vars[i], self->VarGet(vars[i], AUTOSCALE=autoscale))
     endfor
-    
+
   endif else begin
-  
+
     if count eq 0 then return, -1
-    
+
     data = ptrarr(count)
-    
+
     for i=0,count-1 do begin
       data[i] = ptr_new(self->VarGet(vars[i], AUTOSCALE=autoscale), /NO_COPY)
     endfor
-      
+
     result = mgh_struct_build(vars, data, POINTER=pointer)
-    
+
     if ~ keyword_set(pointer) then ptr_free, data
-    
+
   endelse
-  
+
   return, result
 
 end

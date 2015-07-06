@@ -37,9 +37,9 @@ function mgh_reciprocal_positive, value
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   mac = machar()
-  
+
   return, 1.0/(value > mac.eps)
 
 end

@@ -127,26 +127,26 @@ function MGH_Density_Movie::Init, values, datax, datay, $
 
    if n_elements(datax) eq 0 then datax = findgen(numx)
    if n_elements(datay) eq 0 then datay = findgen(numy)
-   
+
    xy2d = size(datax, /N_DIMENSIONS) eq 2
-   
+
    if xy2d then begin
       if ~ array_equal(size(datax, /DIMENSIONS), size(datay, /DIMENSIONS)) then $
-           message, 'DATAX & DATAY dimensions mismatch' 
+           message, 'DATAX & DATAY dimensions mismatch'
    endif else begin
       if ~ (size(datax, /N_DIMENSIONS) eq 1 && size(datay, /N_DIMENSIONS) eq 1) then $
-           message, 'DATAX & DATAY dimensions mismatch' 
+           message, 'DATAX & DATAY dimensions mismatch'
    endelse
-   
+
    self.datax = ptr_new(datax)
    self.datay = ptr_new(datay)
 
    vertx = mgh_stagger(datax, DELTA=(style eq 0))
    verty = mgh_stagger(datay, DELTA=(style eq 0))
-   
+
    ;; Create the base graph
-   
-   aspect = keyword_set(preserve_aspect) ? mgh_aspect(vertx, verty) : 1 
+
+   aspect = keyword_set(preserve_aspect) ? mgh_aspect(vertx, verty) : 1
 
    xmargin = keyword_set(bar_visible) ? [0.375,0.400] : [0.375,0.15]
 
@@ -264,7 +264,7 @@ pro MGH_Density_Movie::GetProperty, $
    compile_opt LOGICAL_PREDICATE
 
    plane = self.plane
-   
+
    if arg_present(datax) then datax = *self.datax
    if arg_present(datay) then datay = *self.datay
 
@@ -362,7 +362,7 @@ function MGH_Density_Movie::EventMenuBar, event
       'FILE.EXPORT ANIMATION.NETCDF': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.nc'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''  
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -376,7 +376,7 @@ function MGH_Density_Movie::EventMenuBar, event
          self.graphics_tree->GetProperty, NAME=name
          self->GetProperty, POSITION=position
          ext = '.nc'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''  
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -450,7 +450,7 @@ pro MGH_Density_Movie::ExportToNcFile, file, $
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    self.animation->GetProperty, $
         N_FRAMES=n_frames
 
@@ -463,12 +463,12 @@ pro MGH_Density_Movie::ExportToNcFile, file, $
    endif else begin
       if n_elements(range) eq 0 then range = [0,n_frames-1]
       if n_elements(stride) eq 0 then stride = 1
-   endelse        
-   
+   endelse
+
    self->GetProperty, DATAX=datax, DATAY=datay
-   
+
    xy2d = size(datax, /N_DIMENSIONS) eq 2
-   
+
    if xy2d then begin
       dim = size(datax, /DIMENSIONS)
    endif else begin
@@ -501,9 +501,9 @@ pro MGH_Density_Movie::ExportToNcFile, file, $
 
    onc->VarPut, 'x', datax
    onc->VarPut, 'y', datay
-   
+
    n = 0
-   
+
    for pos=range[0],range[1],stride do begin
 
       oframe = self.animation->GetFrame(POSITION=pos)
@@ -514,13 +514,13 @@ pro MGH_Density_Movie::ExportToNcFile, file, $
       if n_miss gt 0 then data_values[l_miss] = mgh_ncdf_fill()
 
       onc->VarPut, 'data', data_values, COUNT=[dim,1], OFFSET=[0,0,n]
-      
+
       n++
 
    endfor
 
    obj_destroy, onc
-   
+
    fmt ='(%"Finished saving netCDF file %s")'
    message, /INFORM, string(file, FORMAT=fmt)
 

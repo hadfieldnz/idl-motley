@@ -34,15 +34,15 @@ function mgh_reciprocal, value
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   my_val = double(value)
-  
+
   l_zero = where(my_val eq 0, n_zero)
   if n_zero gt 0 then begin
     mac = machar(/DOUBLE)
     my_val[l_zero] = mac.eps
   endif
-  
+
   return, 1/my_val
 
 end

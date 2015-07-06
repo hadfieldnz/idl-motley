@@ -18,14 +18,14 @@
 ;   following keywords and passes them to GRIDDATA: DELTA, DIMENSION,
 ;   GRID, START, XOUT, YOUT. In addition the following keywords are
 ;   supported:
-;   
+;
 ;   DOUBLE (input, switch)
 ;     For double-precision output.
 ;
 ;   MISSING (input, numeric scalar)
 ;     The value to assign to the result for points outside the input grid.
 ;     The default is NaN. This keyword is ignored if the OUTSIDE_NEAREST
-;     keyword is set. 
+;     keyword is set.
 ;
 ;   OUTSIDE_NEAREST (input, switch)
 ;     Set this keyword to return the nearest grid location for points
@@ -125,9 +125,9 @@ function mgh_locate2a, xin, yin, $
   n0 = dims[0]  &  n1 = dims[1]
 
   ;; Process output-grid keywords and set up result array
-  
+
   if n_elements(xout)*n_elements(yout) gt 0 then begin
-    
+
     if keyword_set(grid) then begin
       xx = xout # mgh_reproduce(1,yout)
       yy = mgh_reproduce(1,xout) # yout
@@ -141,7 +141,7 @@ function mgh_locate2a, xin, yin, $
     endelse
 
   endif else begin
-    
+
     if n_elements(dimension) eq 0 then dimension = 51
     if n_elements(start) eq 0 then start = [min(xin),min(yin)]
     if n_elements(delta) eq 0 then $
@@ -199,7 +199,7 @@ function mgh_locate2a, xin, yin, $
   ;; Process one output point at a time
 
   for i=0,nout-1 do begin
-  
+
     if ~ keyword_set(outside_nearest) && ~ mgh_poly_inside(xx[i], yy[i], xper, yper, /EDGE) then continue
 
     ;; Load current position into common block

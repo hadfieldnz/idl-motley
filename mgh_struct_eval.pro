@@ -18,11 +18,11 @@
 ;
 ; RETURN VALUE:
 ;   The function returns the data associated with the tag. So
-;   
+;
 ;     result = mgh_eval(my_struct, 'foo')
-;   
+;
 ;   is equivalent to
-;   
+;
 ;     result = my_struct.foo
 ;
 ;###########################################################################
@@ -53,14 +53,14 @@ function mgh_struct_eval, struct, tag
 
    if n_elements(tag) eq 0 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'tag'
-        
+
    if n_elements(tag) gt 1 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'tag'
-        
+
    loc = mgh_struct_find_tag(struct, tag)
-   
+
    if loc lt 0 then message, 'Tag not found: '+tag
-   
+
    return, struct.(loc)
 
 end

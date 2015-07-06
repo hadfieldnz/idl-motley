@@ -32,7 +32,7 @@
 ;       A 3-element byte array specifying the RGB colour to which the
 ;       window will be erased before every draw. The default is
 ;       [127,127,127]. NB: for a window with COLOR_MODEL=1 the use of
-;       an RGB colour will probably fail. But I have never used 
+;       an RGB colour will probably fail. But I have never used
 ;
 ;     DIMENSIONS (Init, Get, Set)
 ;       A 2-element array specifying the width & height of the
@@ -198,12 +198,12 @@
 ;     to buffers. (I still haven't sorted this out fully.) The Draw method
 ;     used to pass inherited keywords to the IDLgrWindow--the only valid
 ;     ones being CREATE_INSTANCE and DRAW_INSTANCE. This functionality
-;     has been disabled for the time being. 
+;     has been disabled for the time being.
 ;   Mark Hadfield, 2011-05:
-;     Default RENDERER now determined with PREF_GET. 
+;     Default RENDERER now determined with PREF_GET.
 ;   Mark Hadfield, 2011-08:
 ;     - Fixed a very long-standing and major bug in PickReport(!): wrong index
-;       supplied to the vector of targets. 
+;       supplied to the vector of targets.
 ;     - Further adjustment to the resolution for "hi-res" images. To limit
 ;       image size the RESOLUTION was increased from 2.54/360 to 2.54/240. The
 ;       image now produced from the window displayed by MGH_EXAMPLE_PLOT on
@@ -350,7 +350,7 @@ function MGH_Window::Init, picture, $
 
    ;; NB: RETAIN=2 seems to work pretty well on Windows but is dreadfully
    ;; slow over X Windows.
-   
+
    case !version.os_family of
       'Windows': begin
          if n_elements(renderer) eq 0 then renderer = pref_get('IDL_GR_WIN_RENDERER')
@@ -715,7 +715,7 @@ pro MGH_Window::BuildMenuBar
               ACCELERATOR=['Ctrl+O','Ctrl+S','','','','Ctrl+F4']
       end
    endcase
-   
+
    fmts = ['EPS...','EPS (CMYK)...','PDF...','PDF (bitmap)...', $
            'PNG...','PNG (hi-res)...','JPEG...','JPEG 2000...', $
            'TIFF...','TIFF (hi-res)...','VRML..']
@@ -990,11 +990,11 @@ function MGH_Window::EventMenuBar, event
         endif
         return, 0
       end
-      
+
       'FILE.EXPORT.EPS': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.eps'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1007,7 +1007,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.EPS (CMYK)': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.eps'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1020,7 +1020,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.PDF': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.pdf'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1033,7 +1033,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.PDF (BITMAP)': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.pdf'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1046,7 +1046,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.JPEG': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.jpg'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1059,7 +1059,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.JPEG 2000': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.jp2'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1072,7 +1072,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.PNG': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.png'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1085,7 +1085,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.PNG (HI-RES)': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.png'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1098,7 +1098,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.TIFF': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.tif'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1111,7 +1111,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.TIFF (HI-RES)': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.tif'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -1124,7 +1124,7 @@ function MGH_Window::EventMenuBar, event
       'FILE.EXPORT.VRML': begin
          self.graphics_tree->GetProperty, NAME=name
          ext = '.wrl'
-         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
@@ -2169,7 +2169,7 @@ pro MGH_Window::WritePictureToClipboard, $
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    if n_elements(vector) eq 0 then vector = 1B
 
    self->GetProperty, GRAPHICS_TREE=graphics_tree
@@ -2349,7 +2349,7 @@ pro MGH_Window::WritePictureToPDF, file, $
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    if n_elements(vector) eq 0 then vector = 1B
 
    self->GetProperty, GRAPHICS_TREE=picture
@@ -2365,9 +2365,9 @@ pro MGH_Window::WritePictureToPDF, file, $
       if ~ finite(resolution) then $
            self.window->GetProperty, RESOLUTION=resolution
    endif
-   
-   my_resolution = n_elements(resolution) eq 1 ? replicate(resolution, 2) : resolution 
-   
+
+   my_resolution = n_elements(resolution) eq 1 ? replicate(resolution, 2) : resolution
+
    opdf = obj_new('IDLgrPDF', UNITS=units, LOCATION=[0,0], $
                   DIMENSIONS=dimensions, RESOLUTION=my_resolution)
 

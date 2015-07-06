@@ -86,9 +86,9 @@ pro mgh_example_2plots, option
          endcase
 
          ograph = objarr(2)
-         
+
          mgh_graph_default, SCALE=default_scale
-         
+
          for i=0,n_elements(ograph)-1 do begin
 
             ograph[i] = obj_new('MGHgrGraph2D', ASPECT=1.1, SCALE=0.7*default_scale)

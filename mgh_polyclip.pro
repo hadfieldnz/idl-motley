@@ -5,7 +5,7 @@
 ; PURPOSE:
 ;   Clip an arbitrary polygon on the X-Y plane to a line parallel
 ;   to the X or Y axis using the Sutherland-Hodgman algorithm.
-;   
+;
 ; CATEGORY:
 ;   Graphics, Region of Interest, Geometry
 ;
@@ -69,7 +69,7 @@ function mgh_polyclip, poly, cval, dir, neg, COUNT=count, DOUBLE=double
 
   if n_elements(poly) eq 0 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'poly'
-        
+
   ;; If the polygon argument is a scalar then return -1
 
   count = 0
@@ -79,21 +79,21 @@ function mgh_polyclip, poly, cval, dir, neg, COUNT=count, DOUBLE=double
   ;; half-plane.  Vector "inx" specifies whether an intersection with
   ;; the clipping line is made by the segment joining each vertex
   ;; with the one before.
-  
+
   in = neg ? reform(poly[dir,*] lt cval) : reform(poly[dir,*] gt cval)
   inx = in xor shift(in, 1)
 
   ;; The total number of vertices in the result will be the sum of the
   ;; "in" and "inx" vectors
-  
+
   count = total(inx, /INTEGER) + total(in, /INTEGER)
   if count eq 0 then return, -1
-  
+
   ;; We can now allocate the result array
 
   item = poly[0] * (keyword_set(double) ? 0.0D : 0.0)
   result = replicate(item, 2, count)
-  
+
   ;; Precalculate an array of shifted vertices, used in calculating
   ;; intersection points in the loop.
 
@@ -104,13 +104,13 @@ function mgh_polyclip, poly, cval, dir, neg, COUNT=count, DOUBLE=double
   np = n_elements(in)
 
   n = 0
-  
+
   for k=0,np-1 do begin
-  
+
     ;; If this segment crosses the clipping line, add the intersection
     ;; to the output list. I tried calculating the intersection points
     ;; outside the loop in an array operation but it turned out slower.
-    
+
     if inx[k] then begin
       s0 = pols[0,k]
       s1 = pols[1,k]
@@ -131,11 +131,11 @@ function mgh_polyclip, poly, cval, dir, neg, COUNT=count, DOUBLE=double
       result[*,n] = poly[*,k]
       n ++
     endif
-    
+
   endfor
-  
+
   if n ne count then message, 'WTF?!'
-  
+
   return, result
 
 end

@@ -46,7 +46,7 @@
 ;     - Added option 4: the IDL 8 List object.
 ;     - Fixed a bug in option 2: array type was hard-coded as string.
 ;   Mark Hadfield, 2011-07:
-;     - Increased default number of items to 20000. 
+;     - Increased default number of items to 20000.
 ;-
 pro mgh_time_extend, option, ITEM=item, NUM=num
 

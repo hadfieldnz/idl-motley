@@ -267,9 +267,9 @@ function MGHgrGraph::Init, $
    self.fonts = obj_new('IDL_Container')
    self.palettes = obj_new('IDL_Container')
    self.symbols = obj_new('IDL_Container')
-   
+
    ;; Get defaults from MGH_GRAPH_DEFAULT
-   
+
    mgh_graph_default, $
         DIMENSIONS=dimensions, FONTSIZE=fontsize, $
         SCALE=scale, SYMSIZE=symsize, TICKLEN=ticklen, $
@@ -1077,7 +1077,7 @@ function MGHgrGraph::NewColorBar, $
    if n_elements(vertical) eq 0 then vertical = 1B
 
    if n_elements(font) eq 0 then font = self->GetFont()
-   
+
    if keyword_set(vertical) then begin
       if n_elements(dimensions) eq 0 then $
            dimensions = [0.5,1.6]

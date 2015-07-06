@@ -71,7 +71,7 @@ function mgh_dt_string, dtval, $
       fmt += ',"T",CHI2.2,":",CMI2.2,":",CSI2.2'
     format = '(C('+fmt+'))'
   endif
-  
+
   if n_elements(zone) gt 0 then begin
     return, string(dtval+zone/24.D0, FORMAT=format) + $
       mgh_str_subst(string(zone, FORMAT='("Z",I3.2)'),' ','+')

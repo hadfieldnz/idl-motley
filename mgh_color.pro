@@ -7,7 +7,7 @@
 ;   and returns an array containing corresponding RGB colour values.
 ;   The colour data are specified in a file, mgh_color.dat, which
 ;   must be in the same directory as the source file.
-;   
+;
 ;   Note that much of the functionality of this routine is now provided
 ;   by the !color system variable, introduced in IDL 8.0.
 ;
@@ -88,24 +88,24 @@ pro mgh_color_reread
   compile_opt HIDDEN
 
   common mgh_color_common, color_names, color_values
-  
+
   ;; Read colour names & values from a data file.
-  
+
   file = mgh_str_subst(routine_filepath('mgh_color', /IS_FUNCTION), '.pro', '.dat')
-  
+
   if ~ file_test(file, /READ) then $
     message, 'Colour data file '+file+' not readable'
-    
+
   ;; Open the file
-  
+
   message, /INFORM, 'Reading colour data from '+file
-  
+
   openr, lun, file, /GET_LUN
-  
+
   line = ''
-  
+
   ;; Read the file once to count colours
-  
+
   l = 0
   while ~ eof(lun) do begin
     readf, lun, line
@@ -113,16 +113,16 @@ pro mgh_color_reread
     if strmid(line, 0, 1) eq '#' then continue
     l ++
   endwhile
-  
+
   n_colors = l
-  
+
   color_names = strarr(n_colors)
   color_values = bytarr(3, n_colors)
-  
+
   ;; Rewind the file and read color data
-  
+
   point_lun, lun, 0
-  
+
   l = 0
   while ~ eof(lun) do begin
     readf, lun, line
@@ -135,82 +135,82 @@ pro mgh_color_reread
     color_values[*,l] = fix(items[1:3])
     l ++
   endwhile
-  
+
   free_lun, lun
-  
+
   ;; Check colour names are unique
-  
+
   if n_elements(uniq(color_names, sort(color_names))) lt n_colors then $
     message, 'Color names not unique'
-    
+
 end
 
 function mgh_color, name, $
   DECOMPOSED=decomposed, NAMES=names, REREAD=reread
-  
+
   compile_opt DEFINT32
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   common mgh_color_common, color_names, color_values
-  
+
   on_error, 2
-  
+
   if n_elements(reread) eq 0 then $
     reread = n_elements(color_names)*n_elements(color_values) eq 0
-    
+
   if keyword_set(reread) then mgh_color_reread
-  
+
   if keyword_set(names) then return, color_names
-  
+
   if size(name, /N_ELEMENTS) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'name'
-    
+
   if size(name, /TYPE) ne 7 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'name'
-    
+
   n = size(name, /N_ELEMENTS)
-  
+
   result = (size(name, /N_DIMENSIONS) eq 0) ? bytarr(3) : reform(bytarr(3,n),3,n)
-    
+
   ;; Step through colours
-  
+
   for i=0,n-1 do begin
-  
+
     nam = name[i]
-    
+
     if strmid(nam,0,1) eq '(' && $
       strmid(nam,0,1,/REVERSE_OFFSET) eq ')' then begin
-      
+
       ;; Look for an RGB triple
-      
+
       rgb = bytarr(3)
-      
+
       on_ioerror, skip
-      
+
       reads, strmid(nam,1,strlen(nam)-2), rgb
-      
+
       skip: on_ioerror, null
-      
+
       result[*,i] = rgb
-      
+
     endif else begin
-    
+
       ;; Try to match colour name with variable color_names. If it
       ;; is not found, leave result unchanged, so colour is black.
-      
+
       w = where(strmatch(color_names, name[i], /FOLD_CASE), m)
-      
+
       if m eq 1 then result[*,i] = color_values[*,w[0]]
-      
+
     endelse
-    
+
   endfor
-  
+
   if keyword_set(decomposed) then $
     result = reform(result[0,*] + result[1,*]*2L^8 + result[2,*]*2L^16)
-    
+
   return, result
 
 end

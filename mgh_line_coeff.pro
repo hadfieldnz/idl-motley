@@ -36,7 +36,7 @@ function mgh_line_coeff, x0, y0, x1, y1
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   if x1 eq x0 then begin
     m = (x1-x0)/(y1-y0)
     return, [1,-m,m*y0-x0] * (y1 gt y0 ? 1 : -1)

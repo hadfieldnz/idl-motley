@@ -95,7 +95,7 @@ function mgh_dt_julday, param, _REF_EXTRA=extra
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    n_param = size(param, /N_ELEMENTS)
 
    case n_param gt 0 of

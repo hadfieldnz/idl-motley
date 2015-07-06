@@ -78,16 +78,16 @@ function mgh_dt_parse, iso_string
 
   if n_elements(iso_string) ne 1 || size(iso_string, /TYPE) ne 7 then $
     message, 'Date-time argument must be a scalar string in ISO format'
-    
+
   ;; Separate the input string into date and time parts. Accept
   ;; either "T" or " " as separators--they may not appear elsewhere
   ;; in the string.
-  
+
   iso_trim = strtrim(iso_string, 2)
-  
+
   pSep = strpos(iso_trim,'T')
   if pSep lt 0 then pSep = strpos(iso_trim,' ')
-  
+
   if pSep ge 0 then begin
     ;; Separator found
     sDate = strtrim(strmid(iso_trim,0,pSep),2)
@@ -105,67 +105,67 @@ function mgh_dt_parse, iso_string
       sTime = ''
     endelse
   endelse
-    
+
   ;; Default output, if no date-time elements are found, is an
   ;; empty structure
-  
+
   result = {}
-  
+
   ;; Parse date string
-  
+
   if strlen(sDate) gt 0 then begin
-  
+
     sDate = strsplit(sDate, '-', /EXTRACT)
-    
+
     if strlen(sDate[0]) gt 0 then $
       result = create_struct(result, 'year', fix(sDate[0]))
     if n_elements(sDate) ge 2 && strlen(sDate[1]) gt 0 then $
       result = create_struct(result, 'month', fix(sDate[1]))
     if n_elements(sDate) ge 3 && strlen(sDate[2]) gt 0 then $
       result = create_struct(result, 'day', fix(sDate[2]))
-      
+
   endif
-  
+
   ;; Parse time &/or time-zone string
-  
+
   if strlen(sTime) gt 0 then begin
-  
+
     ;; Split at time-zone separator, if any
-    
+
     pZone = strpos(sTime,'Z')
     if pZone lt 0 then $
       pZone = strpos(sTime,'+')
     if pZone lt 0 then $
       pZone = strpos(sTime,'-')
-      
+
     if pZone ge 0 then begin
       sTmp = strtrim(strmid(sTime,0,pZone),2)
       sZone = strtrim(strmid(sTime,pZone),2)
       sTime = sTmp
     endif
-    
+
     ;; Parse time string
-    
+
     sTime = strsplit(sTime, ':', /EXTRACT)
-    
+
     if strlen(sTime[0]) gt 0 then $
       result = create_struct(result, 'hour', fix(sTime[0]))
     if n_elements(sTime) ge 2 && strlen(sTime[1]) gt 0 then $
       result = create_struct(result, 'minute', fix(sTime[1]))
     if n_elements(sTime) ge 3 && strlen(sTime[2]) gt 0 then $
       result = create_struct(result, 'second', float(sTime[2]))
-      
+
     ;; Parse time-zone string
-    
+
     if n_elements(sZone) gt 0 then begin
       if strmid(sZone,0,1) eq 'Z' then $
         sZone = strmid(sZone,1)
       if strlen(sZone) gt 0 then $
         result = create_struct(result, 'zone', fix(sZone))
     endif
-    
+
   endif
-  
+
   return, result
 
 end

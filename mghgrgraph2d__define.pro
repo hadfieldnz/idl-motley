@@ -307,56 +307,56 @@ function MGHgrGraph2D::NewAxis, dir, $
   if n_elements(direction) eq 0 then begin
     direction = n_elements(dir) gt 0 ? dir : 0
   endif
-  
+
   if direction eq 2 then begin
-  
+
     ;; If creating a vertical axis just pass everything to
     ;; MGHgrGraph::NewAxis (ignoring REVERSE_RANGE keyword).
-    
+
     axis = self->MGHgrGraph::NewAxis(DIRECTION=direction, LOCATION=location, $
                                      NORM_RANGE=norm_range, NOTEXT=notext, $
                                      TEXTBASELINE=textbaseline, TEXTPOS=textpos, $
                                      TEXTUPDIR=textupdir, TICKDIR=tickdir, $
                                      _STRICT_EXTRA=extra)
     return, axis
-    
+
   endif
-  
+
   ;; By default horizontal axes are created in pairs at the edges of
   ;; the plot rectangle
-  
+
   self->GetProperty, DELTAZ=deltaz
-  
+
   if n_elements(rect) eq 0 then self->GetProperty, PLOT_RECT=rect
-  
+
   if n_elements(mirror) eq 0 then mirror = [0,1]
-  
+
   if n_elements(reverse_range) eq 0 then reverse_range = 0
-  
+
   if n_elements(norm_range) eq 0 then begin
     case reverse_range of
       0: norm_range = [rect[direction],rect[direction]+rect[direction+2]]
       1: norm_range = [rect[direction]+rect[direction+2],rect[direction]]
     endcase
   endif
-  
+
   if n_elements(textbaseline) eq 0 then begin
     textbaseline = [1,0,0]
     if reverse_range then if direction eq 0 then $
       textbaseline = - textbaseline
   endif
-  
+
   if n_elements(textupdir) eq 0 then begin
     textupdir = [0,1,0]
     if reverse_range then if direction eq 1 then textupdir = - textupdir
   endif
-  
+
   n_mirror = n_elements(mirror)
-  
+
   axes = n_mirror gt 0 ? objarr(n_mirror) : obj_new()
-  
+
   for i=0,n_mirror-1 do begin
-  
+
     case mirror[i] of
 
       0: begin
@@ -365,26 +365,26 @@ function MGHgrGraph2D::NewAxis, dir, $
         my_tickdir = n_elements(tickdir) gt 0 ? tickdir : (1-self.tick_orientation)
         my_textpos = n_elements(textpos) gt 0 ? textpos : 0
       end
-      
+
       1: begin
         my_location = n_elements(location) gt 0 ? location : [ rect[0:1]+rect[2:3], 2*deltaz ]
         my_notext = n_elements(notext) gt 0 ? notext : 1
         my_tickdir = n_elements(tickdir) gt 0 ? tickdir : self.tick_orientation
         my_textpos = n_elements(textpos) gt 0 ? textpos : 1
       end
-      
+
     endcase
-    
+
     axes[i] = self->MGHgrGraph::NewAxis(DIRECTION=direction, LOCATION=my_location, $
                                         NORM_RANGE=norm_range, NOTEXT=my_notext, $
                                         TEXTBASELINE=textbaseline, $
                                         TEXTUPDIR=textupdir, TICKDIR=my_tickdir, $
                                         TEXTPOS=my_textpos, _STRICT_EXTRA=extra)
-      
+
   endfor
-  
+
   for i=1,n_elements(axes)-1 do axes[0]->AddSlave, axes[i], /AXIS
-    
+
   return, axes
 
 end
@@ -468,7 +468,7 @@ function MGHgrGraph2D::NewColorBar, $
    self->GetProperty, DELTAZ=deltaz, PLOT_RECT=prect
 
    if n_elements(vertical) eq 0 then vertical = 1B
-   
+
    if keyword_set(vertical) then begin
       if n_elements(dimensions) eq 0 then $
            dimensions = [0.08,0.7*prect[3]]
@@ -488,12 +488,12 @@ function MGHgrGraph2D::NewColorBar, $
    endelse
 
    ;; Create & return
-   
+
    result = self->MGHgrGraph::NewColorBar(DIMENSIONS=dimensions, LOCATION=location, $
                                           VERTICAL=vertical, _STRICT_EXTRA=extra)
-                                      
-   return, result                                      
-   
+
+   return, result
+
 end
 
 ; MGHgrGraph2D::NewMask (Function & Procedure)

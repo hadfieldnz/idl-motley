@@ -127,7 +127,7 @@ function MGHgrPalette::Init, tbl, $
    if keyword_set(invert) then self->Invert
 
    if keyword_set(reverse) then self->Reverse
-   
+
    return, 1
 
 end
@@ -185,12 +185,12 @@ pro MGHgrPalette::Reverse
 
   compile_opt DEFINT32
   compile_opt STRICTARR
-  
+
   self->GetProperty, N_COLORS=n_colors, RED=red, GREEN=green, BLUE=blue
-  
+
   if n_colors gt 1 then $
     self->SetProperty, RED=reverse(red), GREEN=reverse(green), BLUE=reverse(blue)
-    
+
 end
 
 pro MGHgrPalette__define

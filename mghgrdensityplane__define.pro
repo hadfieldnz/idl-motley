@@ -350,7 +350,7 @@ PRO MGHgrDensityPlane::CalculateColors, data_values, color_values
          byte_range = [0,255]
       end
    endcase
-   
+
    if self.logarithmic then begin
       color_values = mgh_bytscl(alog10(data_values), $
                                 BYTE_RANGE=byte_range, $
@@ -360,7 +360,7 @@ PRO MGHgrDensityPlane::CalculateColors, data_values, color_values
                                 BYTE_RANGE=byte_range, $
                                 DATA_RANGE=self.data_range)
    endelse
-   
+
 end
 
 ; MGHgrDensityPlane::Reposition

@@ -90,7 +90,7 @@ function mgh_ncdf_restore, file, variables, $
    compile_opt LOGICAL_PREDICATE
 
    if n_elements(file) eq 0 then message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'file'
-   
+
    if n_elements(netcdf_class) eq 0 then netcdf_class = 'mghncsequence'
 
    onc = obj_new(netcdf_class, file, _STRICT_EXTRA=extra)

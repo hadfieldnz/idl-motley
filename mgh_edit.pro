@@ -94,16 +94,16 @@ pro mgh_edit, name, $
   defsysv, '!mgh_editor', EXISTS=exists
   if ~exists then $
     message, '!MGH_EDITOR system variable has not been defined.'
-    
+
   if size(!mgh_editor, /TYPE) ne 7 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', '!MGH_EDITOR'
-    
+
   if n_elements(editor) eq 0 then editor = 0
-  
+
   ;; Determine file to be edited & create it if appropriate.
-  
+
   n_name = n_elements(name)
-  
+
   case 1B of
     keyword_set(pick): begin
       filename = dialog_pickfile(TITLE='Select file to edit', $
@@ -157,27 +157,27 @@ pro mgh_edit, name, $
       if n_elements(name) gt 0 then filename = name
     end
   endcase
-  
+
   if n_elements(filename) gt 0 then begin
-  
+
     filename = file_expand_path(filename)
-    
+
     foreach f, filename do begin
       if ~ file_test(f, /READ) then $
         message, 'File '+f+' does not exist or cannot be read'
     endforeach
-    
+
   endif
-  
+
   ;; Construct and execute the editor command
-  
+
   cmd = '"'+!mgh_editor[editor]+'"'
-  
+
   if n_elements(filename) gt 0 then $
     foreach f, filename do cmd =[cmd,'"'+f+'"']
-    
+
   message, /INFORM, 'Activating editor'
-  
+
   if strcmp(!version.os_family, 'Windows', /FOLD_CASE) then begin
     spawn, /NOSHELL, /NOWAIT, strjoin(cmd, ' ')
   endif else begin

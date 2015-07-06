@@ -70,24 +70,24 @@ function mgh_locate, xin, $
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(extrapolate) eq 0 then extrapolate = 0B
-  
+
   if n_elements(missing) eq 0 then missing = !values.d_nan
-  
+
   if n_elements(spline) eq 0 then spline = 0B
-  
+
   if keyword_set(spline) && keyword_set(extrapolate) then $
     message, 'Extrapolation is unsafe with spline interpolation'
-    
+
   ;; Process input grid.
-  
+
   if size(xin, /N_ELEMENTS) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xin'
-    
+
   if size(xin, /N_DIMENSIONS) ne 1 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'xin'
-    
+
   ;; Process output grid
-  
+
   if n_elements(xout) eq 0 then begin
     if n_elements(dimension) eq 0 then dimension = 51
     if n_elements(start) eq 0 then start = min(xin)
@@ -97,16 +97,16 @@ function mgh_locate, xin, $
   endif else begin
     xx = xout
   endelse
-  
+
   n_in = n_elements(xin)
-  
+
   result = interpol(dindgen(n_in), xin, xx, SPLINE=spline)
-  
+
   if ~ keyword_set(extrapolate) then begin
     l_outside = where(result lt 0 or result gt (n_in-1), n_outside)
     if n_outside gt 0 then result[l_outside] = missing
   endif
-  
+
   return, result
 
 end

@@ -46,7 +46,7 @@ function mgh_is_callback, value
       endif
     endif
   endif
-  
+
   return, 0B
 
 end

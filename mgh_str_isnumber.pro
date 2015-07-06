@@ -53,15 +53,15 @@ function mgh_str_isnumber, str, TYPE=type, VALUE=value
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(type) eq 0 then type = 5
-  
+
   result = mgh_reproduce(0B, str)
-  
+
   apv = arg_present(value)
-  
+
   if apv then value = mgh_reproduce(fix(0, TYPE=type), str)
-  
+
   for i=0,n_elements(str)-1 do begin
-  
+
     ;; An empty string is a special case: it is accepted by FIX but
     ;; we want to reject it.
     if strlen(str[i]) gt 0 then begin
@@ -71,9 +71,9 @@ function mgh_str_isnumber, str, TYPE=type, VALUE=value
       skip: on_ioerror, null
       if apv then if result[i] then value[i] = val
     endif
-    
+
   endfor
-  
+
   return, result
 
  end

@@ -280,12 +280,12 @@ pro MGH_Datamator::AddFrame, command
   compile_opt LOGICAL_PREDICATE
 
   self.animation->AddFrame, command
-  
+
   self.animation->GetProperty, N_FRAMES=n_frames
   self.animator->SetProperty, N_FRAMES=n_frames
-  
+
   self->UpdateMenuBar
-  
+
   if self.display then self->Display, n_frames-1
 
 end

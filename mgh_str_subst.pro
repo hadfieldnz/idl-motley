@@ -20,7 +20,7 @@
 ;
 ; OUTPUT PARAMETERS:
 ;   This function returns a string (array) with the same shape as the
-;   original. 
+;   original.
 ;
 ; PROCEDURE:
 ;   If both Old and New are single characters, arguments are converted to
@@ -67,13 +67,13 @@ function mgh_str_subst, original, old, new
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   if n_elements(original) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'original'
   if n_elements(old) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'old'
   if n_elements(new) eq 0 then new = ''
-   
+
   if ~ isa(original, 'STRING') then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'original'
   if ~ isa(old, 'STRING') then $
@@ -82,7 +82,7 @@ function mgh_str_subst, original, old, new
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'new'
 
   if strlen(old)*strlen(new) eq 1 then begin
-  
+
     b = byte(Original)        ; convert string to a byte array.
     bold = byte(Old)          ; convert old to byte.
     w = where( b EQ bold[0], count) ; find occurrences of old.
@@ -90,13 +90,13 @@ function mgh_str_subst, original, old, new
     bnew = byte(New)          ; convert new to byte.
     b[w] = bnew[0]            ; replace old by new.
     return, string(b)         ; return new string.
-    
+
   endif else begin
-  
+
     result = mgh_reproduce('', original)
-    
+
     for i=0,n_elements(original)-1 do begin
-    
+
       l1 = strlen(old)
       l2 = strlen(new)
       last_pos = 0
@@ -113,13 +113,13 @@ function mgh_str_subst, original, old, new
         endif
         last_pos = pos + l2
       endwhile
-      
+
       result[i] = copy
-      
+
     endfor
-    
+
     return, result
-    
+
   endelse
 
 end

@@ -37,9 +37,9 @@ function mgh_format_integer, value, FORMAT=format
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(format) eq 0 then format = '(I0.0)'
-  
+
   result = strtrim(string(round(value), FORMAT=format), 2)
-  
+
   return, result
 
 end

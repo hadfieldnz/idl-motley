@@ -13,7 +13,7 @@
 ; CALLING SEQUENCE:
 ;   ID = CMUNIQUE_ID([STRINGVAL])
 ;
-; DESCRIPTION: 
+; DESCRIPTION:
 ;
 ;   CMUNIQUE_ID returns a "unique" 8 character identifier.
 ;   Programmers can use this routine to derive unique strings which
@@ -48,7 +48,7 @@
 ;   The 8-character identifier string.
 ;
 ; EXAMPLE:
-;   
+;
 ;   Print two distinct identifiers.
 ;     IDL> print, cmunique_id(), ' ', cmunique_id()
 ;     29C47600 79061C57
