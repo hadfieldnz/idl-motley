@@ -97,9 +97,9 @@
 ;     containing a large number of files (~1000 or more) by removing a call to
 ;     MGHncSequence::VarInfo from inside the files loop to outside the loop.
 ;   Mark Hadfield, 2010-11:
-;     Fixed bug introduced by IDL 8.0: the datatype name returned for 
+;     Fixed bug introduced by IDL 8.0: the datatype name returned for
 ;     short-integer netCDF variables changed from "SHORT" to "INT', breaking
-;     the data-unpacking code. 
+;     the data-unpacking code.
 ;   Mark Hadfield, 2015-03:
 ;     The Add method no longer checks that the objects being added are of type
 ;     MGHncReadFile. This allows, for example, the addition of MGHncSequence
@@ -120,7 +120,7 @@ function MGHncSequence::Init, files, $
    self.ensemble = keyword_set(ensemble)
 
    self.name = n_elements(name) gt 0 ? name : ''
-   
+
    if self.ensemble then begin
       self.unlimited = n_elements(unlimited) gt 0 ? unlimited : 'record'
    endif else begin
@@ -344,17 +344,17 @@ pro MGHncSequence::Add, file, _REF_EXTRA=extra
 
   if size(file, /TNAME) ne 'OBJREF' then $
     message, 'A list of object references must be supplied'
-    
+
   n_file = n_elements(file)
-  
+
   if n_file eq 0 then return
-  
+
   for i_file=0,n_file-1 do begin
-  
+
     ofile = file[i_file]
-    
+
     if ~ self.ensemble then begin
-    
+
       ;; If the name of the sequence's unlimited dimension has not
       ;; yet been established, take it from the current
       ;; file. Otherwise check that the current file has the
@@ -362,7 +362,7 @@ pro MGHncSequence::Add, file, _REF_EXTRA=extra
       ;; file in the sequence, with no unlimited dimension. In that
       ;; case the MGHncSequence object should act like an
       ;; MGHncReadFile object with no unlimited dimension.
-      
+
       if strlen(self.unlimited) eq 0 then begin
         self.unlimited = ofile->DimNames(/UNLIMITED)
       endif else begin
@@ -371,11 +371,11 @@ pro MGHncSequence::Add, file, _REF_EXTRA=extra
           message, string(FORMAT=fmt, i_file)
         endif
       endelse
-      
+
     endif
-    
+
     self.ncfiles->Add, ofile, _STRICT_EXTRA=extra
-    
+
   endfor
 
 end
@@ -399,7 +399,7 @@ function MGHncSequence::AttGet, P1, P2, GLOBAL=global
    if n_files gt 0 then begin
 
       onc = self.ncfiles->Get(POSITION=0)
-      
+
       if keyword_set(global) then begin
         result = onc->AttGet(/GLOBAL, P1)
       endif else begin
@@ -457,7 +457,7 @@ pro MGHncSequence::DimInfo, Dim, $
    self->GetProperty, N_FILES=n_files, UNLIMITED=unlimited
 
    is_unlimited = (dim eq unlimited)
-   
+
    if n_files gt 0 then begin
       if is_unlimited then begin
          self->GetProperty, N_RECORDS=dimsize
@@ -524,7 +524,7 @@ function MGHncSequence::HasDim, Name
    compile_opt LOGICAL_PREDICATE
 
    self->GetProperty, N_FILES=n_files
-   
+
    if n_files eq 0 then return, 0B
 
    onc = self.ncfiles->Get()
@@ -695,7 +695,7 @@ function MGHncSequence::HasAtt, P1, P2, GLOBAL=global
    compile_opt LOGICAL_PREDICATE
 
    self->GetProperty, N_FILES=n_files
-   
+
    if n_files gt 0 then begin
       onc = self.ncfiles->Get()
       return, onc->HasAtt(p1, p2, GLOBAL=global)
@@ -741,7 +741,7 @@ function MGHncSequence::VarGet, VarName, $
    if n_files eq 0 then return, ''
 
    ;; Special handling if the variable varies in the unlimited dimension
-   
+
    if self.ensemble then begin
      dims = self->VarDimNames(varname, COUNT=n_dims)
      unlim = 1B
@@ -797,7 +797,7 @@ function MGHncSequence::VarGet, VarName, $
          ;; dimension fewer than the netCDF variable.
          self->VarInfo, varname, DATATYPE=datatype
          is_char = temporary(datatype) eq 'CHAR'
-         
+
          ;; Determine the datatype of the return value (*not* the same as
          ;; the netCDF datatype if autoscaling is in effect) and create
          ;; an output array.
@@ -823,7 +823,7 @@ function MGHncSequence::VarGet, VarName, $
                bget[locs] = 1B
 
                onc = self.ncfiles->Get(POSITION=f)
-               
+
                if self.ensemble then begin
                  ;; Still some bugs here
                  count_f = n_dims lt 2 ? [1] : my_count[0:n_dims-2]

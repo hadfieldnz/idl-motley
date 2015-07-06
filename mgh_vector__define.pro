@@ -101,7 +101,7 @@ function MGH_Vector::Init, SIZE=size
    self.values = ptr_new([])
 
    self.size = 0
-   
+
    self.count = 0
 
    return, 1
@@ -285,7 +285,7 @@ end
 ;       becomes the last dimension in the output array. The default is
 ;       for it to become the first. This keyword may not be set
 ;       together with the FLATTEN keyword.
-;   
+;
 ;     TYPE (input, integer scalar)
 ;       Specify the type of the output array, using the same
 ;       conventions as the TYPE keyword to MAKE_ARRAY. The default is
@@ -327,12 +327,12 @@ function MGH_Vector::ToArray, $
       endelse
 
    endif else begin
-   
+
       ;; The following scalar will be replicated to form the result array
-      item = n_elements(type) gt 0 ? (make_array(1, TYPE=type))[0] : (*val[0])[0] 
-      
+      item = n_elements(type) gt 0 ? (make_array(1, TYPE=type))[0] : (*val[0])[0]
+
       if keyword_set(flatten) then begin
-         
+
          if keyword_set(transpose) then $
               message, 'The FLATTEN and TRANSPOSE keywords may not be used together'
 
@@ -366,25 +366,25 @@ function MGH_Vector::ToArray, $
          result = replicate(item, dim)
          if keyword_set(transpose) then begin
             case n_dim of
-               0: for i=0,self.count-1 do result[i] = *val[i] 
-               1: for i=0,self.count-1 do result[*,i] = *val[i] 
-               2: for i=0,self.count-1 do result[*,*,i] = *val[i] 
-               3: for i=0,self.count-1 do result[*,*,*,i] = *val[i] 
-               4: for i=0,self.count-1 do result[*,*,*,*,i] = *val[i] 
-               5: for i=0,self.count-1 do result[*,*,*,*,*,i] = *val[i] 
-               6: for i=0,self.count-1 do result[*,*,*,*,*,*,i] = *val[i] 
-               7: for i=0,self.count-1 do result[*,*,*,*,*,*,*,i] = *val[i] 
+               0: for i=0,self.count-1 do result[i] = *val[i]
+               1: for i=0,self.count-1 do result[*,i] = *val[i]
+               2: for i=0,self.count-1 do result[*,*,i] = *val[i]
+               3: for i=0,self.count-1 do result[*,*,*,i] = *val[i]
+               4: for i=0,self.count-1 do result[*,*,*,*,i] = *val[i]
+               5: for i=0,self.count-1 do result[*,*,*,*,*,i] = *val[i]
+               6: for i=0,self.count-1 do result[*,*,*,*,*,*,i] = *val[i]
+               7: for i=0,self.count-1 do result[*,*,*,*,*,*,*,i] = *val[i]
             endcase
          endif else begin
             case n_dim of
-               0: for i=0,self.count-1 do result[i] = *val[i] 
-               1: for i=0,self.count-1 do result[i,*] = *val[i] 
-               2: for i=0,self.count-1 do result[i,*,*] = *val[i] 
-               3: for i=0,self.count-1 do result[i,*,*,*] = *val[i] 
-               4: for i=0,self.count-1 do result[i,*,*,*,*] = *val[i] 
-               5: for i=0,self.count-1 do result[i,*,*,*,*,*] = *val[i] 
-               6: for i=0,self.count-1 do result[i,*,*,*,*,*,*] = *val[i] 
-               7: for i=0,self.count-1 do result[i,*,*,*,*,*,*,*] = *val[i] 
+               0: for i=0,self.count-1 do result[i] = *val[i]
+               1: for i=0,self.count-1 do result[i,*] = *val[i]
+               2: for i=0,self.count-1 do result[i,*,*] = *val[i]
+               3: for i=0,self.count-1 do result[i,*,*,*] = *val[i]
+               4: for i=0,self.count-1 do result[i,*,*,*,*] = *val[i]
+               5: for i=0,self.count-1 do result[i,*,*,*,*,*] = *val[i]
+               6: for i=0,self.count-1 do result[i,*,*,*,*,*,*] = *val[i]
+               7: for i=0,self.count-1 do result[i,*,*,*,*,*,*,*] = *val[i]
             endcase
          endelse
 

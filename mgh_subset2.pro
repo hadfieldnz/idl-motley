@@ -55,7 +55,7 @@ function mgh_subset2, x, y, xp, yp, EMPTY=empty, HALO=halo
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    if n_elements(x) eq 0 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'x'
    if n_elements(y) eq 0 then $
@@ -68,13 +68,13 @@ function mgh_subset2, x, y, xp, yp, EMPTY=empty, HALO=halo
 
    if ~ array_equal(size(x, /DIMENSIONS), size(y, /DIMENSIONS)) then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'x', 'y'
-        
+
    if n_elements(halo) eq 0 then halo = 0
 
-   ;; Checking of the xp and yp parameters is left to the MGH_PNPOLY function 
-   
+   ;; Checking of the xp and yp parameters is left to the MGH_PNPOLY function
+
    inside = mgh_pnpoly(x, y, xp, yp)
-   
+
    if max(inside) eq 0 then begin
       if arg_present(empty) then begin
          empty = 1B
@@ -83,22 +83,22 @@ function mgh_subset2, x, y, xp, yp, EMPTY=empty, HALO=halo
          message, /INFORM, 'Range is empty'
       endelse
    endif
-   
+
    ;; Locate first and last columns with at least one point inside the polygon
-   
+
    irange = mgh_minmax(where(max(inside, DIMENSION=2)))
    jrange = mgh_minmax(where(max(inside, DIMENSION=1)))
-   
+
    if halo gt 0 then begin
 
       dim = size(x, /DIMENSIONS)
-   
+
       irange[0] = irange[0] - halo > 0
       irange[1] = irange[1] + halo < (dim[0]-1)
-   
+
       jrange[0] = jrange[0] - halo > 0
       jrange[1] = jrange[1] + halo < (dim[1]-1)
-   
+
    endif
 
    return, [irange,jrange]

@@ -55,7 +55,7 @@
 ;   Mark Hadfield 2010-01:
 ;     - When AVI files are written via the EvenMenuBar method, an hourglass is
 ;       now showned and the frames are not displayed. This reduces time taken
-;       by ~ 40%.  
+;       by ~ 40%.
 ;   Mark Hadfield 2010-10:
 ;     - Added menu entries to write a single frame to a PDF file, using the
 ;       MGH_Window object's WritePictureToPDF method, which uses the IDLgrPDF
@@ -63,18 +63,18 @@
 ;   Mark Hadfield 2010-11:
 ;     - Added WriteAnimationToPDFFile method and corresponding menu entries
 ;       to write the animation to a multi-page PDF files, using the multi-page
-;       capability of the IDLgrPDF class, added in IDL 8.0.1.   
+;       capability of the IDLgrPDF class, added in IDL 8.0.1.
 ;   Mark Hadfield 2011-10:
 ;     - Removed all remaining MPEG-related code.
 ;   Mark Hadfield 2011-11:
-;     - The player will now export animations in AVI format with a choice of 2 
+;     - The player will now export animations in AVI format with a choice of 2
 ;       codecs: MSVC (Win32 only) and MPEG4 (IDL 8.1 on all platforms). A
 ;       QUALITY keyword has been added to WriteAnimationToVideoFile allowing the
-;       target bit rate to be set as a fraction of the bit rate required to 
+;       target bit rate to be set as a fraction of the bit rate required to
 ;       render the images in uncompressed form. The default QUALITY is currently
 ;       0.15, which seems to work OK for MPEG4.
 ;     - Removed "Tools/Clipboard Viewer" menu item, as the clipboard viewer is
-;       not available in recent versions of Windows.   
+;       not available in recent versions of Windows.
 ;   Mark Hadfield 2012-02:
 ;     - Code in EventMenuBar cleaned up.
 ;   Mark Hadfield 2013-11:
@@ -245,7 +245,7 @@ pro MGH_Player::AssembleFrame, position
   ;; defined, scalar integer >= 0.
 
   self.animation->GetProperty, MULTIPLE=multiple
-  
+
   if multiple then begin
     p0 = (position-self.cumulative+1) > 0
     p1 = position
@@ -286,7 +286,7 @@ pro MGH_Player::BuildMenuBar
    ;; Populate menus in turn...
 
    ;; ...File menu
-   
+
    if self.changeable then begin
       obar->NewItem, PARENT='File', $
            ['Open...','Save...','Clear','Export Animation', $
@@ -327,7 +327,7 @@ pro MGH_Player::BuildMenuBar
    obar->NewItem, PARENT='Edit.Copy Frame', ['Bitmap','Vector']
 
    ;; ...Tools menu
-   
+
    obar->NewItem, PARENT='Tools', SEPARATOR=[0,1,1,0], $
         ['Time Animation','Export Data...','Set Cumulative...']
 
@@ -404,7 +404,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.idl_animation'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -428,7 +428,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.avi'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -456,13 +456,13 @@ function MGH_Player::EventMenuBar, event
         endif
         return, 0
       end
-      
+
       'FILE.EXPORT ANIMATION.FLC': begin
          self->GetProperty, GRAPHICS_TREE=graphics_tree
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.flc'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -478,7 +478,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.mj2'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -494,7 +494,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.mj2'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -510,7 +510,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.mp4'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -526,7 +526,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.pdf'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -542,7 +542,7 @@ function MGH_Player::EventMenuBar, event
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.tif'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -568,13 +568,13 @@ function MGH_Player::EventMenuBar, event
         endif
         return, 0
       end
-      
+
       'FILE.EXPORT ANIMATION.ZIP': begin
          self->GetProperty, GRAPHICS_TREE=graphics_tree
          if obj_valid(graphics_tree) then begin
             graphics_tree->GetProperty, NAME=name
             ext = '.zip'
-            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : '' 
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
             filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
@@ -600,7 +600,7 @@ function MGH_Player::EventMenuBar, event
         endif
         return, 0
       end
-      
+
       'FILE.EXPORT FRAME.EPS': begin
          self->GetProperty, GRAPHICS_TREE=graphics_tree, POSITION=position
          graphics_tree->GetProperty, NAME=name
@@ -1057,20 +1057,20 @@ pro MGH_Player::WriteAnimationToMovieFile, file, $
    type = strupcase(type)
 
    if n_elements(display) eq 0 then display = 1
-   
+
    self.animation->GetProperty, $
         GRAPHICS_TREE=graphics_tree, N_FRAMES=n_frames
 
    self.animator->GetPlayBack, $
         RANGE=play_range, USE_RANGE=play_use_range
-        
+
    if play_use_range then begin
       if n_elements(range) eq 0 then range = play_range[0:1]
       if n_elements(stride) eq 0 then stride = play_range[2]
    endif else begin
       if n_elements(range) eq 0 then range = [0,n_frames-1]
       if n_elements(stride) eq 0 then stride = 1
-   endelse        
+   endelse
 
    self.window->GetProperty, UNITS=units, DIMENSIONS=dimensions
 
@@ -1150,7 +1150,7 @@ pro MGH_Player::WriteAnimationToMJ2000File, file, $
    endif else begin
       if n_elements(range) eq 0 then range = [0,n_frames-1]
       if n_elements(stride) eq 0 then stride = 1
-   endelse        
+   endelse
 
    self.window->GetProperty, UNITS=units, DIMENSIONS=dimensions
 
@@ -1250,7 +1250,7 @@ pro MGH_Player::WriteAnimationToPDFFile, file, $
    endif else begin
       if n_elements(range) eq 0 then range = [0,n_frames-1]
       if n_elements(stride) eq 0 then stride = 1
-   endelse        
+   endelse
 
    self.window->GetProperty, UNITS=units, DIMENSIONS=dimensions
 
@@ -1312,9 +1312,9 @@ pro MGH_Player::WriteAnimationToVideoFile, file, $
         message, 'IDLffVideoWrite class is not available'
 
    if n_elements(display) eq 0 then display = 1B
-   
+
    if n_elements(fps) eq 0 then fps = 15
-   
+
    if n_elements(quality) eq 0 then quality = 0.15
 
    self.animation->GetProperty, $
@@ -1322,14 +1322,14 @@ pro MGH_Player::WriteAnimationToVideoFile, file, $
 
    self.animator->GetPlayBack, $
         RANGE=play_range, USE_RANGE=play_use_range
-        
+
    if play_use_range then begin
       if n_elements(range) eq 0 then range = play_range[0:1]
       if n_elements(stride) eq 0 then stride = play_range[2]
    endif else begin
       if n_elements(range) eq 0 then range = [0,n_frames-1]
       if n_elements(stride) eq 0 then stride = 1
-   endelse     
+   endelse
 
    self.window->GetProperty, UNITS=units, DIMENSIONS=dimensions
 
@@ -1365,8 +1365,8 @@ pro MGH_Player::WriteAnimationToVideoFile, file, $
          message, /INFORM, string(n_written, dim, file, FORMAT=fmt)
 
          ovid = obj_new('IDLffVideoWrite', FORMAT=format, file)
-         
-         bit_rate = quality*dim[0]*dim[1]*24*fps 
+
+         bit_rate = quality*dim[0]*dim[1]*24*fps
 
          stream = ovid.AddVideoStream(dim[0], dim[1], fps, BIT_RATE=bit_rate, CODEC=codec)
 

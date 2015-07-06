@@ -24,28 +24,28 @@ pro mgh_example_legend, option
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(option) eq 0 then option = 0
-  
+
   ograph = obj_new('MGHgrGraph2D', ASPECT=0.9, NAME='Example graph with legend')
-  
+
   ograph->NewFont
-  
+
   ograph->NewMask
-  
+
   ograph->NewTitle
-  
+
   ograph->NewAxis, DIRECTION=0, RANGE=[0,10]
   ograph->NewAxis, DIRECTION=1, RANGE=[1,9]
-  
+
   ograph->NewSymbol, CLASS='MGHgrSymbol', 0, $
     FILL=0, COLOR=mgh_color('blue'), RESULT=osym0
   ograph->NewSymbol, CLASS='MGHgrSymbol', 0, $
     FILL=1, COLOR=mgh_color('red'), RESULT=osym1
-    
+
   ograph->NewAtom, 'IDLgrPlot', $
     DATAX=findgen(11), DATAY=findgen(11), SYMBOL=osym0
   ograph->NewAtom, 'IDLgrPlot', $
     DATAX=1+findgen(10), DATAY=findgen(10), LINE=1, SYMBOL=osym1
-    
+
   ;; For option = 0 the legend is scaled to the axes, for option = 1
   ;; it is not.  I tried it both ways because I expected that the
   ;; scaling would affect the symbol sizes, so that in the latter
@@ -53,9 +53,9 @@ pro mgh_example_legend, option
   ;; legend. This turns out not to be true because the legend object
   ;; resets the size of its symbols and reverses the change
   ;; afterwards every time it is drawn.
-  
+
   case option of
-  
+
     0: begin
       ograph->NewAtom, 'MGHgrLegend', FONT=ograph->GetFont(), $
         GLYPH_WIDTH=5, /SHOW_OUTLINE, BORDER_GAP=0.5, LOCATION=[4,8], $
@@ -68,9 +68,9 @@ pro mgh_example_legend, option
         LOCATION=ograph->NormPosition([4,8]), $
         ITEM_NAME=['A','B'], ITEM_LINESTYLE=[0,1], ITEM_OBJECT=[osym0, osym1]
     end
-    
+
   endcase
-  
+
   mgh_new, 'MGH_Window', GRAPHICS_TREE=ograph
 
 end

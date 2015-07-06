@@ -54,34 +54,34 @@ function mgh_diff, a, d
 
   n_dim = size(a, /N_DIMENSIONS)
   dim = size(a, /DIMENSIONS)
-  
+
   if size(a, /N_ELEMENTS) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'a'
-    
+
   if n_elements(d) eq 0 then d = 1
-  
+
   if d gt n_dim then message, 'Dimension not found in input array'
-  
+
   ;; Copy input values into a temporary arrray, reformed to three
   ;; dimensions, such that the dimension to be differenced is the second
   ;; one.
-  
+
   inner = 1
   for i=0,d-2 do inner *= dim[i]
-  
+
   outer = 1
   for i=d,n_dim-1 do outer *= dim[i]
-  
+
   r = reform(a, [inner,dim[d-1],outer])
-  
+
   ;; Carry out differencing
-  
+
   r = r[*,1:dim[d-1]-1,*] - r[*,0:dim[d-1]-2,*]
-  
+
   ;; Reform result and return
-  
+
   dim[d-1] -= 1
-  
+
   return, reform(r, dim)
 
 end

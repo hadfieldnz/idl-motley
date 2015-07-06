@@ -67,13 +67,13 @@
 ;     Fixed bug reported by Metthew Savoie: UNLIMITED property incorrect
 ;     when the first dimension in the file is unlimited.
 ;   Mark Hadfield, 2009-02:
-;     Corrected minor error in VarGet. 
+;     Corrected minor error in VarGet.
 ;   Mark Hadfield, 2010-10:
 ;     - The code in the VarInfo method to dermine the FILL_VALUE
 ;       property has been replaced with the corresponding code from the
 ;       MGHncReadFile object. It can cope with the NCDF_VARINQ function
 ;       returning a datatype of either 'INT' or 'SHORT' for a 2-byte
-;       integer. 
+;       integer.
 ;     - The VarAdd method can now accept either INT or SHORT
 ;       keywords. Both cause the new variable to contain 2-byte
 ;       integer data.
@@ -84,7 +84,7 @@
 ;    - An important fix to the AttPut method when writing IDL strings: the CHAR
 ;      keyword is now passed explicitly to NCDF_ATTPUT to ensure that strings
 ;      get written as the netCDF CHAR type rather than the netCDF STRING type. See
-;      http://www.unidata.ucar.edu/mailing_lists/archives/netcdfgroup/2014/msg00100.html 
+;      http://www.unidata.ucar.edu/mailing_lists/archives/netcdfgroup/2014/msg00100.html
 ;-
 ; MGHncFile::Init
 ;
@@ -102,25 +102,25 @@ function MGHncFile::Init, file, $
   compile_opt LOGICAL_PREDICATE
 
   on_error, 2
-  
+
   if (n_elements(file_name) eq 0) && (n_elements(file) gt 0) then file_name = file
-  
+
   if n_elements(file_name) ne 1 then $
     message, "A valid netCDF file name must be supplied."
-    
+
   if size(file_name, /TNAME) ne 'STRING' then $
     message, "A valid netCDF file name must be supplied."
-    
+
   self.ncid = -1
-  
+
   self.file_name = file_name
-  
+
   self.vars = obj_new('IDL_Container')
-  
+
   mode = keyword_set(create) ? 'CREATE' : 'OPEN'
-  
+
   self.writable = (mode eq 'OPEN' && keyword_set(modify)) || mode eq 'CREATE'
-  
+
   if mode eq 'CREATE' then begin
     if n_elements(clobber) ne 1 then clobber = 0
     if file_test(self.file_name) then begin
@@ -131,12 +131,12 @@ function MGHncFile::Init, file, $
       endelse
     endif
   endif
-  
+
   if mode eq 'OPEN' then begin
     if ~ file_test(self.file_name, /READ) then $
       message, "The specified netCDF file cannot be read: "+self.file_name
   endif
-  
+
   if keyword_set(tmp) then begin
     self.temp_name = filepath(cmunique_id()+'.nc', /TMP)
     case mode of
@@ -164,7 +164,7 @@ function MGHncFile::Init, file, $
       end
     endcase
   endelse
-  
+
   return, 1
 
 end
@@ -297,7 +297,7 @@ pro MGHncFile::AttAdd, P1, P2, P3, GLOBAL=global, _REF_EXTRA=extra
         message, /INFORM, "Can't add attributes to a READONLY netCDF."
 
    self->SetMode, /DEFINE
-   
+
    if keyword_set(global) then begin
       if size(P2, /TYPE) eq 7 then begin
         ncdf_attput, self.ncid, /GLOBAL, P1, P2, /CHAR, _STRICT_EXTRA=extra
@@ -365,7 +365,7 @@ function MGHncFile::AttGet, P1, P2, GLOBAL=global
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    if keyword_set(global) then begin
       info = ncdf_attinq(self.ncid, /GLOBAL, P1)
       ncdf_attget, self.ncid, /GLOBAL, P1, result
@@ -455,10 +455,10 @@ pro MGHncFile::DimInfo, dim, ALL=all, DIMSIZE=dimsize, IS_UNLIMITED=is_unlimited
 
    if n_elements(dim) eq 0 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'dim'
-     
+
    if n_elements(dim) gt 1 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'dim'
-     
+
    if size(dim, /TYPE) ne 7 then $
      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'dim'
 
@@ -670,9 +670,9 @@ pro MGHncFile::Sync
     message, /INFORM, "Can't synchronise a READONLY netCDF."
     return
   endif
-  
+
   self->SetMode, /DATA
-  
+
   ncdf_control, self.ncid, /SYNC
 
 end
@@ -714,7 +714,7 @@ pro MGHncFile::VarAdd, var, Dims, $
       endcase
    endif
 
-   if keyword_set(kint) then kshort = 1 
+   if keyword_set(kint) then kshort = 1
 
    n_dims = n_elements(Dims)
    if n_dims eq 1 then if strlen(dims[0]) eq 0 then n_dims = 0

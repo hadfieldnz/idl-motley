@@ -21,7 +21,7 @@
 ;   specified here invoke the command in the shell spawned by
 ;   IDL. This can be done in a variety of ways depending on the
 ;   operating system and shell.
-;   
+;
 ;   On Windows, the commands can be invoked through wrapper .bat files,
 ;   placed in a directory on the PATH. Either Cygwin or Windows-native
 ;   (eg. GnuWin32) executables can be used.
@@ -79,8 +79,8 @@
 ;       (cf. GIF above).  I have found Zip compression the best. It is
 ;       supported by ImageMagick and also by my preferred TIFF viewer,
 ;       Xnview (http://perso.wanadoo.fr/pierre.g/xnview/enhome.html).
-;       Note that, for medium-to-large animations, memory is an issue, as 
-;       the convert command that gathers the image sequence appears to 
+;       Note that, for medium-to-large animations, memory is an issue, as
+;       the convert command that gathers the image sequence appears to
 ;       keep the whole thing in memory
 ;
 ;   The following are handled by applications other than ImageMagick:
@@ -128,7 +128,7 @@
 ;     - The FORMAT property can no longer be changed after object is initialised.
 ;     - References to MNG support have been dropped. (MNG may or may not still be
 ;       supported via ImageMagick.)
-;     - Reformatted source code. 
+;     - Reformatted source code.
 ;     - File lists used by the Save method are now all written in Unix text file
 ;       format, with backslashes path seprators replaced by forward slashes. The
 ;       latter change was needed to get things working with the Cygwin ZIP command.
@@ -143,18 +143,18 @@ function MGHgrMovieFile::Init, $
 
   if n_elements(format) eq 0 then format = 'ZIP'
   self.format = strupcase(format)
-  
+
   case self.format of
     'FLC': self.extension = 'ppm'
     else : self.extension = 'tif'
   endcase
-  
+
   self.tempdir = filepath('', ROOT=filepath('', /TMP), SUBDIR=cmunique_id())
-  
+
   file_mkdir, self.tempdir
-  
+
   self->SetProperty, FILE=file
-  
+
   return, 1
 
 end
@@ -170,7 +170,7 @@ pro MGHgrMovieFile::Cleanup
   compile_opt LOGICAL_PREDICATE
 
   for p=0,self.count-1 do file_delete, self->FrameFileName(p)
-  
+
   file_delete, self.tempdir
 
 end
@@ -186,11 +186,11 @@ pro MGHgrMovieFile::GetProperty, $
   compile_opt LOGICAL_PREDICATE
 
   count = self.count
-  
+
   dimensions = self.dimensions
-  
+
   file = self.file
-  
+
   format = self.format
 
 end
@@ -240,7 +240,7 @@ function MGHgrMovieFile::FrameFileName, position
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(position) eq 0 then position = 0
-  
+
   result = mgh_reproduce('', position)
   fmt = '(%"%s.%6.6d.%s")'
   for i=0,n_elements(position)-1 do $
@@ -261,24 +261,24 @@ pro MGHgrMovieFile::Put, image
   compile_opt LOGICAL_PREDICATE
 
   position = self.count
-  
+
   n_dims = size(image, /N_DIMENSIONS)
-  
+
   if (n_dims lt 2) || (n_dims gt 3) then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'image'
-    
+
   if product(self.dimensions) eq 0 then $
     self.dimensions=(size(image, /DIMENSIONS))[n_dims-2:n_dims-1]
-    
+
   ;; Generate image file
-  
+
   file = self->FrameFileName(position)
-  
+
   case self.extension of
-    'ppm': write_ppm, file, image 
+    'ppm': write_ppm, file, image
     'tif': write_tiff, file, image, ORIENTATION=1
   endcase
-  
+
   self.count += 1
 
 end
@@ -294,14 +294,14 @@ pro MGHgrMovieFile::Save
   compile_opt LOGICAL_PREDICATE
 
   if file_test(self.file) then file_delete, self.file
-  
+
   ;; Construct a file-list file. On Windows, convert the backslash directory
   ;; separators to foward slashes to avoid problems with Cygwin
   ;; commands (specifically Cygwin zip, which otherwise botches writing
   ;; the ZIP file index).
-  
+
   file_list = filepath('list.dat', ROOT=self.tempdir)
-  
+
   openw, lun, file_list, /GET_LUN
   for i=0,self.count-1 do begin
     f = self->FrameFileName(i)
@@ -316,9 +316,9 @@ pro MGHgrMovieFile::Save
   ;; (delay in ms). It would be nice to be able to alter
   ;; this but I haven't got around to it. Handling of options
   ;; generally needs to be cleaned up.
-  
+
   case 1B of
-  
+
     self.format eq 'FLC': begin
       sdim = string(FORMAT='(%"%dx%d")', 2*(self.dimensions/2))
       fmt = '(%"ppm2fli -vv -Qn 1024 -s 67 -g %s \"%s\" \"%s\"")'
@@ -329,7 +329,7 @@ pro MGHgrMovieFile::Save
         spawn, string(FORMAT=fmt, sdim, file_list, self.file)
       endelse
     end
-    
+
     self.format eq 'ZIP': begin
       fmt = '(%"zip -v -j -D \"%s\" -@ < \"%s\"")'
       if !version.os_family eq 'Windows' then begin
@@ -339,7 +339,7 @@ pro MGHgrMovieFile::Save
         spawn, string(FORMAT=fmt, self.file, file_list)
       endelse
     end
-    
+
     else: begin
       fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
       if !version.os_family eq 'Windows' then begin
@@ -355,7 +355,7 @@ pro MGHgrMovieFile::Save
         spawn, string(FORMAT=fmt, file_list, self.format, self.file)
       endelse
     end
-    
+
   endcase
 
   file_delete, file_list

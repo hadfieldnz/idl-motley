@@ -178,7 +178,7 @@ function MGHgrSymbol::Init, pstyle, $
       end
 
    endcase
-   
+
    if self.rotatable then begin
       data = obj_new('IDLgrModel')
       data->Add, self.atom

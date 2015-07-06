@@ -57,9 +57,9 @@ pro MGH_NEW, name, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, $
 
   if size(name, /TYPE) ne 7 then $
     message, 'The first parameter must be a class name.'
-    
+
   case size(_extra, /TYPE) of
-  
+
     0: begin
       case n_params() of
         1:  result = obj_new(Name)
@@ -76,7 +76,7 @@ pro MGH_NEW, name, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, $
         else:  message,  BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumparm', n_params()
       endcase
     end
-    
+
     else: begin
       case n_params() of
         1:  result = obj_new(Name, $
@@ -104,7 +104,7 @@ pro MGH_NEW, name, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, $
         else:  message,  BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumparm', n_params()
       endcase
     end
-    
+
   endcase
 
 end

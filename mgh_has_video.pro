@@ -29,13 +29,13 @@ function mgh_has_video, FORMaT=format, CODEC=codec
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   if ~ mgh_class_exists('IDLffVideoWrite') then return, 0B
-  
+
   file = filepath(cmunique_id()+'.avi', /TMP)
 
   ovid = obj_new('IDLffVideoWrite', file)
-  
+
   if n_elements(format) gt 0 then begin
     f = ovid->GetFormats()
     if max(strmatch(f, format, /FOLD_CASE)) eq 0 then return, 0B
@@ -45,7 +45,7 @@ function mgh_has_video, FORMaT=format, CODEC=codec
     c = ovid->GetCodecs()
     if max(strmatch(c, codec, /FOLD_CASE)) eq 0 then return, 0B
   endif
-  
+
   return, 1B
 
 end

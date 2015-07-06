@@ -18,7 +18,7 @@
 ;   following keywords and passes them to GRIDDATA: DELTA, DIMENSION,
 ;   GRID, START, XOUT, YOUT. In addition the following keywords are
 ;   supported:
-;   
+;
 ;   DOUBLE (input, switch)
 ;     For double-precision output.
 ;

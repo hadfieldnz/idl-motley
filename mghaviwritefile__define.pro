@@ -125,7 +125,7 @@ function MGHaviWriteFile::Init, $
    r = bytarr(256)
    g = bytarr(256)
    b = bytarr(256)
-   
+
    if keyword_set(true_color) then begin
       id=[24L,long(dimensions),lonarr(6)]
    endif else begin

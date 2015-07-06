@@ -25,20 +25,20 @@ pro mgh_cd_sticky, dir
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-  
+
   if ~ !mgh_prefs.sticky then return
-  
+
   if n_elements(dir) eq 0 then return
-  
+
   if strlen(dir) eq 0 then return
 
   cd, CURRENT=old_dir
-  
+
   if dir ne old_dir then begin
     message, /INFORM, string(dir, FORMAT='(%"Changing to directory %s")')
     cd, dir
   endif
-   
+
 end
 
 

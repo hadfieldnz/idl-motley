@@ -22,7 +22,7 @@
 ;     Set this keyword to cause the routine to use the absolute value
 ;     of each element in determining the minimum and maximum
 ;     values.This keyword has no effect for arrays of type byte or
-;     unsigned integer. 
+;     unsigned integer.
 ;
 ;   NAN (input, switch)
 ;     Set this keyword to cause the routine to check for occurrences

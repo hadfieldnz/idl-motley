@@ -408,7 +408,7 @@ pro MGH_GUI_PDmenu::NewItem, items, $
             message, 'ACCELERATOR string must be empty for pull-down menus'
          void = widget_button(parentID, CHECKED_MENU=checked_menu[i], /MENU, $
                               SEPARATOR=separator[i], UNAME=uname, VALUE=value)
-        
+
       endif else begin
          void = widget_button(parentID, ACCELERATOR=accelerator[i], CHECKED_MENU=checked_menu[i], $
                               SEPARATOR=separator[i], UNAME=uname, VALUE=value)

@@ -72,12 +72,12 @@ function mgh_pnpoly_calculate, x, y, xp, yp
   compile_opt HIDDEN
 
   n_pol = n_elements(xp)
-  
+
   if n_pol lt 3 then $
     message, 'Need at least 3 points to define polygon.'
-    
+
   inside = mgh_reproduce(0, x)
-  
+
   j = n_pol-1
   for i=0,n_pol-1 do begin
     betw = where(((yp[i] le y) and (y lt yp[j])) or $
@@ -92,7 +92,7 @@ function mgh_pnpoly_calculate, x, y, xp, yp
     endif
     j = i
   endfor
-  
+
   return, byte(inside mod 2)
 
 end
@@ -108,18 +108,18 @@ function mgh_pnpoly, x, y, xp, yp
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'x'
   if n_elements(y) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'y'
-    
+
   if ~ array_equal(size(x, /DIMENSIONS), size(y, /DIMENSIONS)) then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'x', 'y'
-    
+
   if n_elements(xp) eq 0 then $
     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xp'
-    
+
   ;; Calculations are carried out in a separate function so that
   ;; temporary arrays are created only when necessary.
-  
+
   xyp2d = size(xp, /N_DIMENSIONS) eq 2
-  
+
   if xyp2d then begin
     if (size(xp, /DIMENSIONS))[0] ne 2 then $
       message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgdimsize', 'xp'

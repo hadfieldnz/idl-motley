@@ -538,20 +538,20 @@ function MGH_GUI_Base::Init, $
   compile_opt LOGICAL_PREDICATE
 
   ;; Create a disposal container for easy clean up of resources.
-  
+
   self.disposal = obj_new('IDL_Container')
-  
+
   ;; Much of the widget base's behaviour depends on whether it is a
   ;; top-level base or a child. The former is the default; the latter
   ;; is achieved by specifying a PARENT property
-  
+
   self.parent = n_elements(parent) gt 0 ? parent : 0
-  
+
   ;; Specify a few key properties and create the main base. Pass to
   ;; it keywords related to TLB behaviour (adult only) and alignment
   ;; relative to parents (child only?). Keywords specifying layout of
   ;; children are passed to the layout base (later).
-  
+
   if self->IsTLB() then begin
     self.block = keyword_set(block)
     self.modal = keyword_set(modal)
@@ -583,7 +583,7 @@ function MGH_GUI_Base::Init, $
     self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
     self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
   endelse
-  
+
   ;; In IDL 5.4 the present function created a child base, called the "layout
   ;; base". This was the base to which other children were added and
   ;; it was also used to store a reference to the current object in
@@ -594,35 +594,35 @@ function MGH_GUI_Base::Init, $
   ;; so we can dispense with the multi-tiered structure. The LAYOUT
   ;; tag in the class structure is retained for backward
   ;; compatibility.
-  
+
   void = widget_base(self.base, /CONTEXT_MENU, $
     KILL_NOTIFY='MGH_GUI_BASE_KILL_NOTIFY', $
     UVALUE=mgh_widget_self(STORE=self))
-    
+
   self.layout = self.base
-  
+
   ;; Set the base's NOTIFY_REALIZE property.
-  
+
   self.notify_realize = keyword_set(notify_realize)
   if self.notify_realize then $
     widget_control, self.base, NOTIFY_REALIZE='MGH_GUI_BASE_NOTIFY_REALIZE'
-    
+
   ;; Set remaining properties & return
-  
+
   if self->IsTLB() then begin
     process_events = 0
   endif else begin
     process_events = n_elements(process_events) gt 0 ? process_events : 1
   endelse
-  
+
   ;; I don't think there is any valid reason to set UVALUE and UNAME
   ;; for a top-level base but I may change my mind.
-  
+
   self->MGH_GUI_Base::SetProperty, PROCESS_EVENTS=process_events, $
     TITLE=title, UNAME=uname, UVALUE=uvalue
-    
+
   self->Finalize, 'MGH_GUI_Base'
-  
+
   return, 1
 
 end
@@ -638,7 +638,7 @@ pro MGH_GUI_Base::Cleanup
   compile_opt LOGICAL_PREDICATE
 
   obj_destroy, self.disposal
-  
+
   if widget_info(self.base, /VALID_ID) then $
     widget_control, self.base, /DESTROY
 
@@ -684,7 +684,7 @@ pro MGH_GUI_Base::GetProperty, $
    valid = widget_info(self.base, /VALID_ID)
 
    visible = self.visible
-   
+
    if valid then begin
      geometry = widget_info(self.base, /GEOMETRY)
      managed = widget_info(self.base, /MANAGED)

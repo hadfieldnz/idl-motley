@@ -36,41 +36,41 @@ pro mgh_example_polyfill, option, SHIFT=shift
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(option) eq 0 then option = 0
-  
+
   if n_elements(shift) eq 0 then shift = 0
   if n_elements(shift) eq 1 then shift = [shift,shift]
-  
+
   ; Create a window dimensioned [500,500]
-  
+
   window, XSIZE=500, YSIZE=500
-  
+
   ; Set up coordinates defining a circle, radius 150, centred at 250
-  
+
   n_vert = 50
-  
+
   angle = 2.*!pi*findgen(n_vert+1)/float(n_vert)
-  
+
   x = 250 + 150*sin(angle)
   y = 250 + 150*cos(angle)
-  
+
   ; Shift the circle
-  
+
   x = x + shift[0]
   y = y + shift[1]
-  
+
   ; Generate & display and image using different methods depending on option argument
-  
+
   case option of
-  
+
     0: polyfill, x, y, /DEVICE
-    
+
     1: begin
       image = replicate(0B, 500, 500)
       p = polyfillv(x, y, 500, 500)
       if min(p) ge 0 then image[p] = 255B
       tv, image
     end
-    
+
     2: begin
       dname = !d.name
       set_plot, 'Z'
@@ -82,7 +82,7 @@ pro mgh_example_polyfill, option, SHIFT=shift
       set_plot, dname
       tv, image
     end
-    
+
     3: begin
       pol = [transpose(x),transpose(y)]
       pol = mgh_polyclip(pol, 0, 0, 0, COUNT=count)
@@ -97,7 +97,7 @@ pro mgh_example_polyfill, option, SHIFT=shift
       endcase
       tv, image
     end
-    
+
     4: begin
       roi = obj_new('IDLanROI', x, y)
       xx = rebin(findgen(500),500,500)
@@ -108,19 +108,19 @@ pro mgh_example_polyfill, option, SHIFT=shift
       image[where(inside)] = 255B
       tv, image
     end
-    
+
     5: begin
       xx = rebin(findgen(500),500,500)
       yy = rebin(findgen(1,500),500,500)
       image = 255B*mgh_pnpoly(xx, yy, x, y)
       tv, image
     end
-    
+
     6: begin
       image = 255*mgh_polyfilla(x, y, 500, 500, PACK=0)
       tv, image
     end
-    
+
   endcase
 
 end

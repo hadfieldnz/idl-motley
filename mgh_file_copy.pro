@@ -95,9 +95,9 @@ pro mgh_file_copy, InFile, OutFile, $
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-   
+
   if keyword_set(bunzip2) then begin
-  
+
     if keyword_set(verbose) then begin
       msg = string(FORMAT='(%"Copying file %s to %s")', infile, outfile)
       message, /INFORM, temporary(msg)
@@ -109,21 +109,21 @@ pro mgh_file_copy, InFile, OutFile, $
     endif else begin
       spawn, cmd
     endelse
-    
+
   endif else begin
-  
+
     openr, inlun, InFile, /GET_LUN, COMPRESS=keyword_set(gunzip)
     openw, outlun, OutFile, /GET_LUN, COMPRESS=keyword_set(gzip)
-    
+
     if keyword_set(verbose) then begin
       fs = fstat(inlun)
       fmt = '(%"Copying file %s (%0.3f MiB) to %s")'
       msg = string(FORMAT=temporary(fmt), infile, 2.^(-20)*fs.size, outfile)
       message, /INFORM, temporary(msg)
     endif
-    
+
     if keyword_set(text) then begin
-    
+
       while ~ eof(inlun) do begin
         sline = ''
         readf, inlun, sline
@@ -133,21 +133,21 @@ pro mgh_file_copy, InFile, OutFile, $
           printf, outlun, sline
         endelse
       endwhile
-      
+
     endif else begin
-    
+
       if n_elements(bufsize) eq 0 then bufsize = 2^18
-      
+
       buf = bytarr(bufsize)
-      
+
       catch, err
       if err ne 0 then goto, caught_err_binary
-      
+
       while ~ eof(inlun) do begin
         readu, inlun, buf
         writeu, outlun, buf
       endwhile
-      
+
       caught_err_binary:
       catch, /CANCEL
       if err ne 0 then begin
@@ -163,12 +163,12 @@ pro mgh_file_copy, InFile, OutFile, $
           end
         endcase
       endif
-      
+
     endelse
-    
+
     free_lun, inlun
     free_lun, outlun
-    
+
   endelse
 
 end

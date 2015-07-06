@@ -20,7 +20,7 @@
 ;   start (output, integer vector)
 ;     The index at which each run starts. This parameter is given a
 ;     value only if the return value is greater than 0. Its number of
-;     elements is equal to  return value. 
+;     elements is equal to  return value.
 ;
 ;   length (output, integer vector)
 ;     The number of contiguous values in each run. This parameter is
@@ -34,14 +34,14 @@
 ;
 ; This software is provided subject to the following conditions:
 ;
-; 1.  NIWA makes no representations or warranties regarding the 
-;     accuracy of the software, the use to which the software may 
-;     be put or the results to be obtained from the use of the 
-;     software.  Accordingly NIWA accepts no liability for any loss 
-;     or damage (whether direct of indirect) incurred by any person 
+; 1.  NIWA makes no representations or warranties regarding the
+;     accuracy of the software, the use to which the software may
+;     be put or the results to be obtained from the use of the
+;     software.  Accordingly NIWA accepts no liability for any loss
+;     or damage (whether direct of indirect) incurred by any person
 ;     through the use of or reliance on the software.
 ;
-; 2.  NIWA is to be acknowledged as the original author of the 
+; 2.  NIWA is to be acknowledged as the original author of the
 ;     software where the software is used or presented in any form.
 ;
 ;###########################################################################
@@ -79,7 +79,7 @@ function MGH_N_RUNS, array, start, length
    endif
 
    ;; Add fictitious "bad" values at beginning & end of array
-   
+
    bad = [-1,bad,n_arr]
    n_bad = n_bad + 2
 

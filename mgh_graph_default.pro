@@ -5,7 +5,7 @@
 ; PURPOSE:
 ;   Provide default values for MGHgrGraph properties related to sizing
 ;   and layout.
-;   
+;
 ;   Beginning with version 7.1, ITT has been mucking about with object
 ;   graphics window resolution and font sizes. See history. This
 ;   procedure is an attempt to cope with this.
@@ -59,9 +59,9 @@ pro mgh_graph_default, $
   compile_opt STRICTARR
   compile_opt STRICTARRSUBS
   compile_opt LOGICAL_PREDICATE
-   
+
   defsysv, '!mgh_graph', EXISTS=has_mgh_graph
-   
+
   if n_elements(fontsize) eq 0 then begin
     if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'fontsize') then begin
       fontsize = !mgh_graph.fontsize
@@ -69,7 +69,7 @@ pro mgh_graph_default, $
       fontsize = 12
     endelse
   endif
-  
+
   if n_elements(symsize) eq 0 then begin
     if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'symsize') then begin
       symsize = !mgh_graph.symsize
@@ -77,7 +77,7 @@ pro mgh_graph_default, $
       symsize = 0.02
     endelse
   endif
-  
+
   if n_elements(ticklen) eq 0 then begin
     if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'ticklen') then begin
       ticklen = !mgh_graph.ticklen
@@ -85,7 +85,7 @@ pro mgh_graph_default, $
       ticklen = 0.04
     endelse
   endif
-  
+
   if n_elements(units) eq 0 then begin
     if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'units') then begin
       units = !mgh_graph.units
@@ -93,19 +93,19 @@ pro mgh_graph_default, $
       units = 2
     endelse
   endif
-  
+
   if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'scale_cm') then begin
     scale_cm = !mgh_graph.scale_cm
   endif else begin
     scale_cm = 10
   endelse
-  
+
   if has_mgh_graph && mgh_struct_has_tag(!mgh_graph, 'scale_pix') then begin
     scale_pix = !mgh_graph.scale_pix
   endif else begin
     scale_pix = 300
   endelse
-  
+
   case units of
     0: begin
       if n_elements(scale) eq 0 then $

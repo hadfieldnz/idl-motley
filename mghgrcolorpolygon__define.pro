@@ -603,7 +603,7 @@ pro MGHgrColorPolygon::SetPolygons
       endcase
 
       wp = where(polygons ge 0, n_pol)
-      polygons = n_pol gt 0 ? polygons[wp] : polygons[0]  
+      polygons = n_pol gt 0 ? polygons[wp] : polygons[0]
 
    endif
 
@@ -624,7 +624,7 @@ PRO MGHgrColorPolygon::SetVertices, $
 
    n0 = self.dims[0]
    n1 = self.dims[1]
-   
+
    if keyword_set(dims_changed) then begin
       if n_elements(datax) eq 0 then datax = findgen(n0)
       if n_elements(datay) eq 0 then datay = findgen(n1)

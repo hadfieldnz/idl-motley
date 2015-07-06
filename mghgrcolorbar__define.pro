@@ -510,7 +510,7 @@ PRO MGHgrColorBar::Calculate
    endif else begin
       data_range = float(byte_range)
    endelse
-   
+
    logarithmic = self.logarithmic
 
    tickdir = (self.show_axis eq 2) ? self.tickin : 1 - self.tickin

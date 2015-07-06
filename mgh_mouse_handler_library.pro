@@ -227,7 +227,7 @@ pro MGH_Mouse_Handler_Magnify::Event, event
       ;; Determine which view and model this object will act on. If
       ;; there are multiple views in the graphics tree, choose the
       ;; first one selected.
-      
+
       if obj_isa(graphics_tree,'IDLgrView') then begin
          view = graphics_tree
       endif else begin

@@ -78,28 +78,28 @@ pro mgh_custom_ct, $
   compile_opt LOGICAL_PREDICATE
 
   ;; Set keyword defaults
-  
+
   if n_elements(backup) eq 0 then backup = 1B
-  
+
   if n_elements(file) eq 0 then begin
     defsysv, '!mgh_ct_file', EXISTS=exists
     file = temporary(exists) $
       ? !mgh_ct_file : filepath('colors1.tbl', subdir=['resource', 'colors'])
   endif
-  
+
   if n_elements(restore) eq 0 then restore = 0B
-  
+
   if n_elements(start) eq 0 then start = 41
-  
+
   ;; File management
-  
+
   if keyword_set(restore) then begin
     message, /INFORM, 'Restoring colour table file from backup and returning'
     file_bak = file+'.backup'
     file_copy, file_bak, file
     return
   endif
-  
+
   if keyword_set(backup) then begin
     message, /INFORM, 'Backing up colour table file'
     file_bak = file+'.backup'
@@ -124,13 +124,13 @@ pro mgh_custom_ct, $
     endif
     file_chmod, file+'.backup', A_WRITE=0
   endif
-  
+
   ;; Construct & load tables
-  
+
   n = 0
-  
+
   while 1 do begin
-  
+
     case n of
       0: begin
         ct = mgh_make_ct(NAME='MGH Special '+strtrim(n+1, 2), $
@@ -217,16 +217,16 @@ pro mgh_custom_ct, $
       end
       else: mgh_undefine, ct
     endcase
-    
+
     if n_elements(ct) eq 0 then break
-    
+
     message, /INFORM, 'Loading colour table at index '+strtrim(start+n,2)
-    
+
     modifyct, start+n, ct.name, $
       ct.red, ct.green, ct.blue, FILE=file
-      
+
     n += 1
-    
+
   endwhile
 
 end

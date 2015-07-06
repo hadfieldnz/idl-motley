@@ -6,7 +6,7 @@
 ;    Given a 2-D polygon and a rectangular grid, this function returns
 ;    an array indicating which of the pixels in the grid is inside the
 ;    polygon.
-;    
+;
 ;    See also MGH_POLYFILLG.
 ;
 ; CALLING SEQUENCE:
@@ -64,22 +64,22 @@ function mgh_polyfilla, x, y, sx, sy, $
   compile_opt LOGICAL_PREDICATE
 
   if n_elements(pack) eq 0 then pack = 1B
-  
+
   ;; Calculate loop bounds
-  
+
   i0 = floor(min(x,max=maxx)) > 0
   i1 = ceil(maxx) < (sx-1)
-  
+
   j0 = floor(min(y,max=maxy)) > 0
   j1 = ceil(maxy) < (sy-1)
-  
+
   ap = arg_present(fraction)
-  
+
   mask = bytarr(sx,sy)
   fraction = fltarr(sx,sy)
-  
+
   pol = [transpose(x),transpose(y)]
-  
+
   for j=j0,j1 do begin
     for i=i0,i1 do begin
       pc = pol
@@ -99,7 +99,7 @@ function mgh_polyfilla, x, y, sx, sy, $
       endif
     endfor
   endfor
-  
+
   if keyword_set(pack) then begin
     indices = where(temporary(mask), count)
     fraction = count gt 0 ? fraction[indices] : -1
@@ -108,5 +108,5 @@ function mgh_polyfilla, x, y, sx, sy, $
     if arg_present(count) then void = where(mask, count)
     return, mask
   endelse
-  
+
 end

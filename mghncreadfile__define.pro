@@ -76,7 +76,7 @@
 ;     not right for BYTE data.
 ;   Mark Hadfield, 2009-07:
 ;     Corrected error in the VarInfo method, discovered by Foldy Lajos:
-;     the value returned by NCDF_VARINQ for a 2-byte integer is 'SHORT', 
+;     the value returned by NCDF_VARINQ for a 2-byte integer is 'SHORT',
 ;     not 'INT'.
 ;   Mark Hadfield, 2010-10:
 ;     - Negative values of self.ncid are no longer used to indicate
@@ -121,7 +121,7 @@ function MGHncReadFile::Init, file, $
 
    if ~ file_test(self.file_name, /READ) then $
         message, "The specified netCDF file cannot be read: "+self.file_name
-        
+
    if keyword_set(tmp) then begin
       gunzip = strmatch(self.file_name, '*.gz', /FOLD_CASE)
       self.temp_name = filepath(cmunique_id()+'.nc', /TMP)
@@ -267,7 +267,7 @@ function MGHncReadFile::AttGet, P1, P2, GLOBAL=global
   compile_opt LOGICAL_PREDICATE
 
   self->Open
-  
+
   if keyword_set(global) then begin
     info = ncdf_attinq(self.ncid, /GLOBAL, P1)
     ncdf_attget, self.ncid, /GLOBAL, P1, result
@@ -331,7 +331,7 @@ pro MGHncReadFile::DimInfo, Dim, $
 
    info = ncdf_inquire(self.ncid)
    is_unlimited = position eq info.recdim
-   
+
    if is_unlimited then begin
       if ptr_valid(self.records) then begin
          dimsize = n_elements(*self.records)
@@ -447,7 +447,7 @@ function MGHncReadFile::Open
    compile_opt LOGICAL_PREDICATE
 
    on_error, 2
-   
+
    if ~ self.is_open then begin
       self.ncid = ncdf_open(self.temp_name, /NOWRITE)
       self.is_open = 1B
@@ -716,7 +716,7 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
       ;; for generic applications--see "Attributes" section of netCDF manual.
 
       ;; Get a list of this variable's attributes
-      
+
       att_names = ''
       if info.natts gt 0 then begin
          att_names = strarr(info.natts)
@@ -772,11 +772,11 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
 
       validity = mgh_reproduce(1B, result)
       if n_elements(valid_min) gt 0 then begin
-         invalid = where(result lt valid_min[0], n_invalid)  
+         invalid = where(result lt valid_min[0], n_invalid)
          if n_invalid gt 0 then validity[invalid] = 0B
       endif
       if n_elements(valid_max) gt 0 then begin
-         invalid = where(result gt valid_max[0], n_invalid)  
+         invalid = where(result gt valid_max[0], n_invalid)
          if n_invalid gt 0 then validity[invalid] = 0B
       endif
 
@@ -801,7 +801,7 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
            add_offset = 0*scale_factor
       if (n_elements(add_offset) ge 1) && (n_elements(scale_factor) eq 0) then $
            scale_factor = 1+0*add_offset
-           
+
       if n_elements(scale_factor) gt 0 then begin
          tmp = mgh_reproduce(mgh_null(scale_factor), result)
          valid = where(temporary(validity), n_valid)
@@ -811,7 +811,7 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
       endif else begin
          invalid = where(~ temporary(validity), n_invalid)
          if n_invalid gt 0 then result[invalid] = mgh_null(result)
-      endelse           
+      endelse
 
    endif
 
