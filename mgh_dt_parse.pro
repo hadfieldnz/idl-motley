@@ -65,9 +65,10 @@
 ;     (name "dummy") which was included to simplify the
 ;     structure-building code.
 ;   Mark Hadfield, 2011-07:
-;     The output if no date-time strings are found
-;     is now an empty structure and the code has been simplified somewhat to take
-;     advantage of this.
+;     The output if no date-time strings are found is now an empty structure
+;     and the code has been simplified somewhat to take advantage of this.
+;   Mark Hadfield, 2015-07:
+;     Time zone now accepted in any of three forms: +/-hh, +/-hh:mm and +/-hhmm.
 ;-
 function mgh_dt_parse, iso_string
 
@@ -160,8 +161,15 @@ function mgh_dt_parse, iso_string
     if n_elements(sZone) gt 0 then begin
       if strmid(sZone,0,1) eq 'Z' then $
         sZone = strmid(sZone,1)
-      if strlen(sZone) gt 0 then $
-        result = create_struct(result, 'zone', fix(sZone))
+      if strlen(sZone) gt 0 then begin
+        case 1B of
+          strmatch(szone, '[+-]??'): zone = fix(strmid(szone, 1))
+          strmatch(szone, '[+-]??:??'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 4, 2))/60D
+          strmatch(szone, '[+-]????'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 3, 2))/60D
+        endcase
+        if strmid(szone, 0, 1) eq '-' then zone *= -1
+        result = create_struct(result, 'zone', zone)
+      endif
     endif
 
   endif

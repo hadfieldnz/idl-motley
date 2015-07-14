@@ -22,11 +22,15 @@
 ;     set. It specifies the size (in bytes) of chunks read &
 ;     written. Default is 2^16 (64kiB)
 ;
+;   BUNZIP2 (input, logical)
+;     If this keyword is set, read bzip2-compressed data. Setting
+;     this keyword precludes setting of the GUNZIP or GZIP keywords.
+;
 ;   GUNZIP (input, logical)
-;     If this keyword is set, read compressed data.
+;     If this keyword is set, read gzip-compressed data.
 ;
 ;   GZIP (input, logical)
-;     If this keyword is set, write compressed data.
+;     If this keyword is set, write gzip-compressed data.
 ;
 ;   TEXT (input, logical)
 ;     If this keyword is set, treat the file as a text file,

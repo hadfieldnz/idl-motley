@@ -39,8 +39,8 @@
 ;   at 1024 elements.
 ;
 ; TO DO:
-;   Allow for fractional time zones. Work around limitations of
-;   formatted input?
+;   - Allow for fractional time zones.
+;   - Work around limitations of formatted input?
 ;
 ;###########################################################################
 ; Copyright (c) 2000-2015 NIWA:
