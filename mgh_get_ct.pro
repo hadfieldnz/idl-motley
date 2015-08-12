@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; NAME:
 ;   MGH_GET_CT
@@ -38,19 +37,10 @@
 ;   Straightforward, adapted from LOADCT.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 1998-2015 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -62,9 +52,10 @@
 ;   Mark Hadfield, 2002-12:
 ;     - Upgraded for IDL 5.6.
 ;     - Default colour-table file name now calculated by MGH_CT_FILE.
+;   Mark Hadfield, 2015-08:
+;     - Minor reformatting.
 ;-
-
-function MGH_GET_CT, table_id, FILE=file, NAMES=names, SYSTEM=system
+function mgh_get_ct, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    compile_opt DEFINT32
    compile_opt STRICTARR
@@ -89,12 +80,12 @@ function MGH_GET_CT, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    id_type = size(table_id, /TYPE)
 
-   case 1 of
+   case 1B of
 
       id_type eq 7: begin
          table_index = where(strmatch(table_names, table_id, /FOLD_CASE), n_match)
          if n_match eq 0 then $
-              message, 'Table '+table_id+' was not found in file '+file
+            message, 'Table '+table_id+' was not found in file '+file
          table_index = table_index[0]
       end
 
@@ -105,7 +96,7 @@ function MGH_GET_CT, table_id, FILE=file, NAMES=names, SYSTEM=system
    endcase
 
    if table_index lt 0 or table_index gt n_tables-1 then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_badindex', table_index
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_badindex', table_index
 
    aa=assoc(lun, bytarr(256), 1)
    r = aa[table_index*3]
@@ -117,4 +108,3 @@ function MGH_GET_CT, table_id, FILE=file, NAMES=names, SYSTEM=system
    return, {name: table_names[table_index], n_colors:256S, red: r, green: g, blue: b}
 
 end
-
