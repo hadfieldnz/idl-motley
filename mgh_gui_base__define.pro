@@ -567,8 +567,7 @@ function MGH_GUI_Base::Init, $
         self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
       end
       self.mbar: begin
-        self.base = widget_base(MAP=self.visible, MBAR=menu_bar, $
-          _STRICT_EXTRA=extra)
+        self.base = widget_base(MAP=self.visible, MBAR=menu_bar, _STRICT_EXTRA=extra)
         self.menu_bar = menu_bar
       end
       else: begin

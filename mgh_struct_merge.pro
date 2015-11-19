@@ -6,7 +6,7 @@
 ;   This function merges two anonymous structures.
 ;
 ; CALLING SEQUENCE:
-;   Result = MGH_STRUCT_MERGE(struct0, struct0)
+;   result = mgh_struct_merge(struct0, struct0)
 ;
 ; POSITIONAL PARAMETERS:
 ;   struct0 (input, scalar structure)
@@ -17,19 +17,10 @@
 ;     replace those in the first structure.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2002-2015 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -53,8 +44,10 @@ function mgh_struct_merge, struct0, struct1
         return, struct0
 
    ;; Represent the merged structures as a pair of arrays, a string
-   ;; array holding tag names and a pointer array holding values. This
-   ;; will be rebuilt into a structure below using MGH_STRUCT_BUILD.
+   ;; array holding tag names and a pointer array holding values. The
+   ;; arrays will be rebuilt into a structure below using MGH_STRUCT_BUILD.
+   ;; I suspect this operation could be done much more simply these days
+   ;; using hash objects.
 
    n0 = n_tags(struct0)
    n1 = n_tags(struct1)

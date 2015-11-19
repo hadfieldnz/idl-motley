@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; NAME:
 ;   MGH_STAGGER
@@ -9,7 +8,7 @@
 ;   extrapolates scalar values between cell centres, faces and vertices.
 ;
 ; CATEGORY:
-;   Finite-diffeence grids.
+;   Finite-differnce grids.
 ;
 ; CALLING SEQUENCE:
 ;   Result = MGH_STAGGER(X, DELTA=delta])

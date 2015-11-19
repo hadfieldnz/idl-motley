@@ -613,35 +613,29 @@ pro MGHncSequence::VarInfo, var, $
 
    self->GetProperty, N_FILES=n_files, N_RECORDS=n_records, UNLIMITED=unlimited
 
-   case n_files gt 0 of
-
-      0: begin
-         att_names = ''
-         datatype = ''
-         dim_names = ''
-         dimensions = -1
-         fill_value = -1
-         n_atts = 0
-         n_dims = 0
-      end
-
-      1: begin
-         onc = self.ncfiles->Get()
-         onc->VarInfo, var, $
-                       ATT_NAMES=att_names, DATATYPE=datatype, $
-                       DIM_NAMES=dim_names, DIMENSIONS=dimensions, $
-                       FILL_VALUE=fill_value, N_ATTS=n_atts, N_DIMS=n_dims
-         if self.ensemble then begin
-            dim_names = (n_dims gt 0) ? [dim_names,'record'] : ['record']
-            dimensions = (n_dims gt 0) ? [dimensions,n_files] : [n_files]
-            n_dims = n_dims + 1
-         endif else begin
-            if n_dims gt 0 && strmatch(dim_names[n_dims-1],unlimited) then $
-                 dimensions[n_dims-1] = n_records
-         endelse
-      end
-
-   endcase
+   if n_files gt 0 then begin
+      onc = self.ncfiles->Get()
+      onc->VarInfo, var, $
+         ATT_NAMES=att_names, DATATYPE=datatype, $
+         DIM_NAMES=dim_names, DIMENSIONS=dimensions, $
+         FILL_VALUE=fill_value, N_ATTS=n_atts, N_DIMS=n_dims
+      if self.ensemble then begin
+         dim_names = (n_dims gt 0) ? [dim_names,'record'] : ['record']
+         dimensions = (n_dims gt 0) ? [dimensions,n_files] : [n_files]
+         n_dims = n_dims + 1
+      endif else begin
+         if n_dims gt 0 && strmatch(dim_names[n_dims-1], unlimited) then $
+            dimensions[n_dims-1] = n_records
+      endelse
+   endif else begin
+      att_names = ''
+      datatype = ''
+      dim_names = ''
+      dimensions = -1
+      fill_value = -1
+      n_atts = 0
+      n_dims = 0
+   endelse
 
    if arg_present(all) then $
         all = {att_names:att_names, datatype:datatype, dim_names:dim_names, $

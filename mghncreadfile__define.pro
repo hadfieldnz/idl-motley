@@ -90,6 +90,8 @@
 ;     - Fixed a bug(possibly version-specific) in processing of variable
 ;       scaling attributes like "valid_range": it failed for variables with
 ;       no attributes.
+;   Mark Hadfield, 2015-11:
+;     - Simplified the code in the VarGet method considerably.
 ;-
 
 ; MGHncReadFile::Init
@@ -471,7 +473,8 @@ end
 ; MGHncReadFile::VarGet
 ;
 ; Purpose:
-;   Retrieves data from a netCDF variable.
+;   Retrieves data from a netCDF variable, calling the _VarGet method
+;   for auto-scaling.
 ;
 function MGHncReadFile::VarGet, var, $
      COUNT=count, OFFSET=offset, STRIDE=stride, _REF_EXTRA=extra
@@ -533,160 +536,72 @@ function MGHncReadFile::VarGet, var, $
 
    ;; Get data
 
-   case special of
+   if special then begin
 
-      0: begin
+      ;; Get data one record at a time. First create an output
+      ;; array, retrieving a single value to determine the data
+      ;; type
 
-         ;; Get data in one operation. Avoid specifying the STRIDE
-         ;; keyword unless necessary because there are bugs in IDL's
-         ;; handling of it.
+      value = self->_VarGet(var, COUNT=replicate(1,n_dims), _STRICT_EXTRA=extra)
 
-         case max(mystride) gt 1 of
+      result = make_array(VALUE=value, DIMENSION=count)
 
-            0: begin
-               return, self->_VarGet(var, COUNT=mycount, OFFSET=myoffset, $
-                                     _STRICT_EXTRA=extra)
-            end
-            1: begin
-               return, self->_VarGet(var, COUNT=mycount, OFFSET=myoffset, $
-                                     STRIDE=mystride, _STRICT_EXTRA=extra)
-            end
+      for i=0,mycount[n_dims-1]-1 do begin
+
+         count_i = mycount
+         count_i[n_dims-1] = 1
+
+         offset_i = myoffset
+         offset_i[n_dims-1] = $
+            records[myoffset[n_dims-1]+mystride[n_dims-1]*i]
+
+         stride_i = mystride
+         stride_i[n_dims-1] = 1
+
+         ;; Get this record's data. Specify the STRIDE keyword only if
+         ;; necessary because there may be bugs in IDL's handling of it.
+
+         if max(stride_i) gt 1 then begin
+            data = self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, STRIDE=stride_i, _STRICT_EXTRA=extra)
+         endif else begin
+            data = self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, _STRICT_EXTRA=extra)
+         endelse
+
+         case n_dims of
+            1: result[i] = temporary(data)
+            2: result[*,i] = temporary(data)
+            3: result[*,*,i] = temporary(data)
+            4: result[*,*,*,i] = temporary(data)
+            5: result[*,*,*,*,i] = temporary(data)
+            6: result[*,*,*,*,*,i] = temporary(data)
+            7: result[*,*,*,*,*,*,i] = temporary(data)
+            8: result[*,*,*,*,*,*,*,i] = temporary(data)
          endcase
-      end
 
-      1: begin
+      endfor
 
-         ;; Get data one record at a time. First create an output
-         ;; array, retrieving a single value to determine the data
-         ;; type
+      return, result
 
-         value = self->_VarGet(var, COUNT=replicate(1,n_dims), $
-                               _STRICT_EXTRA=extra)
+   endif else begin
 
-         result = make_array(VALUE=value, DIMENSION=count)
+      ;; Get data in one operation. Specify the STRIDE keyword only if
+      ;; necessary because there are bugs in IDL's handling of it.
 
-         for i=0,mycount[n_dims-1]-1 do begin
+      if max(mystride) gt 1 then begin
+         return, self->_VarGet(var, COUNT=mycount, OFFSET=myoffset, STRIDE=mystride, _STRICT_EXTRA=extra)
+      endif else begin
+         return, self->_VarGet(var, COUNT=mycount, OFFSET=myoffset, _STRICT_EXTRA=extra)
+      endelse
 
-            count_i = mycount
-            count_i[n_dims-1] = 1
-
-            offset_i = myoffset
-            offset_i[n_dims-1] = $
-                 records[myoffset[n_dims-1]+mystride[n_dims-1]*i]
-
-            stride_i = mystride
-            stride_i[n_dims-1] = 1
-
-            ;; Get data one record at a time. As above avoid
-            ;; specifying STRIDE. The following array assignments mey
-            ;; be inefficient.
-
-            case max(stride_i) gt 1 of
-
-               0: $
-                    case n_dims of
-                  1: begin
-                     result[i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  2: begin
-                     result[*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  3: begin
-                     result[*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  4: begin
-                     result[*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  5: begin
-                     result[*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  6: begin
-                     result[*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  7: begin
-                     result[*,*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-                  8: begin
-                     result[*,*,*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        _STRICT_EXTRA=extra)
-                  end
-               endcase
-
-               1: $
-                    case n_dims of
-                  1: begin
-                     result[i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  2: begin
-                     result[*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  3: begin
-                     result[*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  4: begin
-                     result[*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  5: begin
-                     result[*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  6: begin
-                     result[*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  7: begin
-                     result[*,*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-                  8: begin
-                     result[*,*,*,*,*,*,*,i] = $
-                          self->_VarGet(var, COUNT=count_i, OFFSET=offset_i, $
-                                        STRIDE=stride_i, _STRICT_EXTRA=extra)
-                  end
-               endcase
-
-            endcase
-
-         endfor
-
-         return, result
-
-      end
-
-   endcase
+   endelse
 
 end
 
 ; MGHncReadFile::_VarGet
 ;
 ; Purpose:
-;   Retrieves data from a netCDF variable.
+;   Retrieves data from a netCDF variable. This is a hidden method called
+;   by the VarGet method.
 ;
 function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
 
@@ -694,6 +609,7 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
+   compile_opt HIDDEN
 
    if size(var, /TYPE) ne 7 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
