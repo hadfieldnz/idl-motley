@@ -85,6 +85,8 @@
 ;      keyword is now passed explicitly to NCDF_ATTPUT to ensure that strings
 ;      get written as the netCDF CHAR type rather than the netCDF STRING type. See
 ;      http://www.unidata.ucar.edu/mailing_lists/archives/netcdfgroup/2014/msg00100.html
+;   Mark Hadfield, 2015-11:
+;    - Removed all references to the now-obsolete MGHncFileVar class and its methods.
 ;-
 ; MGHncFile::Init
 ;
@@ -96,76 +98,76 @@ function MGHncFile::Init, file, $
      CLOBBER=clobber, CREATE=create, FILE_NAME=file_name, $
      MODIFY=modify, NETCDF4_FORMAT=netcdf4_format, TMP=tmp
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  on_error, 2
+   on_error, 2
 
-  if (n_elements(file_name) eq 0) && (n_elements(file) gt 0) then file_name = file
+   if (n_elements(file_name) eq 0) && (n_elements(file) gt 0) then file_name = file
 
-  if n_elements(file_name) ne 1 then $
-    message, "A valid netCDF file name must be supplied."
+   if n_elements(file_name) ne 1 then $
+      message, "A valid netCDF file name must be supplied."
 
-  if size(file_name, /TNAME) ne 'STRING' then $
-    message, "A valid netCDF file name must be supplied."
+   if size(file_name, /TNAME) ne 'STRING' then $
+      message, "A valid netCDF file name must be supplied."
 
-  self.ncid = -1
+   self.ncid = -1
 
-  self.file_name = file_name
+   self.file_name = file_name
 
-  self.vars = obj_new('IDL_Container')
+   self.vars = obj_new('IDL_Container')
 
-  mode = keyword_set(create) ? 'CREATE' : 'OPEN'
+   mode = keyword_set(create) ? 'CREATE' : 'OPEN'
 
-  self.writable = (mode eq 'OPEN' && keyword_set(modify)) || mode eq 'CREATE'
+   self.writable = (mode eq 'OPEN' && keyword_set(modify)) || mode eq 'CREATE'
 
-  if mode eq 'CREATE' then begin
-    if n_elements(clobber) ne 1 then clobber = 0
-    if file_test(self.file_name) then begin
-      if keyword_set(clobber) then begin
-        file_delete, self.file_name
-      endif else begin
-        message, "The specified netCDF file already exists and cannot be overwritten unless CLOBBER is set."
-      endelse
-    endif
-  endif
+   if mode eq 'CREATE' then begin
+      if n_elements(clobber) eq 0 then clobber = 1B
+      if file_test(self.file_name) then begin
+         if keyword_set(clobber) then begin
+            file_delete, self.file_name
+         endif else begin
+            message, "The specified netCDF file already exists and cannot be overwritten unless CLOBBER is set."
+         endelse
+      endif
+   endif
 
-  if mode eq 'OPEN' then begin
-    if ~ file_test(self.file_name, /READ) then $
-      message, "The specified netCDF file cannot be read: "+self.file_name
-  endif
+   if mode eq 'OPEN' then begin
+      if ~ file_test(self.file_name, /READ) then $
+         message, "The specified netCDF file cannot be read: "+self.file_name
+   endif
 
-  if keyword_set(tmp) then begin
-    self.temp_name = filepath(cmunique_id()+'.nc', /TMP)
-    case mode of
-      'OPEN': begin
-        message, /INFORM, 'Copying '+self.file_name+' to '+self.temp_name
-        mgh_file_copy, self.file_name, self.temp_name
-        self.ncid = ncdf_open(self.temp_name, WRITE=self.writable)
-        self.define = 0
-      end
-      'CREATE': begin
-        self.ncid = ncdf_create(self.temp_name, /CLOBBER, NETCDF4_FORMAT=netcdf4_format)
-        self.define = 1
-      end
-    endcase
-  endif else begin
-    self.temp_name = self.file_name
-    case mode of
-      'OPEN': begin
-        self.ncid = ncdf_open(self.file_name, WRITE=self.writable)
-        self.define = 0
-      end
-      'CREATE': begin
-        self.ncid = ncdf_create(self.file_name, CLOBBER=clobber, NETCDF4_FORMAT=netcdf4_format)
-        self.define = 1
-      end
-    endcase
-  endelse
+   if keyword_set(tmp) then begin
+      self.temp_name = filepath(cmunique_id()+'.nc', /TMP)
+      case mode of
+         'OPEN': begin
+            message, /INFORM, 'Copying '+self.file_name+' to '+self.temp_name
+            mgh_file_copy, self.file_name, self.temp_name
+            self.ncid = ncdf_open(self.temp_name, WRITE=self.writable)
+            self.define = 0
+         end
+         'CREATE': begin
+            self.ncid = ncdf_create(self.temp_name, /CLOBBER, NETCDF4_FORMAT=netcdf4_format)
+            self.define = 1
+         end
+      endcase
+   endif else begin
+      self.temp_name = self.file_name
+      case mode of
+         'OPEN': begin
+            self.ncid = ncdf_open(self.file_name, WRITE=self.writable)
+            self.define = 0
+         end
+         'CREATE': begin
+            self.ncid = ncdf_create(self.file_name, CLOBBER=clobber, NETCDF4_FORMAT=netcdf4_format)
+            self.define = 1
+         end
+      endcase
+   endelse
 
-  return, 1
+   return, 1
 
 end
 
@@ -207,8 +209,6 @@ pro MGHncFile::GetProperty, $
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   compile_opt LOGICAL_PREDICATE
-
    file_name = self.file_name
    ncid = self.ncid
    define = self.define
@@ -222,53 +222,48 @@ pro MGHncFile::GetProperty, $
    tmp = self.file_name ne self.temp_name
 
    if arg_present(att_names) || arg_present(all) then begin
-      case n_atts gt 0 of
-         0: att_names = ''
-         1: begin
-            att_names = strarr(n_atts)
-            for i=0,n_atts-1 do $
-                 att_names[i] = ncdf_attname(self.ncid, /GLOBAL, i)
-         end
-      endcase
+      if n_atts gt 0 then begin
+         att_names = strarr(n_atts)
+         for i=0,n_atts-1 do $
+            att_names[i] = ncdf_attname(self.ncid, /GLOBAL, i)
+      endif else begin
+         att_names = ''
+      endelse
    endif
 
-   if arg_present(dim_names) || arg_present(dimensions) || $
-        arg_present(all) then begin
-      case n_dims gt 0 of
-         0: begin
-            dim_names = ''
-            dimensions = 0
-         end
-         1: begin
-            dim_names = strarr(n_dims)
-            dimensions = lonarr(n_dims)
-            for i=0,n_dims-1 do begin
-               ncdf_diminq, self.ncid, i, name, dimsize
-               dim_names[i] = name
-               dimensions[i] = dimsize
-            endfor
-         end
-      endcase
+   if arg_present(dim_names) || arg_present(dimensions) || arg_present(all) then begin
+      if n_dims gt 0 then begin
+         dim_names = strarr(n_dims)
+         dimensions = lonarr(n_dims)
+         for i=0,n_dims-1 do begin
+            ncdf_diminq, self.ncid, i, name, dimsize
+            dim_names[i] = name
+            dimensions[i] = dimsize
+         endfor
+      endif else begin
+         dim_names = ''
+         dimensions = 0
+      endelse
    endif
 
    if arg_present(var_names) || arg_present(all) then begin
-      case n_vars gt 0 of
-         0: var_names = ''
-         1: begin
-            var_names = strarr(n_vars)
-            for i=0,n_vars-1 do begin
-               vinfo = ncdf_varinq(self.ncid, i)
-               var_names[i] = vinfo.name
-            endfor
-         end
-      endcase
+      if n_vars gt 0 then begin
+         var_names = strarr(n_vars)
+         for i=0,n_vars-1 do begin
+            vinfo = ncdf_varinq(self.ncid, i)
+            var_names[i] = vinfo.name
+         endfor
+      endif else begin
+         var_names = ''
+      endelse
    endif
 
    if arg_present(unlimited) || arg_present(all) then begin
-      case info.recdim ge 0 of
-         0: unlimited = ''
-         1: ncdf_diminq, self.ncid, info.recdim, unlimited, void
-      endcase
+      if info.recdim gt 0 then begin
+         ncdf_diminq, self.ncid, info.recdim, unlimited, void
+      endif else begin
+         unlimited = ''
+      endelse
    endif
 
    if arg_present(all) then $
@@ -320,35 +315,55 @@ end
 ;   Copy the specified attribute(s) from another netCDF file to the
 ;   current one.
 ;
-pro MGHncFile::AttCopy, osrc, P1, P2, GLOBAL=global
+pro MGHncFile::AttCopy, osrc, P1, P2, GLOBAL=global, UNPACK=unpack
 
    compile_opt DEFINT32
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   compile_opt LOGICAL_PREDICATE
-
-   case keyword_set(global) of
-      0: begin
-         if n_elements(P1) ne 1 || size(P1, /TYPE) ne 7 then $
-              message, 'Variable name argument must be a scalar string'
-         if n_elements(P2) eq 0 then begin
-            P2 = osrc->AttNames(P1, COUNT=n_atts)
-            if n_atts eq 0 then return
+   if keyword_set(global) then begin
+      if n_elements(P1) eq 0 then begin
+         P1 = osrc->AttNames(/GLOBAL, COUNT=n_atts)
+         if n_atts eq 0 then return
+      endif
+      for i=0,n_elements(P1)-1 do $
+         self->AttAdd, /GLOBAL, P1[i], osrc->AttGet(/GLOBAL, P1[i])
+   endif else begin
+      if n_elements(P1) ne 1 || size(P1, /TYPE) ne 7 then $
+         message, 'Variable name argument must be a scalar string'
+      if n_elements(P2) eq 0 then begin
+         P2 = osrc->AttNames(P1, COUNT=n_atts)
+         if n_atts eq 0 then return
+      endif
+      if keyword_set(unpack) then begin
+         ;; If the UNPACK keyword is set, then we expect to be writing data
+         ;; that has been autoscaled to the new variable.
+         att_skip = ['add_offset','scale_factor','valid_min','valid_max','valid_range','_FillValue']
+      endif else begin
+         att_skip = !null
+      endelse
+      for i=0,n_atts-1 do begin
+         skip = 0B
+         for j=0,n_elements(att_skip)-1 do begin
+            if P2[i] eq att_skip[j] then begin
+               skip = 1B
+               break
+            endif
+         endfor
+         if ~ skip then begin
+            att_name = P2[i]
+            att_value = osrc->AttGet(P1, P2[i])
+            ;; Special handling for the time coordinate "units" variable, but only in
+            ;; the ROMS-supported "seconds" form. See section 4.4 in
+            ;;
+            ;;   http://www.cgd.ucar.edu/cms/eaton/netcdf/CF-20010629.htm
+            if att_name eq 'units' && strmatch(att_value, 'seconds since *') then $
+               att_value = mgh_str_subst(att_value, 'seconds', 'days')
+            self->AttAdd, P1, att_name, att_value
          endif
-         for i=0,n_elements(P2)-1 do $
-              self->AttAdd, P1, P2[i], osrc->AttGet(P1, P2[i])
-      end
-      1: begin
-         if n_elements(P1) eq 0 then begin
-            P1 = osrc->AttNames(/GLOBAL, COUNT=n_atts)
-            if n_atts eq 0 then return
-         endif
-         for i=0,n_elements(P1)-1 do $
-              self->AttAdd, /GLOBAL, P1[i], osrc->AttGet(/GLOBAL, P1[i])
-      end
-   endcase
+      endfor
+   endelse
 
 end
 
@@ -397,20 +412,20 @@ pro MGHncFile::DimAdd, DimName, DimSize
 
    self->SetMode, /DEFINE
 
-   case n_elements(dimsize) eq 1 of
-      1: dimid = ncdf_dimdef(self.ncid, DimName, DimSize)
-      0: dimid = ncdf_dimdef(self.ncid, DimName, /UNLIMITED)
-   end
-
+   if n_elements(dimsize) gt 0 then begin
+      dimid = ncdf_dimdef(self.ncid, DimName, DimSize)
+   endif else begin
+      dimid = ncdf_dimdef(self.ncid, DimName, /UNLIMITED)
+   endelse
 
 end
 
 ; MGHncFile::DimCopy
 ;
 ; Purpose:
-;   Copy one or more dimensions from another netCDF file to
-;   the current one. The dims argument specifies the dimension(s) to be copied;
-;   if it is omitted then all dimensions are copied.
+;   Copy one or more dimensions from another netCDF file to the current one.
+;   The dims argument specifies the dimension(s) to be copied; if it is
+;   omitted then all dimensions are copied.
 ;
 pro MGHncFile::DimCopy, osrc, dims
 
@@ -432,10 +447,11 @@ pro MGHncFile::DimCopy, osrc, dims
 
    for i=0,n_dims-1 do begin
       diminfo = osrc->DimInfo(dims[i])
-      case diminfo.is_unlimited of
-         0: self->DimAdd, dims[i], diminfo.dimsize
-         1: self->DimAdd, dims[i]
-      endcase
+      if diminfo.is_unlimited then begin
+         self->DimAdd, dims[i]
+      endif else begin
+         self->DimAdd, dims[i], diminfo.dimsize
+      endelse
    endfor
 
 end
@@ -504,37 +520,35 @@ function MGHncFile::HasAtt, P1, P2, GLOBAL=global
 
    result = 0B
 
-   case keyword_set(global) of
+   if keyword_set(global) then begin
 
-      0: begin
-         if size(P1, /TYPE) ne 7 then $
-              message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'P1'
-         if n_elements(P1) ne 1 then $
-              message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'P1'
-         if strlen(P1) eq 0 then $
-              message, 'Variable name is invalid'
-         info = ncdf_varinq(self.ncid, P1)
-         count  = info.natts
-         for i=0,count-1 do begin
-            if strmatch(P2, ncdf_attname(self.ncid, P1, i)) then begin
-               result = 1B
-               break
-            endif
-         endfor
-      end
+      info = ncdf_inquire(self.ncid)
+      count = info.ngatts
+      for i=0,count-1 do begin
+         if strmatch(P1, ncdf_attname(self.ncid, /GLOBAL, i)) then begin
+            result = 1B
+            break
+         endif
+      endfor
 
-      1: begin
-         info = ncdf_inquire(self.ncid)
-         count = info.ngatts
-         for i=0,count-1 do begin
-            if strmatch(P1, ncdf_attname(self.ncid, /GLOBAL, i)) then begin
-               result = 1B
-               break
-            endif
-         endfor
-      end
+   endif else begin
 
-   endcase
+      if size(P1, /TYPE) ne 7 then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'P1'
+      if n_elements(P1) ne 1 then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'P1'
+      if strlen(P1) eq 0 then $
+         message, 'Variable name is invalid'
+      info = ncdf_varinq(self.ncid, P1)
+      count  = info.natts
+      for i=0,count-1 do begin
+         if strmatch(P2, ncdf_attname(self.ncid, P1, i)) then begin
+            result = 1B
+            break
+         endif
+      endfor
+
+   endelse
 
    return, result
 
@@ -623,7 +637,7 @@ end
 ; Purpose:
 ;   Forces the netCDF into DEFINE or DATA mode, as specified.  Has no
 ;   effect if the netCDF is already in the specified mode.  This
-;   routine is provided for use by MGHncFile and NcVar methods and
+;   routine is provided for use by MGHncFile methods and
 ;   should not need to be called otherwise.
 ;
 pro MGHncFile::SetMode, DEFINE=define, DATA=data
@@ -680,9 +694,7 @@ end
 ; MGHncFile::VarAdd
 ;
 ; Purpose:
-;   Add a variable to a netCDF file. If (and only if) the OBJ
-;   keyword is present, create an ncVar object and return its
-;   reference.
+;   Add a variable to a netCDF file.
 ;
 ;   The netCDF variable type can be specified via the various keywords
 ;   (BYTE, CHAR, etc) accepted by NCDF_VARDEF or via the NCTYPE
@@ -690,7 +702,7 @@ end
 ;
 pro MGHncFile::VarAdd, var, Dims, $
      BYTE=kbyte, CHAR=kchar, INT=kint, SHORT=kshort, LONG=klong, FLOAT=kfloat, $
-     DOUBLE=kdouble, NCTYPE=nctype, OBJ=obj
+     DOUBLE=kdouble, NCTYPE=nctype
 
    compile_opt DEFINT32
    compile_opt STRICTARR
@@ -719,26 +731,18 @@ pro MGHncFile::VarAdd, var, Dims, $
    n_dims = n_elements(Dims)
    if n_dims eq 1 then if strlen(dims[0]) eq 0 then n_dims = 0
 
-   case n_dims gt 0 of
-      0: begin
-         varid = ncdf_vardef(self.ncid, var, $
-                             BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
-                             FLOAT=kfloat, DOUBLE=kdouble)
-      end
-      1: begin
-         pos = lonarr(n_elements(Dims))
-         for i=0,n_elements(Dims)-1 do $
-              pos[i] = ncdf_dimid(self.ncid, dims[i])
-         varid = ncdf_vardef(self.ncid, var, pos, $
-                             BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
-                             FLOAT=kfloat, DOUBLE=kdouble)
-      end
-   endcase
-
-   if arg_present(obj) then begin
-      obj = obj_new('MGHncFileVar', self, varid)
-      self.vars->Add, obj
-   endif
+   if n_dims gt 0 then begin
+      pos = lonarr(n_dims)
+      for i=0,n_dims-1 do $
+         pos[i] = ncdf_dimid(self.ncid, dims[i])
+      varid = ncdf_vardef(self.ncid, var, pos, $
+         BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
+         FLOAT=kfloat, DOUBLE=kdouble)
+   endif else begin
+      varid = ncdf_vardef(self.ncid, var, $
+         BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
+         FLOAT=kfloat, DOUBLE=kdouble)
+   endelse
 
 end
 
@@ -749,7 +753,7 @@ end
 ;   current one.
 ;
 pro MGHncFile::VarCopy, osrc, vars, $
-     ATTRIBUTES=attributes, DATA=data, DEFINITIONS=definitions, RENAME=rename
+     ATTRIBUTES=attributes, DATA=data, DEFINITIONS=definitions, UNPACK=unpack, RENAME=rename
 
    compile_opt DEFINT32
    compile_opt STRICTARR
@@ -776,29 +780,21 @@ pro MGHncFile::VarCopy, osrc, vars, $
 
       osrc->VarInfo, vars[i], ALL=info
 
-      case keyword_set(definitions) of
+      if keyword_set(unpack) then info.datatype = 'FLOAT'
 
-         0: begin
-            if ~ self->HasVar(rename[i]) then $
-                 message, 'Variable definitions are not being copied & ' + $
-                          'destination netCDF does not have a variable with ' + $
-                          'this name: '+rename[i]
-         end
+      if keyword_set(definitions) then begin
+         self->VarAdd, rename[i], info.dim_names, NCTYPE=info.datatype
+      endif else begin
+         if ~ self->HasVar(rename[i]) then begin
+            fmt = '(%"Variable definitions are not being copied & destination does not have a variable with this name: %s")'
+            message, string(FORMAT=fmt, rename[i])
+         endif
+      endelse
 
-         1: begin
-;            case info.n_dims gt 0 of
-;               0: self->VarAdd, rename[i], NCTYPE=info.datatype
-;               1: self->VarAdd, rename[i], info.dim_names, NCTYPE=info.datatype
-;            endcase
-            self->VarAdd, rename[i], info.dim_names, NCTYPE=info.datatype
-         end
-
-      endcase
-
-      if keyword_set(attributes) then self->AttCopy, osrc, vars[i]
+      if keyword_set(attributes) then self->AttCopy, osrc, vars[i], UNPACK=unpack
 
       if keyword_set(data) then $
-           self->VarPut, rename[i], osrc->VarGet(vars[i], AUTOSCALE=0)
+           self->VarPut, rename[i], osrc->VarGet(vars[i], AUTOSCALE=unpack)
 
    endfor
 
@@ -818,62 +814,62 @@ function MGHncFile::VarGet, var, $
    compile_opt LOGICAL_PREDICATE
 
    if size(var, /TYPE) ne 7 then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
 
    if n_elements(var) ne 1 then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'var'
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'var'
 
    if strlen(var) eq 0 then $
-        message, 'Variable name is invalid'
+      message, 'Variable name is invalid'
 
    ;; Get info about the variable
 
    self->VarInfo, var, $
-        ATT_NAMES=att_names, DATATYPE=datatype, DIM_NAMES=dim_names, $
-        DIMENSIONS=dimensions, N_ATTS=n_atts, N_DIMS=n_dims
+      ATT_NAMES=att_names, DATATYPE=datatype, $
+      DIMENSIONS=dimensions, N_ATTS=n_atts, N_DIMS=n_dims
 
    ;; Process data-subset arguments. Make local copies of parameters
    ;; to avoid trampling on others' feet.
 
-   case n_elements(stride) gt 0 of
-      0: mystride = replicate(1,n_dims > 1)
-      1: mystride = stride
-   endcase
+   if n_elements(stride) gt 0 then begin
+      mystride = stride
+   endif else begin
+      mystride = replicate(1, n_dims > 1)
+   endelse
 
-   case n_elements(offset) gt 0 of
-      0: myoffset = replicate(0,n_dims > 1)
-      1: myoffset = offset
-   endcase
+   if n_elements(offset) gt 0 then begin
+      myoffset = offset
+   endif else begin
+      myoffset = replicate(0, n_dims > 1)
+   endelse
 
-   case n_elements(count) gt 0 of
-      0: mycount = (dimensions-myoffset)/mystride
-      1: mycount = count
-   endcase
+   if n_elements(count) gt 0 then begin
+      mycount = count
+   endif else begin
+      mycount = (dimensions-myoffset)/mystride
+   endelse
 
    for i=0,n_elements(myoffset)-1 do begin
       if myoffset[i] lt 0 then $
-           myoffset[i] = myoffset[i] + dimensions[i]/mystride[i]
+         myoffset[i] = myoffset[i] + dimensions[i]/mystride[i]
    endfor
 
    for i=0,n_elements(mycount)-1 do begin
       if mycount[i] eq 0 then $
-           mycount[i] = (dimensions[i]-myoffset[i])/mystride[i]
+         mycount[i] = (dimensions[i]-myoffset[i])/mystride[i]
    endfor
 
-   ;; Get data. Avoid specifying the STRIDE keyword unless necessary
-   ;; because there are potential performance problems.
+   ;; Get data. Specify the STRIDE keyword only if necessary because there may
+   ;; be bugs in IDL's handling of it.
 
-   self->SetMode, /DATA
+   ;; This line of code seems to be unnecessary:
+   ;; self->SetMode, /DATA
 
-   case max(mystride) gt 1 of
-      0: begin
-         ncdf_varget, self.ncid, var, result, COUNT=mycount, OFFSET=myoffset
-      end
-      1: begin
-         ncdf_varget, self.ncid, var, result, COUNT=mycount, OFFSET=myoffset, $
-                      STRIDE=mystride
-      end
-   endcase
+   if max(mystride) gt 1 then begin
+      ncdf_varget, self.ncid, var, result, COUNT=mycount, OFFSET=myoffset, STRIDE=mystride
+   endif else begin
+      ncdf_varget, self.ncid, var, result, COUNT=mycount, OFFSET=myoffset
+   endelse
 
    ;; Process numeric data according to the netCDF conventions for
    ;; generic applications--see "Attributes" section of netCDF manual.
@@ -883,30 +879,27 @@ function MGHncFile::VarGet, var, $
       ;; Determine the valid range from "valid_*" attributes
 
       if max(strmatch(att_names,'valid_range')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'valid_range', valid_range
+         ncdf_attget, self.ncid, var, 'valid_range', valid_range
       if n_elements(valid_range) eq 2 then begin
          valid_min = valid_range[0]
          valid_max = valid_range[1]
       endif
       if (n_elements(valid_min) eq 0) && $
-           (max(strmatch(att_names,'valid_min')) gt 0) then $
-                ncdf_attget, self.ncid, var, 'valid_min', valid_min
+         (max(strmatch(att_names,'valid_min')) gt 0) then $
+         ncdf_attget, self.ncid, var, 'valid_min', valid_min
       if (n_elements(valid_max) eq 0) && $
-           (max(strmatch(att_names,'valid_max')) gt 0) then $
-                ncdf_attget, self.ncid, var, 'valid_max', valid_max
+         (max(strmatch(att_names,'valid_max')) gt 0) then $
+         ncdf_attget, self.ncid, var, 'valid_max', valid_max
 
       ;; No valid range found yet, try to determine it from fill value
 
       if (n_elements(valid_min) eq 0) || (n_elements(valid_max) eq 0) then begin
          if datatype ne 'BYTE' then begin
-            case max(strmatch(att_names,'_FillValue')) gt 0 of
-               0: begin
-                  fill_value = mgh_ncdf_fill(datatype)
-               end
-               1: begin
-                  ncdf_attget, self.ncid, var, '_FillValue', fill_value
-               end
-            endcase
+            if max(strmatch(att_names, '_FillValue')) gt 0 then begin
+               ncdf_attget, self.ncid, var, '_FillValue', fill_value
+            endif else begin
+               fill_value = mgh_ncdf_fill(datatype)
+            endelse
             case datatype of
                'FLOAT': begin
                   mach = machar()
@@ -921,22 +914,22 @@ function MGHncFile::VarGet, var, $
                end
             endcase
             if (n_elements(valid_min) eq 0) && (fill_value lt 0) then $
-                 valid_min = fill_value + delta
+               valid_min = fill_value + delta
             if (n_elements(valid_max) eq 0) && (fill_value gt 0) then $
-                 valid_max = fill_value - delta
+               valid_max = fill_value - delta
          endif
       endif
 
       ;; Keep a record of indices of valid data
 
-      validity = mgh_reproduce(1B, result)
+      valid = mgh_reproduce(1B, result)
       if n_elements(valid_min) gt 0 then begin
-         invalid = where(finite(result) and result lt valid_min[0], n_invalid)
-         if n_invalid gt 0 then validity[invalid] = 0B
+         l_invalid = where(finite(result) and result lt valid_min[0], n_invalid)
+         if n_invalid gt 0 then valid[l_invalid] = 0B
       endif
       if n_elements(valid_max) gt 0 then begin
-         invalid = where(finite(result) and result gt valid_max[0], n_invalid)
-         if n_invalid gt 0 then validity[invalid] = 0B
+         l_invalid = where(finite(result) and result gt valid_max[0], n_invalid)
+         if n_invalid gt 0 then valid[l_invalid] = 0B
       endif
 
       ;; Clear math errors
@@ -945,34 +938,32 @@ function MGHncFile::VarGet, var, $
 
       ;; Now scale
 
-      if max(strmatch(att_names,'scale_factor')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'scale_factor', scale_factor
-      if max(strmatch(att_names,'add_offset')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'add_offset', add_offset
-
-      if n_elements(scale_factor) gt 0 then scale_factor = scale_factor[0]
-      if n_elements(add_offset) gt 0 then add_offset = add_offset[0]
+      if max(strmatch(att_names,'scale_factor')) gt 0 then begin
+         ncdf_attget, self.ncid, var, 'scale_factor', scale_factor
+         scale_factor = scale_factor[0]
+      endif
+      if max(strmatch(att_names,'add_offset')) gt 0 then begin
+         ncdf_attget, self.ncid, var, 'add_offset', add_offset
+         add_offset = add_offset[0]
+      endif
 
       ;; This code ensures that if either a scale factor or offset
       ;; exists, then they both exist and have compatible data types.
 
       if (n_elements(scale_factor) ge 1) && (n_elements(add_offset) eq 0) then $
-           add_offset = 0*scale_factor
+         add_offset = 0*scale_factor
       if (n_elements(add_offset) ge 1) && (n_elements(scale_factor) eq 0) then $
-           scale_factor = 1+0*add_offset
+         scale_factor = 1+0*add_offset
 
-      case n_elements(scale_factor) gt 0 of
-         0: begin
-            invalid = where(~ validity, n_invalid)
-            if n_invalid gt 0 then result[invalid] = mgh_null(result)
-         end
-         1: begin
-            tmp = mgh_reproduce(mgh_null(scale_factor), result)
-            valid = where(validity, n_valid)
-            if n_valid gt 0 then tmp[valid] = add_offset + result[valid]*scale_factor
-            result = temporary(tmp)
-         end
-      endcase
+      if n_elements(scale_factor) gt 0 then begin
+         tmp = mgh_reproduce(mgh_null(scale_factor), result)
+         l_valid = where(valid, n_valid)
+         if n_valid gt 0 then tmp[l_valid] = add_offset + result[valid]*scale_factor
+         result = temporary(tmp)
+      endif else begin
+         l_invalid = where(~ valid, n_invalid)
+         if n_invalid gt 0 then result[l_invalid] = mgh_null(result)
+      endelse
 
    endif
 
@@ -1016,32 +1007,28 @@ pro MGHncFile::VarInfo, var, $
    n_dims = info.ndims
 
    if arg_present(att_names) || arg_present(fill_value) || arg_present(all) then begin
-      case n_atts gt 0 of
-         0: att_names = ''
-         1: begin
-            att_names = strarr(info.natts)
-            for i=0,n_atts-1 do $
-                 att_names[i] = ncdf_attname(self.ncid, var, i)
-         end
-      endcase
+      if n_atts gt 0 then begin
+         att_names = strarr(info.natts)
+         for i=0,n_atts-1 do $
+            att_names[i] = ncdf_attname(self.ncid, var, i)
+      endif else begin
+         att_names = ''
+      endelse
    endif
 
    if arg_present(dim_names) || arg_present(dimensions) || arg_present(all) then begin
-      case info.ndims gt 0 of
-         0: begin
-            dim_names = ''
-            dimensions = 0
-         end
-         1: begin
-            dim_names = strarr(info.ndims)
-            dimensions = lonarr(info.ndims)
-            for i=0,info.ndims-1 do begin
-               ncdf_diminq, self.ncid, info.dim[i], name, dimsize
-               dim_names[i] = name
-               dimensions[i] = dimsize
-            endfor
-         end
-      endcase
+      if n_dims gt 0 then begin
+         dim_names = strarr(info.ndims)
+         dimensions = lonarr(info.ndims)
+         for i=0,info.ndims-1 do begin
+            ncdf_diminq, self.ncid, info.dim[i], name, dimsize
+            dim_names[i] = name
+            dimensions[i] = dimsize
+         endfor
+      endif else begin
+         dim_names = ''
+         dimensions = 0
+      endelse
    endif
 
    if arg_present(fill_value) || arg_present(all) then begin
@@ -1098,49 +1085,12 @@ function MGHncFile::VarInfo, var, $
 
 end
 
-; MGHncFile::VarObj
-;
-; Purpose:
-;   Given the name(s) of variable(s) in the netCDF file, create associated
-;   object(s) and return reference(s).
-;
-function MGHncFile::VarObj, varname, ALL=all
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
-
-   if keyword_set(all) then begin
-      if n_elements(varname) ne 0 then $
-           message,'Variable name(s) must not be specified when ALL is set.'
-      varname = self->VarNames()
-   endif
-
-   numv = N_elements(varname)
-
-   if numv eq 0 then message,'Variable name(s) must be specified.'
-
-   result = (size(varname, /N_DIMENSIONS) gt 0) ? objarr(numv) : obj_new()
-
-   for i=0,numv-1 do begin
-      varid = ncdf_varid(self.ncid, Varname[i])
-      if varid ne -1 then begin
-         result[i] = obj_new('MGHncFileVar', self, varid)
-         self.vars->Add, result[i]
-      endif
-   endfor
-
-   return, result
-
-end
-
 ; MGHncFile::VarPut
 ;
 ; Purpose:
 ;   Writes data to the netCDF variable.
 ;
-pro MGHncFile::VarPut, var, value, _REF_EXTRA=extra
+pro MGHncFile::VarPut, var, value, AUTOSCALE=autoscale, _REF_EXTRA=extra
 
    compile_opt DEFINT32
    compile_opt STRICTARR
@@ -1158,348 +1108,58 @@ pro MGHncFile::VarPut, var, value, _REF_EXTRA=extra
 
    self->SetMode, /DATA
 
-   ncdf_varput, self.ncid, var, Value, _STRICT_EXTRA=extra
+   self->VarInfo, var, $
+      ATT_NAMES=att_names, DATATYPE=datatype
 
-end
+   ;; Determine if the data are to be scaled before writing
 
-; ******************************************************************************
-; Following are the methods associated with MGHncFileVar
-; ******************************************************************************
+   scaling = $
+      keyword_set(autoscale) && (datatype ne 'CHAR') && $
+      (max(strmatch(att_names,'scale_factor')) gt 0 || max(strmatch(att_names,'add_offset')) gt 0)
 
-; MGHncFileVar::Init
-;
-; Purpose:
-;   Creates an MGHncFileVar object, referring to a variable in a netCDF
-;   file. This will normally be called from an MGHncFile method, which
-;   is responsible for ensuring the variable exists & supplying
-;   the ID numbers.
-;
-function MGHncFileVar::Init, parent, varid
+   if scaling then begin
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
+      if max(strmatch(att_names,'scale_factor')) gt 0 then begin
+         ncdf_attget, self.ncid, var, 'scale_factor', scale_factor
+         scale_factor = double(scale_factor[0])
+      endif else begin
+         scale_factor = 1.0D0
+      endelse
+      if max(strmatch(att_names,'add_offset')) gt 0 then begin
+         ncdf_attget, self.ncid, var, 'add_offset', add_offset
+         add_offset = double(add_offset[0])
+      endif else begin
+         add_offset = 0.0D0
+      endelse
 
-   if n_elements(parent) ne 1 then return, 0
-   if n_elements(varid ) ne 1 then return, 0
+      ;; Determine the fill value. This is the dodgiest part of the whole process
+      ;; as it ignores any valid_range, valid_min and valid_max attributes in the
+      ;; destination variable.
 
-   self.parent = parent
-   self.varid  = varid
+      if max(strmatch(att_names, '_FillValue')) gt 0 then begin
+         ncdf_attget, self.ncid, var, '_FillValue', fill_value
+      endif else begin
+         fill_value = mgh_ncdf_fill(datatype)
+      endelse
 
-   return, 1
+      ;; Scale non-missing data. Results are always rounded, even if destination
+      ;; variable is non-integral.
 
-end
+      my_value = mgh_reproduce(fill_value, value)
 
-; MGHncFileVar::GetProperty
-;
-; Purpose:
-;  Retrieves the value of properties associated with the MGHncFileVar object.
-;
-pro MGHncFileVar::GetProperty, $
-     ALL=all, NAME=name, NCTYPE=nctype, n_dims=n_dims, n_atts=n_atts, $
-     FILL_VALUE=fill_value
+      l_valid = where(finite(value), n_valid)
+      if n_valid gt 0 then my_value[l_valid] = round((value[l_valid]-add_offset)/scale_factor)
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
+      ;; Write scaled data to file
 
-   self.parent->GetProperty, NCID=ncid
+      ncdf_varput, self.ncid, var, my_value, _STRICT_EXTRA=extra
 
-   info = ncdf_varinq(ncid, self.varid)
-
-   name   = info.name
-   nctype = info.datatype
-   n_dims  = info.ndims
-   n_atts  = info.natts
-
-   fillfound = 0B
-   for i=0,n_atts-1 do begin
-      if ncdf_attname(ncid,self.varid,i) eq '_FillValue' then begin
-         ncdf_attget, ncid, self.varid, '_FillValue', fill_value
-         fillfound = 1B
-         goto, exitloop
-      endif
-   endfor
-
-   exitloop:
-
-   if ~ fillfound then begin
-      case nctype of
-         'BYTE'  : fill_value = 129B     ;; Yes this is the fill value for BYTE data
-         'CHAR'  : fill_value = ''
-         'SHORT' : fill_value = -32767S
-         'INT'   : fill_value = -32767S
-         'LONG'  : fill_value = -2147483647L
-         'FLOAT' : fill_value = 9.9692099683868690E+36
-         'DOUBLE': fill_value = 9.9692099683868690D+36
-      endcase
-   endif
-
-   if arg_present(all) then $
-        all = {name:name, nctype:nctype, n_dims:n_dims, n_atts:n_atts, $
-               fill_value:fill_value}
-
-end
-
-; MGHncFileVar::AttNames
-;
-; Purpose:
-;   Generate a list of attribute names.
-;
-function MGHncFileVar::AttNames, COUNT=count
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   self.parent->GetProperty, NCID=ncid
-
-   self->GetProperty, n_atts=count
-
-   if count eq 0 then return, ''
-
-   result = strarr(count)
-   for i=0,count-1 do result[i] = ncdf_attname(ncid, self.varid, i)
-
-   return, result
-
-end
-
-; MGHncFileVar::AttCopy
-;
-; Purpose:
-;   Copy the one or more attributes from the current variable to
-;   another variable. The Atts argument specifies the attribute(s) to be copied;
-;   if it is omitted then all dimensions are copied.
-;
-pro MGHncFileVar::AttCopy, oDest, Atts
-
-   if n_elements(atts) eq 0 then atts = self->AttNames(COUNT=count)
-
-   if count eq 0 then return
-
-   for i=0,n_elements(atts)-1 do oDest->AttAdd, atts[i], self->AttGetData(atts[i])
-
-end
-
-; MGHncFileVar::AttGetData
-;
-; Purpose:
-;   Retrieves the value of an attribute associated with the netCDF
-;   variable.
-;
-function MGHncFileVar::AttGetData, AttName
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt OBSOLETE
-
-   self.parent->GetProperty, NCID=ncid
-
-   ncdf_attget, ncid, self.varid, AttName, result
-
-   ;; Workaround for NCDF_ATTGET bug in IDL 5.3 (and possibly earlier):
-   ;; an attribute of netCDF type CHAR is read as BYTE
-
-   if size(result, /TNAME) eq 'BYTE' then result = string(result)
-
-   return, result
-
-end
-
-; MGHncFileVar::DimNames
-;
-; Purpose:
-;  Retrieves a list of names of the netCDF dimensions associated with
-;  the MGHncFileVar object.
-;
-function MGHncFileVar::DimNames, COUNT=count
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   self.parent->GetProperty, NCID=ncid
-
-   info = ncdf_varinq(ncid, self.varid)
-
-   count = info.ndims
-
-   return, (info.ndims gt 0) ? (self.parent->DimNames())[info.dim] : ''
-
-end
-
-; MGHncFileVar::FillValue
-;
-; Purpose:
-;  Returns the fill value associated with the variable.
-;
-; Comment:
-;   I don't know why I defined this function in addition to the
-;   FILL_VALUE property.  I think this property should be used in
-;   preference to the function call.
-;
-function MGHncFileVar::FillValue
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   self->GetProperty, NCTYPE=nctype
-
-   case self->HasAtt('_FillValue') of
-      1: return, self->AttGetData('_FillValue')
-      0: begin
-         case nctype of
-            'BYTE'  : return, 129B     ;; Yes this is the fill value for BYTE data
-            'CHAR'  : return, ''
-            'SHORT' : return, -32767
-            'LONG'  : return, -2147483647L
-            'FLOAT' : return, 9.9692099683868690E+36
-            'DOUBLE': return, 9.9692099683868690D+36
-         endcase
-      end
-   endcase
-
-end
-
-; MGHncFileVar::GetData
-;
-; Purpose:
-;   Retrieves data from a netCDF variable.
-;
-function MGHncFileVar::GetData, AUTOSCALE=autoscale, _REF_EXTRA=extra
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   self.parent->SetMode, /DATA
-
-   self.parent->GetProperty, NCID=ncid
-
-   ncdf_varget, ncid, self.varid, thedata, _STRICT_EXTRA=extra
-
-   self->GetProperty, NCTYPE=nctype
-
-   ;; The following code processes numeric data according to the
-   ;; netCDF conventions for generic applications.
-
-   if nctype eq 'CHAR' then return, string(thedata)
-
-   if ~ keyword_set(autoscale) then return, thedata
-
-   ;; Determine a valid minimum & maximum
-   if self->HasAtt('valid_range') then valid_range = self->AttGetData('valid_range')
-   if n_elements(valid_range) eq 2 then begin
-      valid_min = valid_range[0]
-      valid_max = valid_range[1]
-   endif
-   if n_elements(valid_min) eq 0 then begin
-      if self->HasAtt('valid_min') then $
-           valid_min = self->AttGetData('valid_min')
-   endif
-   if n_elements(valid_max) eq 0 then begin
-      if self->HasAtt('valid_max') then $
-           valid_max = self->AttGetData('valid_max')
-   endif
-   ;; I'm not sure how to handle BYTE data because I don't know
-   ;; whether it is signed
-   if nctype ne 'BYTE' then begin
-      self->GetProperty, FILL_VALUE=fill_value
-      if n_elements(valid_min) eq 0 then if fill_value lt 0 then $
-           valid_min = fill_value + 1
-      if n_elements(valid_max) eq 0 then if fill_value gt 0 then $
-           valid_max = fill_value - 1
-   endif
-
-   ;; Keep a record of indices of valid data
-   validity = mgh_reproduce(1B, thedata)
-   if n_elements(valid_min) gt 0 then begin
-      invalid = where(finite(thedata) and thedata le valid_min[0], count)
-      if count gt 0 then validity[invalid] = 0B
-   endif
-   if n_elements(valid_max) gt 0 then begin
-      invalid = where(finite(thedata) and thedata ge valid_max[0], count)
-      if count gt 0 then validity[invalid] = 0B
-   endif
-
-   ;; Clear math errors
-   dummy = check_math()
-
-   ;; Now scale
-   if self->HasAtt('scale_factor') then scale_factor = self->AttGetData('scale_factor')
-   if self->HasAtt('add_offset') then add_offset = self->AttGetData('add_offset')
-
-   if n_elements(scale_factor) gt 0 then scale_factor = scale_factor[0]
-   if n_elements(add_offset) gt 0 then add_offset = add_offset[0]
-
-   ;; This code ensures that if either a scale factor or offset
-   ;; exists, then they both exist and have compatible data types.
-   if n_elements(scale_factor) ge 1 then if n_elements(add_offset) eq 0 then $
-        add_offset = 0*scale_factor
-   if n_elements(add_offset) ge 1 then if n_elements(scale_factor) eq 0 then $
-        scale_factor = 1+0*add_offset
-
-   if n_elements(scale_factor) ge 1 then begin
-      result = mgh_reproduce(mgh_null(scale_factor),thedata)
-      valid = where(temporary(validity), count)
-      if count gt 0 then result[valid] = add_offset + thedata[valid]*scale_factor
    endif else begin
-      result = temporary(thedata)
-      invalid = where(1B-temporary(validity), count)
-      if count gt 0 then result[invalid] = mgh_null(result)
+
+      ncdf_varput, self.ncid, var, value, _STRICT_EXTRA=extra
+
    endelse
 
-   return, result
-
-end
-
-; MGHncFileVar::HasAtt
-;
-; Purpose:
-;   Returns 1 if a given attribute is found, otherwise 0.
-;
-function MGHncFileVar::HasAtt, AttName
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   dummy = where(AttName eq self->AttNames(), count)
-
-   return, count gt 0
-
-end
-
-; MGHncFileVar::PutData
-;
-; Purpose:
-;   Writes data to the netCDF variable.
-;
-pro MGHncFileVar::PutData, Value, _REF_EXTRA=extra
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-
-   self.parent->GetProperty, NCID=ncid, WRITABLE=writable
-
-   if ~ writable then begin
-      message,/inform,"Can't write data to a READONLY netCDF."
-   endif
-
-   self.parent->SetMode, /DATA
-
-   ncdf_varput, ncid, self.varid, Value, _STRICT_EXTRA=extra
-
-end
-
-; ******************************************************************************
-; Object structure definitions
-; ******************************************************************************
-
-; MGHncFileVar__Define
-;
-pro MGHncFileVar__Define
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt OBSOLETE
-
-   struct_hide, {MGHncFileVar, parent: obj_new(), varid: 0}
 
 end
 

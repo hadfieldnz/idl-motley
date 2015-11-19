@@ -93,16 +93,13 @@ function MGHncHelper::DimNames, COUNT=count, UNLIMITED=unlimited
 
    self->GetProperty, DIM_NAMES=dim_names, N_DIMS=n_dims, UNLIMITED=unlim_name
 
-   case keyword_set(unlimited) of
-      0: begin
-         count = n_dims
-         return, dim_names
-      end
-      1: begin
-         count = long(strlen(unlim_name) gt 0)
-         return, unlim_name
-      end
-   endcase
+   if keyword_set(unlimited) then begin
+      count = long(strlen(unlim_name) gt 0)
+      return, unlim_name
+   endif else begin
+      count = n_dims
+      return, dim_names
+   endelse
 
 end
 

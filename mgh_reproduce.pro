@@ -42,24 +42,26 @@
 ;     creation functions.
 ;   Mark Hadfield, 2013-10:
 ;     Reformatted.
+;   Mark Hadfield, 2015-11:
+;     Reformatted again. :-)
 ;-
 function mgh_reproduce, value, template
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if n_elements(value) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'value'
+   if n_elements(value) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'value'
 
-  if n_elements(template) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'template'
+   if n_elements(template) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'template'
 
-  if size(template, /N_DIMENSIONS) gt 0 then begin
-    return, make_array(VALUE=value[0], DIMENSION=size(template, /DIMENSIONS))
-  endif else begin
-    return, value[0]
-  endelse
+   if size(template, /N_DIMENSIONS) gt 0 then begin
+      return, make_array(VALUE=value[0], DIMENSION=size(template, /DIMENSIONS))
+   endif else begin
+      return, value[0]
+   endelse
 
 end

@@ -1,4 +1,3 @@
-; svn $Id$
  ;+
 ; NAME:
 ;   MGH_EXAMPLE_NCSEQUENCE
@@ -7,24 +6,17 @@
 ;   MGHncSequence object example
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2000 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2000-06:
 ;     Written.
+;   Mark Hadfield, 2015-11:
+;     Removed a reference to the obsolete MGHncFileVar class.
 ;-
 
 pro mgh_example_ncsequence, N_FILES=n_files, N_RECORDS=n_records
@@ -57,23 +49,22 @@ pro mgh_example_ncsequence, N_FILES=n_files, N_RECORDS=n_records
 
    ;; Specify the file names
 
-   files = filepath('mgh_example_ncfile_'+cmunique_id()+'_'+ $
-                    sindgen(n_files)+'.nc',/TMP)
+   files = filepath('mgh_example_ncfile_'+cmunique_id()+'_'+sindgen(n_files)+'.nc',/TMP)
 
-   ;; Use the MGHncFile object ot create a sequenc of netCDF files
+   ;; Use the MGHncFile object ot create a sequence of netCDF files
 
    for i=0,n_files-1 do begin
 
       onc = obj_new('MGHncFile', files[i], /CREATE, /CLOBBER)
       onc->AttAdd, /GLOBAL, 'title', 'Test file '+strtrim(i,2)
 
-      onc->DimAdd,'x',5
-      onc->DimAdd,'y',3
-      onc->DimAdd,'t'
+      onc->DimAdd, 'x', 5
+      onc->DimAdd, 'y', 3
+      onc->DimAdd, 't'
 
       onc->VarAdd, 'x', ['x']
       onc->VarAdd, 'y', ['y']
-      onc->VarAdd, 't', ['t'], /LONG, OBJ=ot
+      onc->VarAdd, 't', ['t'], /LONG
       onc->VarAdd, 'v', ['x','y','t'], /SHORT
       onc->AttAdd, 'v', 'long_name', 'vvvvvv'
       onc->AttAdd, 'v', 'units', 'W'
@@ -104,14 +95,14 @@ pro mgh_example_ncsequence, N_FILES=n_files, N_RECORDS=n_records
    d = oseq->DimNames(/UNLIMITED)  &  print, d
    print, 'Global attributes:'
    a = oseq->AttNames(/GLOBAL, COUNT=count)
-   case count gt 0 of
-      0: print, 'None'
-      1: begin
-         for j=0,count-1 do print, a[j], ': ', oseq->AttGet(a[j], /GLOBAL)
-      end
-   endcase
+   if count gt 0 then begin
+      for j=0,count-1 do print, a[j], ': ', oseq->AttGet(a[j], /GLOBAL)
+   endif else begin
+      print, 'None'
+   endelse
    print, 'Variables:'
-   v = oseq->VarNames()  &  print, v
+   v = oseq->VarNames()
+   print, v
    print, ''
 
    ;; Go through variables extracting data & attributes
