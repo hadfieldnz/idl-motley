@@ -106,6 +106,8 @@
 ;     objects to allow concatenation in more than one dimension. However this
 ;     functionality still has some bugs: something to do with recursive calls
 ;     to VarGet.
+;   Mark Hadfield, 2015-11:
+;     Removed support for the ERR_STRING keyword in the HasVar method.
 ;-
 ; MGHncSequence::Init
 ;
@@ -538,25 +540,21 @@ end
 ;   Indicates whether the first netCDF file has a variable with the
 ;   specified name
 ;
-function MGHncSequence::HasVar, varname, ERR_STRING=err_string
+function MGHncSequence::HasVar, varname
 
    compile_opt DEFINT32
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   err_string = ''
-
    self->GetProperty, N_FILES=n_files
 
-   if n_files eq 0 then begin
-      err_string = 'There are no netCDF files in the sequence'
-      return, 0
-   endif
+   if n_files eq 0 then $
+      message, 'There are no netCDF files in the sequence'
 
    onc = self.ncfiles->Get()
 
-   return, onc->HasVar(varname, ERR_STRING=err_string)
+   return, onc->HasVar(varname)
 
 end
 

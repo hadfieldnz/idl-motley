@@ -9,7 +9,7 @@
 ;   Strings.
 ;
 ; CALLING SEQUENCE:
-;   result = MGH_STR_VANILLA(instr)
+;   result = mgh_str_vanilla(instr)
 ;
 ; POSITIONAL PARAMETERS:
 ;   instr (input, string scalar or array)
@@ -37,6 +37,9 @@
 ;     Added a substitution for ','.
 ;   Mark Hadfield, 2013-05:
 ;     Added substitutions for '@' and '+'.
+;   Mark Hadfield, 2015-11:
+;     - Substitution map is now a hash object.
+;     - The value "_" is now used for all substitution map keys.
 ;-
 function mgh_str_vanilla, instr
 
@@ -53,15 +56,26 @@ function mgh_str_vanilla, instr
 
    result = instr
 
-   map = [[' ','_'],[':','_'],['/','_'],['\','_'], $
-          ['(','' ],[')','' ],['&','' ],[',','' ], $
-          ['<','' ],['>','' ],['*','_'],['?','_'], $
-          ['@','_'],['+','_']]
+   map = hash()
+   map[' '] = '_'
+   map[':'] = '_'
+   map['/'] = '_'
+   map['\'] = '_'
+   map[')'] = '_'
+   map['('] = '_'
+   map['>'] = '_'
+   map['<'] = '_'
+   map['&'] = '_'
+   map[','] = '_'
+   map['?'] = '_'
+   map['@'] = '_'
+   map['+'] = '_'
+   map['*'] = '_'
 
    dim = size(map, /DIMENSIONS)
 
-   for i=0,dim[1]-1 do $
-        result = mgh_str_subst(temporary(result), map[0,i], map[1,i])
+   foreach k,map->Keys() do $
+      result = mgh_str_subst(temporary(result), k, map[k])
 
    return, result
 
