@@ -24,6 +24,8 @@
 ;     Added a VG method, a synonym for VarGet.
 ;   Mark Hadfield, 2010-11:
 ;     Now inherits IDL_Object.
+;   Mark Hadfield, 2015-11:
+;     Removed support for the ERR_STRING keyword in the HasVar method.
 ;-
 pro MGHncHelper::About, lun
 
@@ -103,28 +105,23 @@ function MGHncHelper::DimNames, COUNT=count, UNLIMITED=unlimited
 
 end
 
-function MGHncHelper::HasVar, varname, ERR_STRING=err_string
+function MGHncHelper::HasVar, var
 
    compile_opt DEFINT32
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   err_string = ''
+   if n_elements(var) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'var'
+   if n_elements(var) gt 1 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'var'
+   if ~ isa (var, 'STRING') then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
 
-   if (n_elements(varname) ne 1) && (size(varname, /TNAME) ne 'STRING') then begin
-      err_string = 'The variable-name argument must be a scalar string'
-      return, 0
-   endif
+   !null = where(var eq self->VarNames(), count)
 
-   dummy = where(varname eq self->VarNames(), count)
-
-   if count lt 1 then begin
-      err_string = 'The variable was not found in the file'
-      return, 0
-   endif
-
-   return, 1
+   return, count gt 0
 
 end
 
