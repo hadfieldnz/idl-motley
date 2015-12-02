@@ -293,15 +293,15 @@ end
 ;
 pro MGHncReadFile::Close
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if self.is_open then begin
-    ncdf_close, self.ncid
-    self.is_open = 0B
-  endif
+   if self.is_open then begin
+      ncdf_close, self.ncid
+      self.is_open = 0B
+   endif
 
 end
 
