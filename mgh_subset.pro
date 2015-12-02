@@ -75,48 +75,48 @@
 ;-
 function mgh_subset, xin, bound, EMPTY=empty, HALO=halo
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if n_elements(xin) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xin'
+   if n_elements(xin) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xin'
 
-  if size(xin, /N_DIMENSIONS) gt 1 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'xin'
+   if size(xin, /N_DIMENSIONS) gt 1 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'xin'
 
-  if n_elements(bound) ne 2 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'bound'
+   if n_elements(bound) ne 2 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'bound'
 
-  if n_elements(halo) eq 0 then halo = 0
+   if n_elements(halo) eq 0 then halo = 0
 
-  empty = 0B
+   empty = 0B
 
-  inside = mgh_reproduce(1B, xin)
+   inside = mgh_reproduce(1B, xin)
 
-  if finite(bound[0]) then $
-    inside = inside and xin gt bound[0]
+   if finite(bound[0]) then $
+      inside = inside and xin gt bound[0]
 
-  if finite(bound[1]) then $
-    inside = inside and xin lt bound[1]
+   if finite(bound[1]) then $
+      inside = inside and xin lt bound[1]
 
-  if max(inside) eq 0 then begin
-    if arg_present(empty) then begin
-      empty = 1B
-      return, !null
-    endif else begin
-      message, 'Range is empty'
-    endelse
-  endif
+   if max(inside) eq 0 then begin
+      if arg_present(empty) then begin
+         empty = 1B
+         return, !null
+      endif else begin
+         message, 'Range is empty'
+      endelse
+   endif
 
-  empty = 0B
+   empty = 0B
 
-  result = mgh_minmax(where(temporary(inside)))
+   result = mgh_minmax(where(temporary(inside)))
 
-  result = (result + [-1,1]*halo > 0) < (n_elements(xin) - 1)
+   result = (result + [-1,1]*halo > 0) < (n_elements(xin) - 1)
 
-  return, result
+   return, result
 
 end
 
