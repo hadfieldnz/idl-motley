@@ -184,8 +184,6 @@ pro MGHncFile::Cleanup
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   compile_opt LOGICAL_PREDICATE
-
    if self.ncid ge 0 then ncdf_close, self.ncid
 
    if self.temp_name ne self.file_name then begin
@@ -648,7 +646,7 @@ pro MGHncFile::SetMode, DEFINE=define, DATA=data
    compile_opt LOGICAL_PREDICATE
 
    if keyword_set(define) && keyword_set(data) then $
-        message, /INFORM, 'Both keywords set, DEFINE takes precedence.'
+      message, /INFORM, 'Both keywords set, DEFINE takes precedence.'
 
    if keyword_set(define) then begin
       if self.define ne 1 then begin
@@ -862,8 +860,8 @@ function MGHncFile::VarGet, var, $
    ;; Get data. Specify the STRIDE keyword only if necessary because there may
    ;; be bugs in IDL's handling of it.
 
-   ;; This line of code seems to be unnecessary:
-   ;; self->SetMode, /DATA
+   ;; This line of code seems to be unnecessary. (Oh no it isn't!!!)
+   self->SetMode, /DATA
 
    if max(mystride) gt 1 then begin
       ncdf_varget, self.ncid, var, result, COUNT=mycount, OFFSET=myoffset, STRIDE=mystride
