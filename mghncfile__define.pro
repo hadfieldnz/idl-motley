@@ -87,6 +87,10 @@
 ;      http://www.unidata.ucar.edu/mailing_lists/archives/netcdfgroup/2014/msg00100.html
 ;   Mark Hadfield, 2015-11:
 ;    - Removed all references to the now-obsolete MGHncFileVar class and its methods.
+;   Mark Hadfield, 2015-12:
+;    - Fixed bug in VarGet method: with AUTOSCALE set, the broadcasting of rescaled
+;      valid values into the result array was not begin done properly. This bug was
+;      introduced in revision 21 (6997ac4b6ee9328e5172836d84b03ce1c915b881).
 ;-
 ; MGHncFile::Init
 ;
@@ -956,7 +960,7 @@ function MGHncFile::VarGet, var, $
       if n_elements(scale_factor) gt 0 then begin
          tmp = mgh_reproduce(mgh_null(scale_factor), result)
          l_valid = where(valid, n_valid)
-         if n_valid gt 0 then tmp[l_valid] = add_offset + result[valid]*scale_factor
+         if n_valid gt 0 then tmp[l_valid] = add_offset + result[l_valid]*scale_factor
          result = temporary(tmp)
       endif else begin
          l_invalid = where(~ valid, n_invalid)
