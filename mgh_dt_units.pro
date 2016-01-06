@@ -74,12 +74,14 @@ function mgh_dt_units, ustring
       end
    endcase
 
-   ;; Handle the base-date component. Special handling for year zero.
+   ;; Handle the base-date component. Special handling for years 0 and 1.
 
    if n_elements(s1) gt 0 then begin
       dts = mgh_dt_parse(strtrim(s1, 2))
       if dts.year eq 0 then begin
         dts.year = 1
+        result.offset = mgh_dt_julday(dts) - mgh_dt_julday(YEAR=dts.year)
+      endif else if dts.year eq 1 then begin
         result.offset = mgh_dt_julday(dts) - mgh_dt_julday(YEAR=dts.year)
       endif else begin
         result.offset = mgh_dt_julday(dts)
