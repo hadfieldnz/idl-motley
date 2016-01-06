@@ -89,90 +89,92 @@
 ;     Increased BUFSIZE default from 64kiB to 256 kiB in an attempt
 ;     to improve speed of transfers from HPCF.
 ;   Mark Hadfield, 2014-07:
-;     REvised source indentation
+;     Revised source indentation
+;   Mark Hadfield, 2015-12:
+;     Revised source indentation again: back to 3-space indentation.
 ;-
 pro mgh_file_copy, InFile, OutFile, $
      BUFSIZE=bufsize, BUNZIP2=bunzip2, GUNZIP=gunzip, GZIP=gzip, TEXT=text, $
      UNIX=unix, VERBOSE=verbose
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if keyword_set(bunzip2) then begin
+   if keyword_set(bunzip2) then begin
 
-    if keyword_set(verbose) then begin
-      msg = string(FORMAT='(%"Copying file %s to %s")', infile, outfile)
-      message, /INFORM, temporary(msg)
-    endif
-
-    cmd = string(FORMAT='(%"bunzip2 -c \"%s\" > \"%s\"")', infile, outfile)
-    if !version.os_family eq 'Windows' then begin
-      spawn, /HIDE, cmd
-    endif else begin
-      spawn, cmd
-    endelse
-
-  endif else begin
-
-    openr, inlun, InFile, /GET_LUN, COMPRESS=keyword_set(gunzip)
-    openw, outlun, OutFile, /GET_LUN, COMPRESS=keyword_set(gzip)
-
-    if keyword_set(verbose) then begin
-      fs = fstat(inlun)
-      fmt = '(%"Copying file %s (%0.3f MiB) to %s")'
-      msg = string(FORMAT=temporary(fmt), infile, 2.^(-20)*fs.size, outfile)
-      message, /INFORM, temporary(msg)
-    endif
-
-    if keyword_set(text) then begin
-
-      while ~ eof(inlun) do begin
-        sline = ''
-        readf, inlun, sline
-        if keyword_set(unix) then begin
-          writeu, outlun, sline, string(10B)
-        endif else begin
-          printf, outlun, sline
-        endelse
-      endwhile
-
-    endif else begin
-
-      if n_elements(bufsize) eq 0 then bufsize = 2^18
-
-      buf = bytarr(bufsize)
-
-      catch, err
-      if err ne 0 then goto, caught_err_binary
-
-      while ~ eof(inlun) do begin
-        readu, inlun, buf
-        writeu, outlun, buf
-      endwhile
-
-      caught_err_binary:
-      catch, /CANCEL
-      if err ne 0 then begin
-        case !error_state.name of
-          'IDL_M_FILE_EOF' : begin
-            info = fstat(inlun)
-            if info.transfer_count gt 0 then $
-              writeu, outlun, buf[0:info.transfer_count-1]
-          end
-          else: begin
-            help, /STRUCT, !error_state
-            message, 'Unexpected error'
-          end
-        endcase
+      if keyword_set(verbose) then begin
+         msg = string(FORMAT='(%"Copying file %s to %s")', infile, outfile)
+         message, /INFORM, temporary(msg)
       endif
 
-    endelse
+      cmd = string(FORMAT='(%"bunzip2 -c \"%s\" > \"%s\"")', infile, outfile)
+      if !version.os_family eq 'Windows' then begin
+         spawn, /HIDE, cmd
+      endif else begin
+         spawn, cmd
+      endelse
 
-    free_lun, inlun
-    free_lun, outlun
+   endif else begin
 
-  endelse
+      openr, inlun, InFile, /GET_LUN, COMPRESS=keyword_set(gunzip)
+      openw, outlun, OutFile, /GET_LUN, COMPRESS=keyword_set(gzip)
+
+      if keyword_set(verbose) then begin
+         fs = fstat(inlun)
+         fmt = '(%"Copying file %s (%0.3f MiB) to %s")'
+         msg = string(FORMAT=temporary(fmt), infile, 2.^(-20)*fs.size, outfile)
+         message, /INFORM, temporary(msg)
+      endif
+
+      if keyword_set(text) then begin
+
+         while ~ eof(inlun) do begin
+            sline = ''
+            readf, inlun, sline
+            if keyword_set(unix) then begin
+               writeu, outlun, sline, string(10B)
+            endif else begin
+               printf, outlun, sline
+            endelse
+         endwhile
+
+      endif else begin
+
+         if n_elements(bufsize) eq 0 then bufsize = 2^18
+
+         buf = bytarr(bufsize)
+
+         catch, err
+         if err ne 0 then goto, caught_err_binary
+
+         while ~ eof(inlun) do begin
+            readu, inlun, buf
+            writeu, outlun, buf
+         endwhile
+
+         caught_err_binary:
+         catch, /CANCEL
+         if err ne 0 then begin
+            case !error_state.name of
+               'IDL_M_FILE_EOF' : begin
+                  info = fstat(inlun)
+                  if info.transfer_count gt 0 then $
+                     writeu, outlun, buf[0:info.transfer_count-1]
+               end
+               else: begin
+                  help, /STRUCT, !error_state
+                  message, 'Unexpected error'
+               end
+            endcase
+         endif
+
+      endelse
+
+      free_lun, inlun
+      free_lun, outlun
+
+   endelse
 
 end

@@ -395,19 +395,10 @@
 ;   This sequence should work with IDL versions before 5.6
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 1999-2016 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -434,8 +425,9 @@
 ;   Mark Hadfield, 2010-10:
 ;     - Now inherits from IDL_Object (introduced in IDL 8.0) and
 ;       not MGH_Debug
+;   Mark Hadfield, 2016-01:
+;     - Cleaned up source code.
 ;-
-
 pro mgh_gui_base_kill_notify, id
 
    compile_opt DEFINT32
@@ -532,97 +524,97 @@ function MGH_GUI_Base::Init, $
      PARENT=parent, PROCESS_EVENTS=process_events, $
      TITLE=title, VISIBLE=visible, _REF_EXTRA=extra
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  ;; Create a disposal container for easy clean up of resources.
+   ;; Create a disposal container for easy clean up of resources.
 
-  self.disposal = obj_new('IDL_Container')
+   self.disposal = obj_new('IDL_Container')
 
-  ;; Much of the widget base's behaviour depends on whether it is a
-  ;; top-level base or a child. The former is the default; the latter
-  ;; is achieved by specifying a PARENT property
+   ;; Much of the widget base's behaviour depends on whether it is a
+   ;; top-level base or a child. The former is the default; the latter
+   ;; is achieved by specifying a PARENT property
 
-  self.parent = n_elements(parent) gt 0 ? parent : 0
+   self.parent = n_elements(parent) gt 0 ? parent : 0
 
-  ;; Specify a few key properties and create the main base. Pass to
-  ;; it keywords related to TLB behaviour (adult only) and alignment
-  ;; relative to parents (child only?). Keywords specifying layout of
-  ;; children are passed to the layout base (later).
+   ;; Specify a few key properties and create the main base. Pass to
+   ;; it keywords related to TLB behaviour (adult only) and alignment
+   ;; relative to parents (child only?). Keywords specifying layout of
+   ;; children are passed to the layout base (later).
 
-  if self->IsTLB() then begin
-    self.block = keyword_set(block)
-    self.modal = keyword_set(modal)
-    self.destroy = n_elements(destroy) gt 0  $
-      ? keyword_set(destroy) : ~ (self.block || self.modal)
-    self.mbar = keyword_set(mbar) && ~ self.modal
-    self.visible = n_elements(visible) gt 0  $
-      ? keyword_set(visible) && ~ self.modal : 1B
-    ;; The following nonsense arises because WIDGET_BASE allows
-    ;; different combinations of keywords in different cases
-    case 1B of
-      self.modal: begin
-        self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
-      end
-      self.mbar: begin
-        self.base = widget_base(MAP=self.visible, MBAR=menu_bar, _STRICT_EXTRA=extra)
-        self.menu_bar = menu_bar
-      end
-      else: begin
-        self.base = widget_base(MAP=self.visible, _STRICT_EXTRA=extra)
-      endelse
-    endcase
-  endif else begin
-    self.block = 0B
-    self.mbar = 0B
-    self.modal = 0B
-    self.destroy = 1B
-    self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
-    self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
-  endelse
+   if self->IsTLB() then begin
+      self.block = keyword_set(block)
+      self.modal = keyword_set(modal)
+      self.destroy = n_elements(destroy) gt 0  $
+         ? keyword_set(destroy) : ~ (self.block || self.modal)
+      self.mbar = keyword_set(mbar) && ~ self.modal
+      self.visible = n_elements(visible) gt 0  $
+         ? keyword_set(visible) && ~ self.modal : 1B
+      ;; The following nonsense arises because WIDGET_BASE allows
+      ;; different combinations of keywords in different cases
+      case 1B of
+         self.modal: begin
+            self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
+         end
+         self.mbar: begin
+            self.base = widget_base(MAP=self.visible, MBAR=menu_bar, _STRICT_EXTRA=extra)
+            self.menu_bar = menu_bar
+         end
+         else: begin
+            self.base = widget_base(MAP=self.visible, _STRICT_EXTRA=extra)
+         endelse
+      endcase
+   endif else begin
+      self.block = 0B
+      self.mbar = 0B
+      self.modal = 0B
+      self.destroy = 1B
+      self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
+      self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
+   endelse
 
-  ;; In IDL 5.4 the present function created a child base, called the "layout
-  ;; base". This was the base to which other children were added and
-  ;; it was also used to store a reference to the current object in
-  ;; its UVALUE. It was done this way because it was necessary to
-  ;; store the object reference in a child of the main widget and
-  ;; there was no way of creating a zero-size, invisible child. The
-  ;; context-menu bases introduced in IDL 5.5 meet this requirement
-  ;; so we can dispense with the multi-tiered structure. The LAYOUT
-  ;; tag in the class structure is retained for backward
-  ;; compatibility.
+   ;; In IDL 5.4 the present function created a child base, called the "layout
+   ;; base". This was the base to which other children were added and
+   ;; it was also used to store a reference to the current object in
+   ;; its UVALUE. It was done this way because it was necessary to
+   ;; store the object reference in a child of the main widget and
+   ;; there was no way of creating a zero-size, invisible child. The
+   ;; context-menu bases introduced in IDL 5.5 meet this requirement
+   ;; so we can dispense with the multi-tiered structure. The LAYOUT
+   ;; tag in the class structure is retained for backward
+   ;; compatibility.
 
-  void = widget_base(self.base, /CONTEXT_MENU, $
-    KILL_NOTIFY='MGH_GUI_BASE_KILL_NOTIFY', $
-    UVALUE=mgh_widget_self(STORE=self))
+   void = widget_base(self.base, /CONTEXT_MENU, $
+      KILL_NOTIFY='MGH_GUI_BASE_KILL_NOTIFY', $
+      UVALUE=mgh_widget_self(STORE=self))
 
-  self.layout = self.base
+   self.layout = self.base
 
-  ;; Set the base's NOTIFY_REALIZE property.
+   ;; Set the base's NOTIFY_REALIZE property.
 
-  self.notify_realize = keyword_set(notify_realize)
-  if self.notify_realize then $
-    widget_control, self.base, NOTIFY_REALIZE='MGH_GUI_BASE_NOTIFY_REALIZE'
+   self.notify_realize = keyword_set(notify_realize)
+   if self.notify_realize then $
+      widget_control, self.base, NOTIFY_REALIZE='MGH_GUI_BASE_NOTIFY_REALIZE'
 
-  ;; Set remaining properties & return
+   ;; Set remaining properties & return
 
-  if self->IsTLB() then begin
-    process_events = 0
-  endif else begin
-    process_events = n_elements(process_events) gt 0 ? process_events : 1
-  endelse
+   if self->IsTLB() then begin
+      process_events = 0
+   endif else begin
+      process_events = n_elements(process_events) gt 0 ? process_events : 1
+   endelse
 
-  ;; I don't think there is any valid reason to set UVALUE and UNAME
-  ;; for a top-level base but I may change my mind.
+   ;; I don't think there is any valid reason to set UVALUE and UNAME
+   ;; for a top-level base but I may change my mind.
 
-  self->MGH_GUI_Base::SetProperty, PROCESS_EVENTS=process_events, $
-    TITLE=title, UNAME=uname, UVALUE=uvalue
+   self->MGH_GUI_Base::SetProperty, PROCESS_EVENTS=process_events, $
+      TITLE=title, UNAME=uname, UVALUE=uvalue
 
-  self->Finalize, 'MGH_GUI_Base'
+   self->Finalize, 'MGH_GUI_Base'
 
-  return, 1
+   return, 1
 
 end
 
@@ -631,15 +623,15 @@ end
 ;
 pro MGH_GUI_Base::Cleanup
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  obj_destroy, self.disposal
+   obj_destroy, self.disposal
 
-  if widget_info(self.base, /VALID_ID) then $
-    widget_control, self.base, /DESTROY
+   if widget_info(self.base, /VALID_ID) then $
+      widget_control, self.base, /DESTROY
 
 end
 
@@ -685,22 +677,22 @@ pro MGH_GUI_Base::GetProperty, $
    visible = self.visible
 
    if valid then begin
-     geometry = widget_info(self.base, /GEOMETRY)
-     managed = widget_info(self.base, /MANAGED)
-     realized = widget_info(self.base, /REALIZED)
-     sensitive = widget_info(self.base, /SENSITIVE)
-     tlb_size_events = widget_info(self.base, /TLB_SIZE_EVENTS)
-     uname = widget_info(self.base, /UNAME)
-     update = widget_info(self.base, /UPDATE)
-     widget_control, self.base, GET_UVALUE=uvalue
+      geometry = widget_info(self.base, /GEOMETRY)
+      managed = widget_info(self.base, /MANAGED)
+      realized = widget_info(self.base, /REALIZED)
+      sensitive = widget_info(self.base, /SENSITIVE)
+      tlb_size_events = widget_info(self.base, /TLB_SIZE_EVENTS)
+      uname = widget_info(self.base, /UNAME)
+      update = widget_info(self.base, /UPDATE)
+      widget_control, self.base, GET_UVALUE=uvalue
    endif else begin
-     geometry = 0B
-     managed = 0B
-     realized = 0B
-     sensitive = 0B
-     tlb_size_events = 0B
-     uname = 0B
-     update = 0B
+      geometry = 0B
+      managed = 0B
+      realized = 0B
+      sensitive = 0B
+      tlb_size_events = 0B
+      uname = 0B
+      update = 0B
    endelse
 
    if arg_present(all) then begin
@@ -767,34 +759,22 @@ pro MGH_GUI_Base::SetProperty, $
       if n_elements(yoffset) gt 0 then $
            widget_control, self.base, YOFFSET=round(yoffset)
 
-      case self->IsTLB() of
-
-         0: begin
-
-            if n_elements(process_events) gt 0 then begin
-               self.process_events = keyword_set(process_events)
-               ef = self.process_events ? 'MGH_GUI_BASE_EVENT_FUNC' : ''
-               widget_control, self.base, EVENT_FUNC=ef
-            endif
-
-         end
-
-         1: begin
-
-            for i=0,n_elements(group_leader)-1 do $
-                 widget_control, self.base, GROUP_LEADER=group_leader[i]
-
-            if keyword_set(managed) then $
-                 self->Manage
-
-            if n_elements(title) gt 0 then begin
-               self.title = title
-               widget_control, self.base, TLB_SET_TITLE=self.title
-            endif
-
-         end
-
-      endcase
+      if self->IsTLB() then begin
+         for i=0,n_elements(group_leader)-1 do $
+            widget_control, self.base, GROUP_LEADER=group_leader[i]
+         if keyword_set(managed) then $
+            self->Manage
+         if n_elements(title) gt 0 then begin
+            self.title = title
+            widget_control, self.base, TLB_SET_TITLE=self.title
+         endif
+      endif else begin
+         if n_elements(process_events) gt 0 then begin
+            self.process_events = keyword_set(process_events)
+            ef = self.process_events ? 'MGH_GUI_BASE_EVENT_FUNC' : ''
+            widget_control, self.base, EVENT_FUNC=ef
+         endif
+      endelse
 
    endif
 
@@ -816,18 +796,15 @@ pro MGH_GUI_Base::About, lun
    printf, lun, FORMAT='(%"%s: hello, my base widget ID is %d")', $
            mgh_obj_string(self), self.base
 
-   case self->IsTLB() of
-      0: begin
-         printf, lun, FORMAT='(%"%s: hello, my parent widget ID is %d")', $
-                 mgh_obj_string(self), self.parent
-      end
-      1: begin
-         printf, lun, FORMAT='(%"%s: I am a top-level base")', $
-                 mgh_obj_string(self)
-         printf, lun, FORMAT='(%"%s: my BLOCK & MODAL properties are %d %d")', $
-                 mgh_obj_string(self), self.block, self.modal
-      end
-   endcase
+   if self->IsTLB() then begin
+      printf, lun, FORMAT='(%"%s: I am a top-level base")', $
+         mgh_obj_string(self)
+      printf, lun, FORMAT='(%"%s: my BLOCK & MODAL properties are %d %d")', $
+         mgh_obj_string(self), self.block, self.modal
+   endif else begin
+      printf, lun, FORMAT='(%"%s: hello, my parent widget ID is %d")', $
+         mgh_obj_string(self), self.parent
+   endelse
 
    desc = mgh_widget_descendants(self.base)
    n_desc = n_elements(desc)
