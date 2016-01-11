@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; CLASS:
 ;   MGH_GUI_PDmenu
@@ -60,19 +59,10 @@
 ;       User value. Default is undefined.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2001-2016 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -83,9 +73,6 @@
 ;   Mark Hadfield, 2004-05.
 ;     Added support for acelerator keys (IDL 6.1)
 ;-
-
-; MGH_GUI_PDmenu_CLEANUP
-;
 pro MGH_GUI_PDmenu_CLEANUP, id
 
    compile_opt DEFINT32
@@ -213,15 +200,16 @@ pro MGH_GUI_PDmenu::Cleanup
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   if widget_info(self.base, /VALID_ID) then $
-        case self.mbar of
-      0: widget_control, self.base, /DESTROY
-      1: begin
-         child = mgh_widget_getchild(self.base, /ALL, COUNT=n_child)
-         for i=0,n_child-1 do $
-              widget_control, child[i], /DESTROY
-      end
-   endcase
+   if widget_info(self.base, /VALID_ID) then begin
+      case self.mbar of
+         0: widget_control, self.base, /DESTROY
+         1: begin
+            child = mgh_widget_getchild(self.base, /ALL, COUNT=n_child)
+            for i=0,n_child-1 do $
+               widget_control, child[i], /DESTROY
+         end
+      endcase
+   endif
 
 end
 
