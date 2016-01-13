@@ -86,7 +86,7 @@ pro mgh_example_barb, option
       oyaxis[0]->GetProperty, YCOORD_CONV=ycoord
 
       ograph->NewAtom, 'MGHgrBarb', RESULT=obarb, /SHOW_HEAD, $
-        DATAX=t, DATAU=u, DATAV=v, SCALE=ycoord[1], /NORM_SCALE, $
+        DATAX=t, DATAY=0, DATAU=u, DATAV=v, SCALE=ycoord[1], /NORM_SCALE, $
         BARB_COLORS=mgh_color(['red','blue','dark green'])
 
       mgh_new, 'MGH_Window', ograph

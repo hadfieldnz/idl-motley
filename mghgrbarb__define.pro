@@ -81,12 +81,19 @@
 ;       methods when the object's DOUBLE property is set.
 ;     - Changed default value of DOUBLE property to 1.
 ;   Mark Hadfield, 2013-10:
-;     - Implemented arrow heads.
+;     - Implemented arrow heads. (Actually, the heads should be called "barbs" and
+;       the shafts that I call barbs should be called "shafts".)
+;   Mark Hadfield, 2016-01:
+;     A couple of improvements to the CalculateDimensions method, made when developing the
+;     same method for the new MGHgrEllipse class:
+;     - Tweaked the code for laying out barb vertices: it should produce the same results
+;       as before but it's a bit easier to follow.
+;     - Made the code for providing default values more robust.
 ;-
 function MGHgrBarb::Init, $
      BARB_COLORS=barb_colors, $
-     DATAU=datau, DATAV=datav, DATAW=dataw, $
      DATAX=datax, DATAY=datay, DATAZ=dataz, $
+     DATAU=datau, DATAV=datav, DATAW=dataw, $
      DESCRIPTION=description, HIDE=hide, NAME=name, $
      NORM_SCALE=norm_scale, $
      REGISTER_PROPERTIES=register_properties, $
@@ -355,260 +362,267 @@ end
 ;
 pro MGHgrBarb::CalculateDimensions
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  ;; Get data and/or provide defaults.
+   ;; Get data and/or provide defaults.
 
-  datax = ptr_valid(self.datax) ? *self.datax : 0
-  datay = ptr_valid(self.datay) ? *self.datay : 0
+   if ptr_valid(self.datax) then datax = *self.datax
+   if ptr_valid(self.datay) then datay = *self.datay
+   if ptr_valid(self.dataz) then dataz = *self.dataz
 
-  datau = ptr_valid(self.datau) ? *self.datau : 0
-  datav = ptr_valid(self.datav) ? *self.datav : 0
+   if ptr_valid(self.datau) then datau = *self.datau
+   if ptr_valid(self.datav) then datav = *self.datav
+   if ptr_valid(self.dataw) then dataw = *self.dataw
 
-  use_z = ptr_valid(self.dataz) || ptr_valid(self.dataw)
+   ;; Calculate number of barbs
 
-  if use_z then begin
-    dataz = ptr_valid(self.dataz) ? *self.dataz : 0
-    dataw = ptr_valid(self.dataw) ? *self.dataw : 0
-  endif
+   n_barb = $
+      n_elements(datax) > n_elements(datay) > n_elements(dataz) > $
+      n_elements(datau) > n_elements(datav) > n_elements(dataw)
 
-  ;; Calculate number of barbs
+   ;; Provide default values
 
-  n_barb = $
-    n_elements(datax) > n_elements(datay) > $
-    n_elements(datau) > n_elements(datav)
+   use_z = n_elements(dataz) gt 0 || n_elements(dataw) gt 0
 
-  if use_z then $
-    n_barb = n_barb > n_elements(dataz) > n_elements(dataw)
+   if n_elements(datax) eq 0 then datax = replicate(0, n_barb)
+   if n_elements(datay) eq 0 then datay = replicate(0, n_barb)
 
-  ;; Determine which barbs have good data
+   if n_elements(datau) eq 0 then datau = replicate(0, n_barb)
+   if n_elements(datav) eq 0 then datav = replicate(0, n_barb)
 
-  if use_z then begin
-    l_barb_good = where(finite(datax) and finite(datay) and finite(dataz) and $
-                        finite(datau) and finite(datav) and finite(dataw), n_barb_good)
-  endif else begin
-    l_barb_good = where(finite(datax) and finite(datay) and $
-                        finite(datau) and finite(datav), n_barb_good)
-  endelse
+   if use_z then begin
+      if n_elements(dataz) eq 0 then dataz = replicate(0, n_barb)
+      if n_elements(dataw) eq 0 then dataw = replicate(0, n_barb)
+   endif
 
-  ;; Calculate velocity scale in data coordinates
+   ;; Determine which barbs have good data
 
-  data_scale = self.scale
-  if self.norm_scale[0] then data_scale[0] /= self.xcoord_conv[1]
-  if self.norm_scale[1] then data_scale[1] /= self.ycoord_conv[1]
-  if self.norm_scale[2] then data_scale[2] /= self.zcoord_conv[1]
+   if use_z then begin
+      l_barb_good = where(finite(datax) and finite(datay) and finite(dataz) and $
+         finite(datau) and finite(datav) and finite(dataw), n_barb_good)
+   endif else begin
+      l_barb_good = where(finite(datax) and finite(datay) and $
+         finite(datau) and finite(datav), n_barb_good)
+   endelse
 
-  ;; Create & fill a polyline vertex array for the barbs
+   ;; Calculate velocity scale in data coordinates
 
-  self->GetProperty, DOUBLE=double
+   data_scale = self.scale
+   if self.norm_scale[0] then data_scale[0] /= self.xcoord_conv[1]
+   if self.norm_scale[1] then data_scale[1] /= self.ycoord_conv[1]
+   if self.norm_scale[2] then data_scale[2] /= self.zcoord_conv[1]
 
-  if use_z then begin
-    vert = make_array(3, 2*n_barb, DOUBLE=double)
-    vert[6*lindgen(n_barb)  ] = datax
-    vert[6*lindgen(n_barb)+1] = datay
-    vert[6*lindgen(n_barb)+2] = dataz
-    vert[6*lindgen(n_barb)+3] = datax + datau*data_scale[0]
-    vert[6*lindgen(n_barb)+4] = datay + datav*data_scale[1]
-    vert[6*lindgen(n_barb)+5] = dataz + dataw*data_scale[2]
-  endif else begin
-    vert = make_array(2, 2*n_barb, DOUBLE=double)
-    vert[4*lindgen(n_barb)  ] = datax
-    vert[4*lindgen(n_barb)+1] = datay
-    vert[4*lindgen(n_barb)+2] = datax + datau*data_scale[0]
-    vert[4*lindgen(n_barb)+3] = datay + datav*data_scale[1]
-  endelse
+   ;; Create & fill a polyline vertex array for the barbs
 
-  ;; Handle missing vertex values. An IDLgrPolyline does not permit
-  ;; non-finite vertices so set them to 0 (the associated line segments
-  ;; will be omitted from the connectivity array.
+   self->GetProperty, DOUBLE=double
 
-  l_miss = where(~ finite(vert), n_miss)
-  if n_miss gt 0 then vert[l_miss] = 0
+   if use_z then begin
+      vert = make_array(3, 2*n_barb, DOUBLE=double)
+      vert[0,2*lindgen(n_barb)] = datax
+      vert[1,2*lindgen(n_barb)] = datay
+      vert[2,2*lindgen(n_barb)] = dataz
+      vert[0,2*lindgen(n_barb)+1] = datax + datau*data_scale[0]
+      vert[1,2*lindgen(n_barb)+1] = datay + datav*data_scale[1]
+      vert[2,2*lindgen(n_barb)+1] = dataz + dataw*data_scale[1]
+   endif else begin
+      vert = make_array(2, 2*n_barb, DOUBLE=double)
+      vert[0,2*lindgen(n_barb)] = datax
+      vert[1,2*lindgen(n_barb)] = datay
+      vert[0,2*lindgen(n_barb)+1] = datax + datau*data_scale[0]
+      vert[1,2*lindgen(n_barb)+1] = datay + datav*data_scale[1]
+   endelse
 
-  ;; Specify connections between polyline vertices.
+   ;; Handle missing vertex values. An IDLgrPolyline does not permit
+   ;; non-finite vertices so set them to 0 (the associated line segments
+   ;; will be omitted from the connectivity array.
 
-  conn = lonarr(3*n_barb)
+   l_miss = where(~ finite(vert), n_miss)
+   if n_miss gt 0 then vert[l_miss] = 0
 
-  if n_barb_good lt n_barb then begin
-    for g=0,n_barb_good-1 do begin
-      i = l_barb_good[g]
-      conn[3*g]   = 2
-      conn[3*g+1] = 2*i
-      conn[3*g+2] = 2*i+1
-    endfor
-    conn[3*n_barb_good] = -1 ; Terminate the list of polylines
-  endif else begin
-    conn[3*lindgen(n_barb)  ] = 2
-    conn[3*lindgen(n_barb)+1] = 2*lindgen(n_barb)
-    conn[3*lindgen(n_barb)+2] = 2*lindgen(n_barb)+1
-  endelse
+   ;; Specify connections between polyline vertices.
 
-  ;; Specify vertex colours
+   conn = lonarr(3*n_barb)
 
-  if ptr_valid(self.barb_colors) then begin
-
-    barb_colors = *(self.barb_colors)
-
-    dims = size(barb_colors, /DIMENSIONS)
-    case size(barb_colors, /N_DIMENSIONS) of
-      1: begin
-        vert_colors = bytarr(2, dims[0])
-        vert_colors[0,*] = barb_colors
-        vert_colors = reform(vert_colors, 2*dims[0])
-      end
-      2: begin
-        if dims[0] ne 3 then $
-          message, 'The inner dimension of BARB_COLORS must be 3'
-        vert_colors = bytarr(3, 2, dims[1])
-        vert_colors[*,0,*] = barb_colors
-        vert_colors = reform(vert_colors, 3, 2*dims[1])
-      end
-    endcase
-
-  endif else begin
-
-    vert_colors = -1
-
-  endelse
-
-  ;; Set up barb polyline.
-
-  self.barb_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
-
-  ;; Set up symbol polyline (if any) using the a subset (0, 2, 4, ...) of
-  ;; the barb polyline vertices.  If a symbol is added then deleted, then the
-  ;; symbol polyline vertices hang around but they're invisible.
-
-  self.symbol_atom->GetProperty, SYMBOL=symbol
-
-  if n_elements(symbol) gt 0 then $
-    self.symbol_atom->SetProperty, DATA=vert[*,2*lindgen(n_barb)]
-
-  mgh_undefine, vert, conn, vert_colors
-
-  ;; Set up the head
-
-  if self.show_head then begin
-
-    ;; Create & fill a polyline vertex array for the head
-
-    ;; Heads are drawn on 3D arrays but are in the xy plane only
-
-    self->GetProperty, DOUBLE=double
-
-    hs = self.head_size
-
-    lenu = datau*data_scale[0]
-    lenv = datav*data_scale[1]
-    if use_z then lenw = dataw*data_scale[2]
-
-    ;; Length and angle of arrows
-    len = sqrt(lenu*lenu+lenv*lenv)
-    ang = atan(lenv, lenu)
-
-    ;; Angle of head lines (actually I think these are the things
-    ;; I should call barbs)
-    a1 = 150*!dtor + ang
-    a2 = 210*!dtor + ang
-
-    if use_z then begin
-      vert = make_array(3, 3*n_barb, DOUBLE=double)
-      vert[9*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
-      vert[9*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
-      vert[9*lindgen(n_barb)+2] = dataz + lenw
-      vert[9*lindgen(n_barb)+3] = datax + lenu
-      vert[9*lindgen(n_barb)+4] = datay + lenv
-      vert[9*lindgen(n_barb)+5] = dataz + lenw
-      vert[9*lindgen(n_barb)+6] = datax + lenu + len*hs*cos(a2)
-      vert[9*lindgen(n_barb)+7] = datay + lenv + len*hs*sin(a2)
-      vert[9*lindgen(n_barb)+8] = dataz + lenw
-    endif else begin
-      vert = make_array(2, 3*n_barb, DOUBLE=double)
-      vert[6*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
-      vert[6*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
-      vert[6*lindgen(n_barb)+2] = datax + lenu
-      vert[6*lindgen(n_barb)+3] = datay + lenv
-      vert[6*lindgen(n_barb)+4] = datax + lenu + len*hs*cos(a2)
-      vert[6*lindgen(n_barb)+5] = datay + lenv + len*hs*sin(a2)
-    endelse
-
-    ;; Handle missing vertex values. An IDLgrPolyline does not permit
-    ;; non-finite vertices so set them to 0. The associated line segments
-    ;; will be omitted from the connectivity array below.
-
-    l_miss = where(~ finite(vert), n_miss)
-    if n_miss gt 0 then vert[l_miss] = 0
-
-    ;; Specify connections between polyline vertices.
-
-    conn = lonarr(4*n_barb)
-
-    if n_barb_good lt n_barb then begin
+   if n_barb_good lt n_barb then begin
       for g=0,n_barb_good-1 do begin
-        i = l_barb_good[g]
-        conn[4*g]   = 3
-        conn[4*g+1] = 3*i
-        conn[4*g+2] = 3*i+1
-        conn[4*g+3] = 3*i+2
+         i = l_barb_good[g]
+         conn[3*g]   = 2
+         conn[3*g+1] = 2*i
+         conn[3*g+2] = 2*i+1
       endfor
-      conn[4*n_barb_good] = -1 ; Terminate the list of polylines
-    endif else begin
-      conn[4*lindgen(n_barb)  ] = 3
-      conn[4*lindgen(n_barb)+1] = 3*lindgen(n_barb)
-      conn[4*lindgen(n_barb)+2] = 3*lindgen(n_barb)+1
-      conn[4*lindgen(n_barb)+3] = 3*lindgen(n_barb)+2
-    endelse
+      conn[3*n_barb_good] = -1 ; Terminate the list of polylines
+   endif else begin
+      conn[3*lindgen(n_barb)  ] = 2
+      conn[3*lindgen(n_barb)+1] = 2*lindgen(n_barb)
+      conn[3*lindgen(n_barb)+2] = 2*lindgen(n_barb)+1
+   endelse
 
-    ;; Specify vertex colours
+   ;; Specify vertex colours
 
-    if ptr_valid(self.barb_colors) then begin
+   if ptr_valid(self.barb_colors) then begin
 
       barb_colors = *(self.barb_colors)
 
       dims = size(barb_colors, /DIMENSIONS)
       case size(barb_colors, /N_DIMENSIONS) of
-        1: begin
-          vert_colors = bytarr(3, dims[0])
-          vert_colors[0,*] = barb_colors
-          vert_colors[1,*] = barb_colors
-          vert_colors = reform(vert_colors, 3*dims[0])
-        end
-        2: begin
-          if dims[0] ne 3 then $
-            message, 'The inner dimension of BARB_COLORS must be 3'
-          vert_colors = bytarr(3, 3, dims[1])
-          vert_colors[*,0,*] = barb_colors
-          vert_colors[*,1,*] = barb_colors
-          vert_colors = reform(vert_colors, 3, 3*dims[1])
-        end
+         1: begin
+            vert_colors = bytarr(2, dims[0])
+            vert_colors[0,*] = barb_colors
+            vert_colors = reform(vert_colors, 2*dims[0])
+         end
+         2: begin
+            if dims[0] ne 3 then $
+               message, 'The inner dimension of BARB_COLORS must be 3'
+            vert_colors = bytarr(3, 2, dims[1])
+            vert_colors[*,0,*] = barb_colors
+            vert_colors = reform(vert_colors, 3, 2*dims[1])
+         end
       endcase
 
-    endif else begin
+   endif else begin
 
       vert_colors = -1
 
-    endelse
+   endelse
 
-    ;; Set up head polyline.
+   ;; Set up barb polyline.
 
-    self.head_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
+   self.barb_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
 
-    mgh_undefine, vert, conn, vert_colors
+   ;; Set up symbol polyline (if any) using the a subset (0, 2, 4, ...) of
+   ;; the barb polyline vertices.  If a symbol is added then deleted, then the
+   ;; symbol polyline vertices hang around but they're invisible.
 
-  endif
+   self.symbol_atom->GetProperty, SYMBOL=symbol
 
-  ;; Scale & translate the model
+   if n_elements(symbol) gt 0 then $
+      self.symbol_atom->SetProperty, DATA=vert[*,2*lindgen(n_barb)]
 
-  self->IDLgrModel::Reset
+   mgh_undefine, vert, conn, vert_colors
 
-  self->IDLgrModel::Scale, $
-    self.xcoord_conv[1], self.ycoord_conv[1], self.zcoord_conv[1]
+   ;; Set up the head
 
-  self->IDLgrModel::Translate, $
-    self.xcoord_conv[0], self.ycoord_conv[0], self.zcoord_conv[0]
+   if self.show_head then begin
+
+      ;; Create & fill a polyline vertex array for the head
+
+      ;; Heads are drawn on 3D arrays but are in the xy plane only
+
+      self->GetProperty, DOUBLE=double
+
+      hs = self.head_size
+
+      lenu = datau*data_scale[0]
+      lenv = datav*data_scale[1]
+      if use_z then lenw = dataw*data_scale[2]
+
+      ;; Length and angle of arrows
+      len = sqrt(lenu*lenu+lenv*lenv)
+      ang = atan(lenv, lenu)
+
+      ;; Angle of head lines (actually I think these are the things
+      ;; I should call barbs)
+      a1 = 150*!dtor + ang
+      a2 = 210*!dtor + ang
+
+      if use_z then begin
+         vert = make_array(3, 3*n_barb, DOUBLE=double)
+         vert[9*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
+         vert[9*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
+         vert[9*lindgen(n_barb)+2] = dataz + lenw
+         vert[9*lindgen(n_barb)+3] = datax + lenu
+         vert[9*lindgen(n_barb)+4] = datay + lenv
+         vert[9*lindgen(n_barb)+5] = dataz + lenw
+         vert[9*lindgen(n_barb)+6] = datax + lenu + len*hs*cos(a2)
+         vert[9*lindgen(n_barb)+7] = datay + lenv + len*hs*sin(a2)
+         vert[9*lindgen(n_barb)+8] = dataz + lenw
+      endif else begin
+         vert = make_array(2, 3*n_barb, DOUBLE=double)
+         vert[6*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
+         vert[6*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
+         vert[6*lindgen(n_barb)+2] = datax + lenu
+         vert[6*lindgen(n_barb)+3] = datay + lenv
+         vert[6*lindgen(n_barb)+4] = datax + lenu + len*hs*cos(a2)
+         vert[6*lindgen(n_barb)+5] = datay + lenv + len*hs*sin(a2)
+      endelse
+
+      ;; Handle missing vertex values. An IDLgrPolyline does not permit
+      ;; non-finite vertices so set them to 0. The associated line segments
+      ;; will be omitted from the connectivity array below.
+
+      l_miss = where(~ finite(vert), n_miss)
+      if n_miss gt 0 then vert[l_miss] = 0
+
+      ;; Specify connections between polyline vertices.
+
+      conn = lonarr(4*n_barb)
+
+      if n_barb_good lt n_barb then begin
+         for g=0,n_barb_good-1 do begin
+            i = l_barb_good[g]
+            conn[4*g]   = 3
+            conn[4*g+1] = 3*i
+            conn[4*g+2] = 3*i+1
+            conn[4*g+3] = 3*i+2
+         endfor
+         conn[4*n_barb_good] = -1 ; Terminate the list of polylines
+      endif else begin
+         conn[4*lindgen(n_barb)  ] = 3
+         conn[4*lindgen(n_barb)+1] = 3*lindgen(n_barb)
+         conn[4*lindgen(n_barb)+2] = 3*lindgen(n_barb)+1
+         conn[4*lindgen(n_barb)+3] = 3*lindgen(n_barb)+2
+      endelse
+
+      ;; Specify vertex colours
+
+      if ptr_valid(self.barb_colors) then begin
+
+         barb_colors = *(self.barb_colors)
+
+         dims = size(barb_colors, /DIMENSIONS)
+         case size(barb_colors, /N_DIMENSIONS) of
+            1: begin
+               vert_colors = bytarr(3, dims[0])
+               vert_colors[0,*] = barb_colors
+               vert_colors[1,*] = barb_colors
+               vert_colors = reform(vert_colors, 3*dims[0])
+            end
+            2: begin
+               if dims[0] ne 3 then $
+                  message, 'The inner dimension of BARB_COLORS must be 3'
+               vert_colors = bytarr(3, 3, dims[1])
+               vert_colors[*,0,*] = barb_colors
+               vert_colors[*,1,*] = barb_colors
+               vert_colors = reform(vert_colors, 3, 3*dims[1])
+            end
+         endcase
+
+      endif else begin
+
+         vert_colors = -1
+
+      endelse
+
+      ;; Set up head polyline.
+
+      self.head_atom->SetProperty, DATA=vert, POLYLINES=conn, VERT_COLORS=vert_colors
+
+      mgh_undefine, vert, conn, vert_colors
+
+   endif
+
+   ;; Scale & translate the model
+
+   self->IDLgrModel::Reset
+
+   self->IDLgrModel::Scale, $
+      self.xcoord_conv[1], self.ycoord_conv[1], self.zcoord_conv[1]
+
+   self->IDLgrModel::Translate, $
+      self.xcoord_conv[0], self.ycoord_conv[0], self.zcoord_conv[0]
 
 end
 
@@ -635,4 +649,3 @@ pro MGHgrBarb__Define
          zcoord_conv: dblarr(2)}
 
 end
-
