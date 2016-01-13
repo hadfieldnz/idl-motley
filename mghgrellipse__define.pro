@@ -334,29 +334,31 @@ pro MGHgrEllipse::CalculateDimensions
 
    ;; Provide default values
 
-   if n_elements(datax) eq 0 then datax = replicate(0, n_ellipse)
-   if n_elements(datay) eq 0 then datay = replicate(0, n_ellipse)
-   if n_elements(dataz) eq 0 then dataz = replicate(0, n_ellipse)
+   if n_elements(datax) eq 0 then datax = 0
+   if n_elements(datay) eq 0 then datay = 0
+   if n_elements(dataz) eq 0 then dataz = 0
 
-   if n_elements(data_sma) eq 0 then data_sma = replicate(0, n_ellipse)
-   if n_elements(data_ecc) eq 0 then data_ecc = replicate(0, n_ellipse)
-   if n_elements(data_inc) eq 0 then data_inc = replicate(0, n_ellipse)
+   if n_elements(data_sma) eq 0 then data_sma = 0
+   if n_elements(data_ecc) eq 0 then data_ecc = 0
+   if n_elements(data_inc) eq 0 then data_inc = 0
 
-   ;; Check data are conformal
+   if n_ellipse eq 0 then n_ellipse = 1
 
-   if n_elements(datax) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'datax'
-   if n_elements(datay) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'datay'
-   if n_elements(dataz) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'dataz'
+   ;; Data must be either scalars or vectors/arrays with n_ellipse elements
 
-   if n_elements(data_sma) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'data_sma'
-   if n_elements(data_ecc) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'data_ecc'
-   if n_elements(data_inc) ne n_ellipse then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'data_inc'
+   if size(datax, /N_DIMENSIONS) gt 0 && n_elements(datax) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'datax'
+   if size(datay, /N_DIMENSIONS) gt 0 && n_elements(datay) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'datay'
+   if size(dataz, /N_DIMENSIONS) gt 0 && n_elements(dataz) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'dataz'
+
+   if size(data_sma, /N_DIMENSIONS) gt 0 && n_elements(data_sma) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'data_sma'
+   if size(data_ecc, /N_DIMENSIONS) gt 0 && n_elements(data_ecc) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'data_ecc'
+   if size(data_inc, /N_DIMENSIONS) gt 0 && n_elements(data_inc) ne n_ellipse then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'data_inc'
 
    ;; Calculate velocity scale in data coordinates
 
@@ -375,10 +377,16 @@ pro MGHgrEllipse::CalculateDimensions
 
    vert = make_array([3,n_vertex,n_ellipse], DOUBLE=double)
    for i_ellipse=0,n_ellipse-1 do begin
-      xy = mgh_ellipse(data_sma[i_ellipse], data_ecc[i_ellipse], data_inc[i_ellipse], N_VERTEX=n_vertex)
-      vert[0,*,i_ellipse] = datax[i_ellipse] + xy[0,*]*data_scale[0]
-      vert[1,*,i_ellipse] = datay[i_ellipse] + xy[1,*]*data_scale[1]
-      vert[2,*,i_ellipse] = dataz[i_ellipse]
+      xxx = datax[i_ellipse < (n_elements(datax)-1)]
+      yyy = datay[i_ellipse < (n_elements(datay)-1)]
+      zzz = dataz[i_ellipse < (n_elements(dataz)-1)]
+      sma = data_sma[i_ellipse < (n_elements(data_sma)-1)]
+      ecc = data_ecc[i_ellipse < (n_elements(data_ecc)-1)]
+      inc = data_inc[i_ellipse < (n_elements(data_inc)-1)]
+      xy = mgh_ellipse(sma, ecc, inc, N_VERTEX=n_vertex)
+      vert[0,*,i_ellipse] = xxx + xy[0,*]*data_scale[0]
+      vert[1,*,i_ellipse] = yyy + xy[1,*]*data_scale[1]
+      vert[2,*,i_ellipse] = zzz
    endfor
 
    ;; Handle missing vertex values. An IDLgrPolyline does not permit
