@@ -83,7 +83,7 @@ pro mgh_example_ellipse, option
          oyaxis[0]->GetProperty, YCOORD_CONV=ycoord
 
          ograph->NewAtom, 'MGHgrEllipse', RESULT=oellipse, $
-            DATAX=t, DATAY=0, DATA_SMA=sma, DATA_ECC=ecc, DATA_INC=inc, $
+            DATAX=t, DATA_SMA=sma, DATA_ECC=ecc, DATA_INC=inc, $
             SCALE=ycoord[1], /NORM_SCALE, $
             ELLIPSE_COLORS=mgh_color(['red','blue','dark green','magenta'])
 
