@@ -25,7 +25,7 @@
 ;       These specify the size/shape parameters (semi-major axis,
 ;       eccentricity and inclination) for each ellipse. The ellipses
 ;       are drawn in the (x, y) plane. Inclination follows the mathematical
-;       convention.
+;       convention and is in radians.
 ;
 ;     DATAX, DATAY, DATAZ (Init)
 ;       Each of these  is a scalar or vector specifying the location

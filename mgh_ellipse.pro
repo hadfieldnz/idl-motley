@@ -5,7 +5,7 @@
 ; PURPOSE:
 ;   Return the (x,y) vertex positions of a polyline approximating
 ;   an ellipse, given the semi-major axis, eccentricity and inclination
-;   (mathematical convention)
+;   (mathematical convention, inclination in radians).
 ;
 ; CALLING SEQUENCE:
 ;   result = MGH_ELLIPSE(sma, ecc, inc, N_VERTEX=n_vertex)
@@ -37,7 +37,7 @@
 ;
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2016-01:
-;     Written, based on JD Smith's POLYClIP.
+;     Written.
 ;-
 function mgh_ellipse, sma, ecc, inc, N_VERTEX=n_vertex
 
