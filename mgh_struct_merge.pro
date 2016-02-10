@@ -6,7 +6,7 @@
 ;   This function merges two anonymous structures.
 ;
 ; CALLING SEQUENCE:
-;   result = mgh_struct_merge(struct0, struct0)
+;   result = mgh_struct_merge(struct0, struct1)
 ;
 ; POSITIONAL PARAMETERS:
 ;   struct0 (input, scalar structure)
@@ -31,6 +31,8 @@ function mgh_struct_merge, struct0, struct1
 
    compile_opt DEFINT32
    compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
    ;; Check arguments
 

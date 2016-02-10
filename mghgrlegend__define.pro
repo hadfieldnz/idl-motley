@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; NAME:
 ;   MGHgrLegend
@@ -36,19 +35,10 @@
 ;   See MGH_EXAMPLE_LEGEND.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 1998-2016 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -65,7 +55,6 @@
 ;     setting default value of DEPTH_TEST_DISABLE to 1, so that
 ;     the legend will be drawn over other graphic objects.
 ;-
-
 function MGHgrLegend::Init, LOCATION=location, $
      XCOORD_CONV=xcoord_conv, YCOORD_CONV=ycoord_conv, ZCOORD_CONV=zcoord_conv, $
      _REF_EXTRA=extra

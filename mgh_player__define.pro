@@ -87,6 +87,9 @@
 ;   Mark Hadfield, 2015-04:
 ;     - Removed an extraneous test for the existence of the (obsolete) AVI
 ;       DLL when writing an animation to a multi-page PDF file.
+;   Mark Hadfield, 2016-01:
+;     - Support WEBM format as an output option only if the VP8 codec is
+;       supported (which it isn't in IDL 8.5 on Windows).
 ;-
 
 ; MGH_Player::Init
@@ -305,8 +308,9 @@ pro MGH_Player::BuildMenuBar
 
    fmt = ['FLC...','MJ2...','TIFF (h-r)...','TIFF...','PDF...','ZIP (h-r)...','ZIP...']
    if mgh_has_video(FORMAT='avi', CODEC='mpeg4') then fmt = [fmt,'AVI...']
+   if mgh_has_video(FORMAT='flv') then fmt = [fmt,'FLV...']
    if mgh_has_video(FORMAT='mp4') then fmt = [fmt,'MP4...']
-   if mgh_has_video(FORMAT='webm') then fmt = [fmt,'WEBM...']
+   if mgh_has_video(FORMAT='webm', CODEC='vp8') then fmt = [fmt,'WEBM...']
    obar->NewItem, PARENT='File.Export Animation', fmt[uniq(fmt, sort(fmt))]
    mgh_undefine, fmt
 
@@ -433,8 +437,23 @@ function MGH_Player::EventMenuBar, event
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
                mgh_cd_sticky, file_dirname(filename)
-               self->WriteAnimationToVideoFile, filename, DISPLAY=0, $
-                    FORMAT='avi', CODEC='mpeg4'
+               self->WriteAnimationToVideoFile, filename, DISPLAY=0, FORMAT='avi', CODEC='mpeg4'
+            endif
+         endif
+         return, 0
+      end
+
+      'FILE.EXPORT ANIMATION.FLV': begin
+         self->GetProperty, GRAPHICS_TREE=graphics_tree
+         if obj_valid(graphics_tree) then begin
+            graphics_tree->GetProperty, NAME=name
+            ext = '.flv'
+            default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
+            filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
+            if strlen(filename) gt 0 then begin
+               widget_control, HOURGLASS=1
+               mgh_cd_sticky, file_dirname(filename)
+               self->WriteAnimationToVideoFile, filename, DISPLAY=0, FORMAT='flv'
             endif
          endif
          return, 0
@@ -450,8 +469,9 @@ function MGH_Player::EventMenuBar, event
           if strlen(filename) gt 0 then begin
             widget_control, HOURGLASS=1
             mgh_cd_sticky, file_dirname(filename)
-            self->WriteAnimationToVideoFile, filename, DISPLAY=0, $
-                 FORMAT='webm'
+            ;; The VP8 codec is *not* available in IDL 8.5, so the wEBM format
+            ;; appears to be unviable
+            self->WriteAnimationToVideoFile, filename, DISPLAY=0, FORMAT='webm', CODEC='VP8'
           endif
         endif
         return, 0
