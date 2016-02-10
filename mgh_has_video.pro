@@ -10,7 +10,8 @@
 ;   result = mgh_has_video(FORMAT=format, CODEC=codec)
 ;
 ; RETURN VALUE:
-;   This function returns 1 if the specified funtionality is supported, 0 otherwise.
+;   This function returns !true if the specified funtionality is supported,
+;   !false otherwise.
 ;
 ;###########################################################################
 ; Copyright (c) 2013 NIWA:
@@ -22,31 +23,31 @@
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2001=06:
 ;       Written.
+;   Mark Hadfield, 2001=06:
+;       Updated to use:
+;       - Static methods of the IDLffVideoWrite class, introduced in IDL 8.3;
+;       - Boolean variables, introduced in IDL 8.4.
 ;-
 function mgh_has_video, FORMaT=format, CODEC=codec
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if ~ mgh_class_exists('IDLffVideoWrite') then return, 0B
+   if ~ mgh_class_exists('IDLffVideoWrite') then return, !false
 
-  file = filepath(cmunique_id()+'.avi', /TMP)
+   if n_elements(format) gt 0 then begin
+      f = IDLffVideoWrite.GetFormats()
+      if max(strmatch(f, format, /FOLD_CASE)) eq 0 then return, !false
+   endif
 
-  ovid = obj_new('IDLffVideoWrite', file)
+   if n_elements(codec) gt 0 then begin
+      c = IDLffVideoWrite.GetCodecs()
+      if max(strmatch(c, codec, /FOLD_CASE)) eq 0 then return, !false
+   endif
 
-  if n_elements(format) gt 0 then begin
-    f = ovid->GetFormats()
-    if max(strmatch(f, format, /FOLD_CASE)) eq 0 then return, 0B
-  endif
-
-  if n_elements(codec) gt 0 then begin
-    c = ovid->GetCodecs()
-    if max(strmatch(c, codec, /FOLD_CASE)) eq 0 then return, 0B
-  endif
-
-  return, 1B
+   return, !true
 
 end
 
