@@ -50,5 +50,3 @@ function mgh_has_video, FORMaT=format, CODEC=codec
    return, !true
 
 end
-
-

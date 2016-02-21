@@ -34,32 +34,26 @@
 ;-
 function mgh_struct_hash, struct
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if n_elements(struct) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'struct'
+   compile_opt OBSOLETE
 
-  if size(struct, /TYPE) ne 8 then $
-     message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'struct'
+   if n_elements(struct) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'struct'
 
-  result = 0LL
+   if size(struct, /TYPE) ne 8 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'struct'
 
-  checksum32, byte(tag_names(struct)), csum
+   result = long64(mgh_hashcode(tag_names(struct)))
 
-  result += csum
+   for i=0,n_tags(struct)-1 do begin
+      s = struct.(i)
+      result += isa(s, 'STRUCT') ?  mgh_struct_hash(s) : mgh_hashcode(s)
+   endfor
 
-  for i=0,n_tags(struct)-1 do begin
-    s = struct.(i)
-    case size(s, /TYPE) of
-      7: checksum32, byte(s), csum
-      8: csum = mgh_struct_hash(s)
-      else: checksum32, s, csum
-    endcase
-    result += csum
-  endfor
+   return, result
 
-  return, result
 end
