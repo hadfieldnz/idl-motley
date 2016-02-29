@@ -44,6 +44,12 @@ function mgh_hashcode, val
             result += mgh_hashcode(val.(i))
          endfor
       end
+      isa(val, 'Pointer'): begin
+         ;; Pointer variables come under the IDL_Variable type. By
+         ;; treating this case first, we can ensure that the hash
+         ;; code of the associated heap variable is returned.
+         result = long64(mgh_hashcode(*val))
+      end
       isa(val, 'IDL_Variable'): begin
          result = long64(val.hashcode())
       end

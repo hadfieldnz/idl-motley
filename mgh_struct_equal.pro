@@ -1,9 +1,12 @@
 ;+
 ; NAME:
-;   MGH_STRUCT_EQUYAL
+;   MGH_STRUCT_EQUAL
 ;
 ; PURPOSE:
-;   Test whether two structure are equal.
+;   Test whether two structures are equal.
+;
+;   The fields in the structure (or in any nested structure) must be of IDL_Variable
+;   or STRUCT type.
 ;
 ;   The routine currently determines equality by comparing hash codes, which may give
 ;   false positives. It would be better to do a field-by-field recursive comparison.
@@ -55,6 +58,6 @@ function mgh_struct_equal, struct0, struct1
 
    ;; For now, just form a hash from each structure and test equality
 
-   return, mgh_hashcode(struct0) eq mgh_hashcode(struct1)
+   return, boolean(mgh_hashcode(struct0) eq mgh_hashcode(struct1))
 
 end
