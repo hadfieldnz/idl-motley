@@ -5,6 +5,8 @@
 ; PURPOSE:
 ;   This function generates a 1-D array of values between specified limits.
 ;
+;   It has now been largely superseded by the colon operator.
+;
 ; CATEGORY:
 ;   Array processing.
 ;
@@ -32,30 +34,30 @@
 function mgh_range, start, finish, $
      N_ELEMENTS=n_elements, STRIDE=stride
 
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
+    compile_opt DEFINT32
+    compile_opt STRICTARR
+    compile_opt STRICTARRSUBS
+    compile_opt LOGICAL_PREDICATE
 
-   if n_elements(finish) eq 0 && n_elements(start) eq 2 then begin
-      s = start[0]
-      f = start[1]
-   endif else begin
-      s = start
-      f = finish
-   endelse
+    if n_elements(finish) eq 0 && n_elements(start) eq 2 then begin
+       s = start[0]
+       f = start[1]
+    endif else begin
+       s = start
+       f = finish
+    endelse
 
-   if n_elements(stride) eq 0 then begin
-      if n_elements(n_elements) eq 1 then begin
-         stride = (f-s)/double(n_elements-1)
-      endif else begin
-         stride = 1
-      endelse
-   end
+    if n_elements(stride) eq 0 then begin
+       if n_elements(n_elements) eq 1 then begin
+          stride = (f-s)/double(n_elements-1)
+       endif else begin
+          stride = 1
+       endelse
+    end
 
-   if n_elements(n_elements) eq 0 then $
-        n_elements = round((f-s)/stride+1)
+    if n_elements(n_elements) eq 0 then $
+       n_elements = round((f-s)/stride+1)
 
-   return, s + stride * lindgen(n_elements)
+    return, s + stride * lindgen(n_elements)
 
 end

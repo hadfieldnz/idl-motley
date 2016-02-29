@@ -768,8 +768,7 @@ pro MGHncReadFile::VarInfo, var, $
    ;; The logic for calculating the size of the unlimited dimension is
    ;; complicated so we won't repeat it here
 
-   if arg_present(dim_names) || arg_present(dimensions) || $
-        arg_present(all) then begin
+   if arg_present(dim_names) || arg_present(dimensions) || arg_present(all) then begin
       self->GetProperty, DIM_NAMES=file_dim_names, $
            DIMENSIONS=file_dimensions, N_DIMS=file_n_dims
    endif
@@ -781,7 +780,6 @@ pro MGHncReadFile::VarInfo, var, $
    datatype = info.datatype
 
    n_atts = info.natts
-
    n_dims = info.ndims
 
    if arg_present(att_names) || arg_present(all) then begin
@@ -794,8 +792,7 @@ pro MGHncReadFile::VarInfo, var, $
       endelse
    endif
 
-   if arg_present(dim_names) || arg_present(dimensions) $
-        or arg_present(all) then begin
+   if arg_present(dim_names) || arg_present(dimensions) || arg_present(all) then begin
       if n_dims gt 0 then begin
          dim_names = file_dim_names[info.dim]
          dimensions = file_dimensions[info.dim]
@@ -806,14 +803,12 @@ pro MGHncReadFile::VarInfo, var, $
    endif
 
    if arg_present(fill_value) || arg_present(all) then begin
-
       for i=0,n_atts-1 do begin
          if ncdf_attname(self.ncid, var, i) eq '_FillValue' then begin
             ncdf_attget, self.ncid, var, '_FillValue', fill_value
             break
          endif
       endfor
-
       if n_elements(fill_value) eq 0 then begin
          case info.datatype of
             'BYTE'  : fill_value = -127B ; Huh?
@@ -825,7 +820,6 @@ pro MGHncReadFile::VarInfo, var, $
             'DOUBLE': fill_value = 9.9692099683868690D+36
          endcase
       endif
-
    endif
 
    self->Close
@@ -845,7 +839,7 @@ function MGHncReadFile::VarInfo, var, $
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   case 1 of
+   case !true of
       keyword_set(att_names): self->VarInfo, var, ATT_NAMES=result
       keyword_set(datatype): self->VarInfo, var, DATATYPE=result
       keyword_set(dim_names): self->VarInfo, var, DIM_NAMES=result
