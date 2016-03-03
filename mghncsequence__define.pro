@@ -108,6 +108,8 @@
 ;     to VarGet.
 ;   Mark Hadfield, 2015-11:
 ;     Removed support for the ERR_STRING keyword in the HasVar method.
+;   Mark Hadfield, 2016-03:
+;     Simplified the logic in the GetProperty method (without breaking it, I hope).
 ;-
 ; MGHncSequence::Init
 ;
@@ -129,7 +131,7 @@ function MGHncSequence::Init, files, $
       self.unlimited = n_elements(unlimited) gt 0 ? unlimited : ''
    endelse
 
-   if n_elements(file_name) eq 0 &&  n_elements(files) gt 0 then $
+   if n_elements(file_name) eq 0 && n_elements(files) gt 0 then $
         file_name = files
 
    self.ncfiles = obj_new('IDL_Container')
@@ -191,120 +193,82 @@ pro MGHncSequence::GetProperty, $
 
    n_files = self.ncfiles->Count()
 
-   writable = 0B
+   writable = !false
 
    if arg_present(att_names) || arg_present(n_atts) || arg_present(all) then begin
-      case n_files gt 0 of
-         0: begin
-            n_atts = 0
-            att_names = ''
-         end
-         1: begin
-            onc = self.ncfiles->Get()
-            onc->GetProperty, ATT_NAMES=att_names, N_ATTS=n_atts
-         end
-      endcase
-   endif
-
-   if arg_present(all) then begin
-      case n_files gt 0 of
-         0: begin
-            n_dims = 0
-            dim_names = ''
-         end
-         1: begin
-            onc = self.ncfiles->Get()
-            onc->GetProperty, DIM_NAMES=dim_names, N_DIMS=n_dims
-            if self.ensemble then begin
-               dim_names = (n_dims gt 0) ? [dim_names, 'record'] : ['record']
-               n_dims = n_dims + 1
-            endif
-         end
-      endcase
+      if n_files gt 0 then begin
+         onc = self.ncfiles->Get()
+         onc->GetProperty, ATT_NAMES=att_names, N_ATTS=n_atts
+      endif else begin
+         n_atts = 0
+         att_names = ''
+      endelse
    endif
 
    if arg_present(var_names) || arg_present(n_vars) || arg_present(all) then begin
-      case n_files gt 0 of
-         0: begin
-            n_vars = 0
-            var_names = ''
-         end
-         1: begin
-            onc = self.ncfiles->Get()
-            onc->GetProperty, VAR_NAMES=var_names, N_VARS=n_vars
-         end
-      endcase
+      if n_files gt 0 then begin
+         onc = self.ncfiles->Get()
+         onc->GetProperty, VAR_NAMES=var_names, N_VARS=n_vars
+      endif else begin
+         n_vars = 0
+         var_names = ''
+      endelse
    endif
 
    if arg_present(file_name) || arg_present(all) then begin
-      case n_files gt 0 of
-         0: file_name = ''
-         1: begin
-            file_name = strarr(n_files)
-            for i=0,n_files-1 do begin
-               onc = self.ncfiles->Get(POSITION=i)
-               onc->GetProperty, FILE=file
-               file_name[i] = file
-            endfor
-         end
-      endcase
+      if n_files gt 0 then begin
+         file_name = strarr(n_files)
+         for i=0,n_files-1 do begin
+            onc = self.ncfiles->Get(POSITION=i)
+            onc->GetProperty, FILE=file
+            file_name[i] = file
+         endfor
+      endif else begin
+         file_name = ''
+      endelse
    endif
 
-   if arg_present(dim_names) || arg_present(n_dims) || $
-        arg_present(n_records) || arg_present(file_offset) || $
-        arg_present(file_n_records) || arg_present(unlimited) || $
-        arg_present(all) then begin
+   if arg_present(dim_names) || arg_present(n_dims) || arg_present(n_records) || arg_present(file_offset) || $
+      arg_present(file_n_records) || arg_present(unlimited) || arg_present(all) then begin
       unlimited = self.unlimited
-      case n_files gt 0 of
-         0: begin
-            dim_names = ''
-            n_dims = -1
-            n_records = -1
-            file_offset = -1
-            file_n_records = -1
-         end
-         1: begin
-            case self.ensemble of
-               0: begin
-                  onc = self.ncfiles->Get()
-                  onc->GetProperty, N_DIMS=n_dims, DIM_NAMES=dim_names, $
-                       DIMENSIONS=dimensions
-                  n_records = 0
-                  file_n_records = lonarr(n_files)
-                  file_offset = lonarr(n_files)
-                  onc = self.ncfiles->Get(/ALL)
-                  for f=0,n_files-1 do begin
-                     n = strlen(unlimited) eq 0 $
-                         ? 0 : onc[f]->DimInfo(unlimited, /DIMSIZE)
-                     file_n_records[f] = n
-                     n_records = n_records + n
-                     if f gt 0 then $
-                          file_offset[f] = file_offset[f-1] + file_n_records[f-1]
-                  endfor
-                  dimensions[n_dims-1] = n_records
-               end
-               1: begin
-                  onc = self.ncfiles->Get()
-                  onc->GetProperty, N_DIMS=n_dims, DIM_NAMES=dim_names, $
-                       DIMENSIONS=dimensions
-                  case n_dims gt 0 of
-                     0: begin
-                        dim_names = unlimited
-                        dimensions = [n_files]
-                     end
-                     1: begin
-                        dim_names = [dim_names,unlimited]
-                        dimensions = [dimensions,n_files]
-                     end
-                  endcase
-                  n_dims = n_dims + 1
-                  n_records = n_files
-                  file_n_records = replicate(1, n_files)
-                  file_offset = lindgen(n_files)
-               end
-            endcase
-         end
-      endcase
+      if n_files gt 0 then begin
+         if self.ensemble then begin
+            onc = self.ncfiles->Get()
+            onc->GetProperty, N_DIMS=n_dims, DIM_NAMES=dim_names, DIMENSIONS=dimensions
+            if n_dims gt 0 then begin
+               dim_names = [dim_names,unlimited]
+               dimensions = [dimensions,n_files]
+            endif else begin
+               dim_names = unlimited
+               dimensions = [n_files]
+            endelse
+            n_dims = n_dims + 1
+            n_records = n_files
+            file_n_records = replicate(1, n_files)
+            file_offset = lindgen(n_files)
+         endif else begin
+            onc = self.ncfiles->Get()
+            onc->GetProperty, N_DIMS=n_dims, DIM_NAMES=dim_names, DIMENSIONS=dimensions
+            n_records = 0
+            file_n_records = lonarr(n_files)
+            file_offset = lonarr(n_files)
+            onc = self.ncfiles->Get(/ALL)
+            for f=0,n_files-1 do begin
+               n = strlen(unlimited) eq 0 ? 0 : onc[f]->DimInfo(unlimited, /DIMSIZE)
+               file_n_records[f] = n
+               n_records = n_records + n
+               if f gt 0 then $
+                  file_offset[f] = file_offset[f-1] + file_n_records[f-1]
+            endfor
+            dimensions[n_dims-1] = n_records
+         endelse
+      endif else begin
+         dim_names = ''
+         n_dims = -1
+         n_records = -1
+         file_offset = -1
+         file_n_records = -1
+      endelse
    endif
 
    if arg_present(all) then $

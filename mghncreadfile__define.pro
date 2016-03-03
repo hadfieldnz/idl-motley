@@ -36,7 +36,7 @@
 ;
 ; PROPERTIES:
 ;   TMP (Init, Get)
-;     Set this property to 1 to make a temporary copy of the netCDF
+;     Set this property to make a temporary copy of the netCDF
 ;     file. This can be highly advantageous when the original is on a
 ;     fast network drive, where opening and closing the file
 ;     repeatedly (as MGHncReadFile methods tend to do) is slow and
@@ -115,7 +115,7 @@ function MGHncReadFile::Init, file, $
 
    self.file_name = file_name
 
-   self.is_open = 0
+   self.is_open = !false
 
    if n_elements(records) gt 0 then self.records = ptr_new(records)
 
@@ -300,7 +300,7 @@ pro MGHncReadFile::Close
 
    if self.is_open then begin
       ncdf_close, self.ncid
-      self.is_open = 0B
+      self.is_open = !false
    endif
 
 end
@@ -452,7 +452,7 @@ function MGHncReadFile::Open
 
    if ~ self.is_open then begin
       self.ncid = ncdf_open(self.temp_name, /NOWRITE)
-      self.is_open = 1B
+      self.is_open = !true
    endif
 
    return, self.ncid
@@ -686,14 +686,14 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
 
       ;; Keep a record of indices of valid data
 
-      validity = mgh_reproduce(1B, result)
+      validity = mgh_reproduce(!true, result)
       if n_elements(valid_min) gt 0 then begin
          invalid = where(result lt valid_min[0], n_invalid)
-         if n_invalid gt 0 then validity[invalid] = 0B
+         if n_invalid gt 0 then validity[invalid] = !false
       endif
       if n_elements(valid_max) gt 0 then begin
          invalid = where(result gt valid_max[0], n_invalid)
-         if n_invalid gt 0 then validity[invalid] = 0B
+         if n_invalid gt 0 then validity[invalid] = !false
       endif
 
       ;; Clear math errors
@@ -864,8 +864,7 @@ pro MGHncReadFile__define
    compile_opt LOGICAL_PREDICATE
 
    struct_hide, {MGHncReadFile, inherits MGHncHelper, $
-                  file_name: '', temp_name: '', ncid: 0L, is_open: 0B, $
+                  file_name: '', temp_name: '', ncid: 0L, is_open: !false, $
                   records: ptr_new(), vars: obj_new()}
 
 end
-

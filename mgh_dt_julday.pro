@@ -58,8 +58,10 @@
 ;   Mark Hadfield, 2004-06:
 ;     Added support for array positional parameters.
 ;   Mark Hadfield, 2004-07:
-;     Fixed a bug introduced with array parameters: when a scalar
-;     positional parameter was passed, the result was a single-element array.
+;     Fixed a bug introduced in 2014-06: when a scalar positional parameter was
+;     passed, the result was a single-element array. Note however that structures
+;     are always non-scalar, so when a positional parameter of type STRUCT
+;     is passed, the result is always an array.
 ;-
 function mgh_dt_julday_calc, $
      YEAR=year, MONTH=month, DAY=day, HOUR=hour, MINUTE=minute, SECOND=second, ZONE=zone
@@ -98,30 +100,28 @@ function mgh_dt_julday, param, _REF_EXTRA=extra
 
    n_param = size(param, /N_ELEMENTS)
 
-   case n_param gt 0 of
+   if n_param gt 0 then begin
 
-      0B: begin
-         return, mgh_dt_julday_calc(_STRICT_EXTRA=extra)
-      end
+      result = mgh_reproduce(0.D0, param)
+      case size(param, /TNAME) of
+         'STRUCT': begin
+            for i=0,n_param-1 do $
+               result[i] = mgh_dt_julday_calc(_STRICT_EXTRA=param[i])
+         end
+         'STRING': begin
+            for i=0,n_param-1 do $
+               result[i] = mgh_dt_julday_calc(_STRICT_EXTRA=mgh_dt_parse(param[i]))
+         end
+         else: begin
+            message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'param'
+         endelse
+      endcase
+      return, result
 
-      1B: begin
-         result = mgh_reproduce(0.D0, param)
-         case size(param, /TNAME) of
-            'STRUCT': begin
-               for i=0,n_param-1 do $
-                     result[i] = mgh_dt_julday_calc(_STRICT_EXTRA=param[i])
-            end
-            'STRING': begin
-               for i=0,n_param-1 do $
-                     result[i] = mgh_dt_julday_calc(_STRICT_EXTRA=mgh_dt_parse(param[i]))
-            end
-            else: begin
-               message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'param'
-            endelse
-         endcase
-         return, result
-      end
+   endif else begin
 
-   endcase
+      return, mgh_dt_julday_calc(_STRICT_EXTRA=extra)
+
+   endelse
 
 end
