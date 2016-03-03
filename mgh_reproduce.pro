@@ -23,7 +23,7 @@
 ;
 ; RETURN VALUE:
 ;   This function returns a variable with the same type as Value and the
-;   same organisation as Template.
+;   same dimensions as Template.
 ;
 ;###########################################################################
 ; Copyright (c) 1993-2013 NIWA:
@@ -44,6 +44,8 @@
 ;     Reformatted.
 ;   Mark Hadfield, 2015-11:
 ;     Reformatted again. :-)
+;   Mark Hadfield, 2016-02:
+;     Now tests for a scalar template argument with the ISA function.
 ;-
 function mgh_reproduce, value, template
 
@@ -58,10 +60,11 @@ function mgh_reproduce, value, template
    if n_elements(template) eq 0 then $
       message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'template'
 
-   if size(template, /N_DIMENSIONS) gt 0 then begin
-      return, make_array(VALUE=value[0], DIMENSION=size(template, /DIMENSIONS))
-   endif else begin
+   ;; Note that structure variables are *never* scalar.
+   if isa(template, /SCALAR) then begin
       return, value[0]
+   endif else begin
+      return, make_array(VALUE=value[0], DIMENSION=size(template, /DIMENSIONS))
    endelse
 
 end

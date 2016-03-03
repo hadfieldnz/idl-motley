@@ -554,7 +554,7 @@ function MGH_GUI_Base::Init, $
          ? keyword_set(visible) && ~ self.modal : 1B
       ;; The following nonsense arises because WIDGET_BASE allows
       ;; different combinations of keywords in different cases
-      case 1B of
+      case !true of
          self.modal: begin
             self.base = widget_base(/MODAL, _STRICT_EXTRA=extra)
          end
