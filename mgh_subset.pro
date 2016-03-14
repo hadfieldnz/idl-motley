@@ -68,7 +68,7 @@
 ;   Mark Hadfield, 2010-11:
 ;     - The behaviour in the case that the subset is empty has changed:
 ;       if the EMPTY parameter is not present, the function now raises an
-;       error; otherwise the empty parameter returns 1B and the function
+;       error; otherwise the empty parameter returns true and the function
 ;       return value is !null.
 ;   Mark Hadfield, 2014-07:
 ;     - Reformatted.
@@ -91,9 +91,9 @@ function mgh_subset, xin, bound, EMPTY=empty, HALO=halo
 
    if n_elements(halo) eq 0 then halo = 0
 
-   empty = 0B
+   empty = !false
 
-   inside = mgh_reproduce(1B, xin)
+   inside = mgh_reproduce(!true, xin)
 
    if finite(bound[0]) then $
       inside = inside and xin gt bound[0]
@@ -103,14 +103,14 @@ function mgh_subset, xin, bound, EMPTY=empty, HALO=halo
 
    if max(inside) eq 0 then begin
       if arg_present(empty) then begin
-         empty = 1B
+         empty = !true
          return, !null
       endif else begin
          message, 'Range is empty'
       endelse
    endif
 
-   empty = 0B
+   empty = !false
 
    result = mgh_minmax(where(temporary(inside)))
 

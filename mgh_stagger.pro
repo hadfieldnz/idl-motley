@@ -98,7 +98,6 @@ function MGH_STAGGER, a, DELTA=delta
    if n_elements(a) eq 0 then message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'a'
 
    n_dims = size(a, /N_DIMENSIONS)
-
    dims = size(a, /DIMENSIONS)
 
    ;; Process DELTA parameter--local variable name is del.
@@ -107,10 +106,8 @@ function MGH_STAGGER, a, DELTA=delta
 
    if size(del, /N_DIMENSIONS) eq 0 then del = replicate(del, n_dims)
 
-   if size(del, /N_ELEMENTS) lt n_dims then begin
-      message, 'The DELTA keyword must have one element for each dimension ' + $
-               'in the input array'
-   endif
+   if size(del, /N_ELEMENTS) lt n_dims then $
+      message, 'The DELTA keyword must have one element for each dimension in the input array'
 
    ;; Array r will (after some resizing and reshaping) be returned as
    ;; the result. Initially copy the input values into it. Multiply by
