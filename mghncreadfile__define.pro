@@ -612,13 +612,13 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
    compile_opt HIDDEN
 
    if size(var, /TYPE) ne 7 then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrongtype', 'var'
 
    if n_elements(var) ne 1 then $
-        message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'var'
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumelem', 'var'
 
    if strlen(var) eq 0 then $
-        message, 'Variable name is invalid'
+      message, 'Variable name is invalid'
 
    self->Open
 
@@ -637,23 +637,21 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
       if info.natts gt 0 then begin
          att_names = strarr(info.natts)
          for i=0,info.natts-1 do $
-              att_names[i] = ncdf_attname(self.ncid, var, i)
+            att_names[i] = ncdf_attname(self.ncid, var, i)
       endif
 
       ;; Determine the valid range from "valid_*" attributes
 
       if max(strmatch(att_names,'valid_range')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'valid_range', valid_range
+         ncdf_attget, self.ncid, var, 'valid_range', valid_range
       if n_elements(valid_range) eq 2 then begin
          valid_min = valid_range[0]
          valid_max = valid_range[1]
       endif
-      if (n_elements(valid_min) eq 0) && $
-           (max(strmatch(att_names,'valid_min')) gt 0) then $
-                ncdf_attget, self.ncid, var, 'valid_min', valid_min
-      if (n_elements(valid_max) eq 0) && $
-           (max(strmatch(att_names,'valid_max')) gt 0) then $
-                ncdf_attget, self.ncid, var, 'valid_max', valid_max
+      if (n_elements(valid_min) eq 0) && (max(strmatch(att_names,'valid_min')) gt 0) then $
+         ncdf_attget, self.ncid, var, 'valid_min', valid_min
+      if (n_elements(valid_max) eq 0) && (max(strmatch(att_names,'valid_max')) gt 0) then $
+         ncdf_attget, self.ncid, var, 'valid_max', valid_max
 
       ;; No valid range found yet, try to determine it from fill value
 
@@ -678,9 +676,9 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
                end
             endcase
             if (n_elements(valid_min) eq 0) && (fill_value lt 0) then $
-                 valid_min = fill_value + delta
+               valid_min = fill_value + delta
             if (n_elements(valid_max) eq 0) && (fill_value gt 0) then $
-                 valid_max = fill_value - delta
+               valid_max = fill_value - delta
          endif
       endif
 
@@ -703,9 +701,9 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
       ;; Now scale
 
       if max(strmatch(att_names,'scale_factor')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'scale_factor', scale_factor
+         ncdf_attget, self.ncid, var, 'scale_factor', scale_factor
       if max(strmatch(att_names,'add_offset')) gt 0 then $
-           ncdf_attget, self.ncid, var, 'add_offset', add_offset
+         ncdf_attget, self.ncid, var, 'add_offset', add_offset
 
       if n_elements(scale_factor) gt 0 then scale_factor = scale_factor[0]
       if n_elements(add_offset) gt 0 then add_offset = add_offset[0]
@@ -714,15 +712,15 @@ function MGHncReadFile::_VarGet, var, AUTOSCALE=autoscale, _REF_EXTRA=extra
       ;; exists, then they both exist and have compatible data types.
 
       if (n_elements(scale_factor) ge 1) && (n_elements(add_offset) eq 0) then $
-           add_offset = 0*scale_factor
+         add_offset = 0*scale_factor
       if (n_elements(add_offset) ge 1) && (n_elements(scale_factor) eq 0) then $
-           scale_factor = 1+0*add_offset
+         scale_factor = 1+0*add_offset
 
       if n_elements(scale_factor) gt 0 then begin
          tmp = mgh_reproduce(mgh_null(scale_factor), result)
          valid = where(temporary(validity), n_valid)
          if n_valid gt 0 then $
-              tmp[valid] = add_offset + result[valid]*scale_factor
+            tmp[valid] = add_offset + result[valid]*scale_factor
          result = temporary(tmp)
       endif else begin
          invalid = where(~ temporary(validity), n_invalid)
@@ -768,7 +766,7 @@ pro MGHncReadFile::VarInfo, var, $
    ;; The logic for calculating the size of the unlimited dimension is
    ;; complicated so we won't repeat it here
 
-   if arg_present(dim_names) || arg_present(dimensions) || arg_present(all) then begin
+   if arg_present(dim_names) || arg_present(dimensions) || arg_present(n_dims) || arg_present(all) then begin
       self->GetProperty, DIM_NAMES=file_dim_names, $
            DIMENSIONS=file_dimensions, N_DIMS=file_n_dims
    endif
@@ -825,8 +823,8 @@ pro MGHncReadFile::VarInfo, var, $
    self->Close
 
    if arg_present(all) then $
-        all = {datatype:datatype, dim_names:dim_names, dimensions:dimensions, $
-               n_dims:n_dims, n_atts:n_atts, fill_value: fill_value}
+        all = {datatype: datatype, dim_names: dim_names, dimensions: dimensions, $
+               n_dims: n_dims, n_atts: n_atts, fill_value: fill_value}
 
 end
 
