@@ -26,6 +26,10 @@
 ;     Now inherits IDL_Object.
 ;   Mark Hadfield, 2015-11:
 ;     Removed support for the ERR_STRING keyword in the HasVar method.
+;   Mark Hadfield, 2016-03:
+;     Changed the Retrieve method's HASH keyword to DICTIONARY; it now
+;     causes the data to be returned in a Dictionary object. I intend
+;     to make this the default behaviour.
 ;-
 pro MGHncHelper::About, lun
 
@@ -126,7 +130,7 @@ function MGHncHelper::HasVar, var
 end
 
 function MGHncHelper::Retrieve, vars, $
-     AUTOSCALE=autoscale, COUNT=count, HASH=hash, POINTER=pointer
+     AUTOSCALE=autoscale, COUNT=count, DICTIONARY=dictionary, POINTER=pointer
 
   compile_opt DEFINT32
   compile_opt STRICTARR
@@ -140,12 +144,12 @@ function MGHncHelper::Retrieve, vars, $
   if count eq 0 then $
     self->GetProperty, VAR_NAMES=vars, N_VARS=count
 
-  if keyword_set(hash) then begin
+  if keyword_set(dictionary) then begin
 
-    result = hash()
+    result = dictionary()
 
     for i=0,count-1 do begin
-      result += hash(vars[i], self->VarGet(vars[i], AUTOSCALE=autoscale))
+      result[vars[i]] = self->VarGet(vars[i], AUTOSCALE=autoscale)
     endfor
 
   endif else begin

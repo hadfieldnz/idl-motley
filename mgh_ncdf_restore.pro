@@ -29,9 +29,9 @@
 ;     This keyword returns the number of variables for which data have
 ;     been returned.
 ;
-;   HASH (input, switch)
+;   DICTIONARY (input, switch)
 ;     Passed to the netCDF object's Retrieve method to specify that
-;     the result should be a hash.
+;     the result should be a Dictionary object.
 ;
 ;   NETCDF_CLASS (input, string, scalar)
 ;     The class of the netCDF file object to be created. Permissible
@@ -79,9 +79,11 @@
 ;     Added HASH keyword.
 ;   Mark Hadfield, 2013-10:
 ;     Added check for undefined file name.
+;   Mark Hadfield, 2016-03:
+;     Changed the HASH keyword to DICTIONARY.
 ;-
 function mgh_ncdf_restore, file, variables, $
-     AUTOSCALE=autoscale, COUNT=count, HASH=hash, NETCDF_CLASS=netcdf_class, $
+     AUTOSCALE=autoscale, COUNT=count, DICTIONARY=dictionary, NETCDF_CLASS=netcdf_class, $
      POINTER=pointer, _REF_EXTRA=extra
 
    compile_opt DEFINT32
@@ -96,7 +98,7 @@ function mgh_ncdf_restore, file, variables, $
    onc = obj_new(netcdf_class, file, _STRICT_EXTRA=extra)
 
    result = onc->Retrieve(variables, AUTOSCALE=autoscale, COUNT=count, $
-                          HASH=hash, POINTER=pointer)
+                          DICTIONARY=dictionary, POINTER=pointer)
 
    obj_destroy, onc
 

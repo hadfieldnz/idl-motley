@@ -547,11 +547,9 @@ function MGH_GUI_Base::Init, $
    if self->IsTLB() then begin
       self.block = keyword_set(block)
       self.modal = keyword_set(modal)
-      self.destroy = n_elements(destroy) gt 0  $
-         ? keyword_set(destroy) : ~ (self.block || self.modal)
+      self.destroy = n_elements(destroy) gt 0  ? keyword_set(destroy) : ~ (self.block || self.modal)
       self.mbar = keyword_set(mbar) && ~ self.modal
-      self.visible = n_elements(visible) gt 0  $
-         ? keyword_set(visible) && ~ self.modal : 1B
+      self.visible = n_elements(visible) gt 0  ? keyword_set(visible) && ~ self.modal : !true
       ;; The following nonsense arises because WIDGET_BASE allows
       ;; different combinations of keywords in different cases
       case !true of
