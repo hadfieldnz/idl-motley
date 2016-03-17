@@ -28,7 +28,7 @@
 ; RETURN VALUE:
 ;   This function returns !true if the variable is a structure or a
 ;   dictionary containing the tag, otherwise !false.
-;   
+;
 ;   Dictionary support was added to support migration from the structure
 ;   to the dictionary data type.
 ;
@@ -54,7 +54,7 @@ function mgh_struct_has_tag, var, tagname, COUNT=count
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    case !true of
       isa(var, 'struct'): begin
          !null = where(strmatch('.'+tag_names(Var)+'.', '.'+Tagname+'.', /FOLD_CASE), count)
