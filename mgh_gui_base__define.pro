@@ -565,11 +565,11 @@ function MGH_GUI_Base::Init, $
          endelse
       endcase
    endif else begin
-      self.block = 0B
-      self.mbar = 0B
-      self.modal = 0B
-      self.destroy = 1B
-      self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : 1B
+      self.block = !false
+      self.mbar = !false
+      self.modal = !false
+      self.destroy = !false
+      self.visible = n_elements(visible) gt 0  ? keyword_set(visible) : !true
       self.base = widget_base(self.parent, MAP=self.visible, _STRICT_EXTRA=extra)
    endelse
 
@@ -599,9 +599,9 @@ function MGH_GUI_Base::Init, $
    ;; Set remaining properties & return
 
    if self->IsTLB() then begin
-      process_events = 0
+      process_events = !false
    endif else begin
-      process_events = n_elements(process_events) gt 0 ? process_events : 1
+      process_events = n_elements(process_events) gt 0 ? process_events : !true
    endelse
 
    ;; I don't think there is any valid reason to set UVALUE and UNAME
