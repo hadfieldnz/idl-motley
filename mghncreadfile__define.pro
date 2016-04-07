@@ -178,7 +178,7 @@ pro MGHncReadFile::GetProperty, $
    compile_opt LOGICAL_PREDICATE
 
    file_name = self.file_name
-   writable  = 0B
+   writable  = !false
 
    self->Open
 
@@ -263,26 +263,26 @@ end
 ;
 function MGHncReadFile::AttGet, P1, P2, GLOBAL=global
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  self->Open
+   self->Open
 
-  if keyword_set(global) then begin
-    info = ncdf_attinq(self.ncid, /GLOBAL, P1)
-    ncdf_attget, self.ncid, /GLOBAL, P1, result
-  endif else begin
-    info = ncdf_attinq(self.ncid, P1, P2)
-    ncdf_attget, self.ncid, P1, P2, result
-  endelse
+   if keyword_set(global) then begin
+      info = ncdf_attinq(self.ncid, /GLOBAL, P1)
+      ncdf_attget, self.ncid, /GLOBAL, P1, result
+   endif else begin
+      info = ncdf_attinq(self.ncid, P1, P2)
+      ncdf_attget, self.ncid, P1, P2, result
+   endelse
 
-  self->Close
+   self->Close
 
-  if info.datatype eq 'CHAR' then result = string(result)
+   if info.datatype eq 'CHAR' then result = string(result)
 
-  return, result
+   return, result
 
 end
 
@@ -380,10 +380,11 @@ function MGHncReadFile::HasAtt, P1, P2, GLOBAL=global
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   case keyword_set(global) of
-      0B: _ = where(strmatch(self->AttNames(P1), P2), count)
-      1B: _ = where(strmatch(self->AttNames(/GLOBAL), P1), count)
-   endcase
+   if keyword_set(global) then begin
+      !null = where(strmatch(self->AttNames(/GLOBAL), P1), count)
+   endif else begin
+      !null = where(strmatch(self->AttNames(P1), P2), count)
+   endelse
 
    return, count gt 0
 
@@ -402,7 +403,7 @@ function MGHncReadFile::HasDim, Name
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   void = where(strmatch(self->DimNames(), name), count)
+   !null = where(strmatch(self->DimNames(), name), count)
 
    return, count gt 0
 
