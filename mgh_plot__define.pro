@@ -48,19 +48,10 @@
 ;       line plot.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2000-2016 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -117,22 +108,19 @@ function MGH_Plot::Init, P1, P2, $
 
    if do_plot then begin
 
-      case 1 of
-         n_elements(p2) eq 0: begin
-            datax = lindgen(n_elements(P1))
-            datay = P1
-         end
-         else: begin
-            datax = P1
-            datay = P2
-         end
-      endcase
+      if n_elements(p2) eq 0 then begin
+         datax = lindgen(n_elements(P1))
+         datay = P1
+      endif else begin
+         datax = P1
+         datay = P2
+      endelse
 
    endif
 
    ;; Determine axis ranges
 
-   if n_elements(xrange) eq 0 &&  n_elements(datax) gt 0 then $
+   if n_elements(xrange) eq 0 && n_elements(datax) gt 0 then $
         xrange = mgh_minmax(datax, /NAN)
 
    if n_elements(yrange) eq 0 && n_elements(datay) gt 0 then $
