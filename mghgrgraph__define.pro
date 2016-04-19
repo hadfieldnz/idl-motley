@@ -1028,7 +1028,7 @@ function MGHgrGraph::NewAxis, dir, $
       endcase
    endif
 
-   ;; Default handling of reversed axes is somewhat intricate Reversed
+   ;; Default handling of reversed axes is somewhat intricate. Reversed
    ;; Z axes are not displayed correctly because of a bug in IDLgrAxis
 
    textbaseline = [1,0,0]
