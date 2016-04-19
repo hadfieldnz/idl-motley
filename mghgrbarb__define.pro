@@ -89,6 +89,9 @@
 ;     - Tweaked the code for laying out barb vertices: it should produce the same results
 ;       as before but it's a bit easier to follow.
 ;     - Made the code for providing default values more robust.
+;   Mark Hadfield, 2016-04:
+;     Added the HEAD_EXPONENT property, used along with HEAD_SIZE to control the size of
+;     the arrow heads.
 ;-
 function MGHgrBarb::Init, $
      BARB_COLORS=barb_colors, $
@@ -97,7 +100,7 @@ function MGHgrBarb::Init, $
      DESCRIPTION=description, HIDE=hide, NAME=name, $
      NORM_SCALE=norm_scale, $
      REGISTER_PROPERTIES=register_properties, $
-     HEAD_SIZE=head_size, SHOW_HEAD=show_head, $
+     HEAD_SIZE=head_size, HEAD_EXPONENT=head_exponent, SHOW_HEAD=show_head, $
      SCALE=scale, SYMBOL=symbol, $
      XCOORD_CONV=xcoord_conv, $
      YCOORD_CONV=ycoord_conv, $
@@ -133,8 +136,9 @@ function MGHgrBarb::Init, $
 
    self.scale = 1
 
-   self.show_head = 0
+   self.show_head = !false
    self.head_size = 0.3
+   self.head_exponent = 1.0
 
    self.xcoord_conv = [0,1]
    self.ycoord_conv = [0,1]
@@ -147,7 +151,7 @@ function MGHgrBarb::Init, $
         DATAU=datau, DATAV=datav, DATAW=dataw, $
         DATAX=datax, DATAY=datay, DATAZ=dataz, $
         NORM_SCALE=norm_scale, SCALE=scale, SYMBOL=symbol, $
-        HEAD_SIZE=head_size, SHOW_HEAD=show_head, $
+        HEAD_SIZE=head_size, HEAD_EXPONENT=head_exponent, SHOW_HEAD=show_head, $
         XCOORD_CONV=xcoord_conv, YCOORD_CONV=ycoord_conv, $
         ZCOORD_CONV=zcoord_conv, _STRICT_EXTRA=extra
 
@@ -249,7 +253,7 @@ pro MGHgrBarb::SetProperty, $
      DATAX=datax, DATAY=datay, DATAZ=dataz, $
      DESCRIPTION=description, HIDE=hide, NAME=name, $
      NORM_SCALE=norm_scale, SCALE=scale, SYMBOL=symbol, $
-     HEAD_SIZE=head_size, SHOW_HEAD=show_head, $
+     HEAD_SIZE=head_size, HEAD_EXPONENT=head_exponent, SHOW_HEAD=show_head, $
      XCOORD_CONV=xcoord_conv, $
      YCOORD_CONV=ycoord_conv, $
      ZCOORD_CONV=zcoord_conv, _REF_EXTRA=extra
@@ -264,93 +268,100 @@ pro MGHgrBarb::SetProperty, $
 
    self.barb_atom->SetProperty, _STRICT_EXTRA=extra
 
-   recalc = 0B
+   recalc = !false
 
    if n_elements(barb_colors) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.barb_colors
       self.barb_colors = ptr_new(barb_colors)
    endif
 
    if n_elements(datax) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.datax
       self.datax = ptr_new(datax)
    endif
 
    if n_elements(datay) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.datay
       self.datay = ptr_new(datay)
    endif
 
    if n_elements(dataz) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.dataz
       self.dataz = ptr_new(dataz)
    endif
 
    if n_elements(datau) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.datau
       self.datau = ptr_new(datau)
    endif
 
    if n_elements(datav) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.datav
       self.datav = ptr_new(datav)
    endif
 
    if n_elements(dataw) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       ptr_free, self.dataw
       self.dataw = ptr_new(dataw)
    endif
 
    if n_elements(norm_scale) gt 0 then begin
-      recalc = 1B
-      case n_elements(norm_scale) of
-         1: self.norm_scale = norm_scale[0]   ;;; Assign single value to all 3 elements
-         else: self.norm_scale = norm_scale   ;;; Assign vector to vector
-      endcase
+      recalc = !true
+      if n_elements(scale) eq 1 then begin
+         self.norm_scale = norm_scale[0]   ;;; Assign single value to all 3 elements
+      endif else begin
+         self.norm_scale = norm_scale   ;;; Assign vector to vector
+      endelse
    endif
 
    if n_elements(scale) gt 0 then begin
-      recalc = 1B
-      case n_elements(scale) of
-         1: self.scale = scale[0]   ;;; Assign single value to all 3 elements
-         else: self.scale = scale   ;;; Assign vector to vector
-      endcase
+      recalc = !true
+      if n_elements(scale) eq 1 then begin
+         self.scale = scale[0]   ;;; Assign single value to all 3 elements
+      endif else begin
+         self.scale = scale   ;;; Assign vector to vector
+      endelse
    endif
 
    if n_elements(symbol) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       self.symbol_atom->SetProperty, SYMBOL=symbol
    endif
 
    if n_elements(head_size) gt 0 then begin
-     recalc = 1B
+     recalc = !true
      self.head_size = head_size
    endif
 
+   if n_elements(head_exponent) gt 0 then begin
+      recalc = !true
+      self.head_exponent = head_exponent
+   endif
+
    if n_elements(show_head) gt 0 then begin
-     recalc = 1B
+     recalc = !true
      self.show_head = show_head
    endif
 
    if n_elements(xcoord_conv) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       self.xcoord_conv = xcoord_conv
    endif
 
    if n_elements(ycoord_conv) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       self.ycoord_conv = ycoord_conv
    endif
 
    if n_elements(zcoord_conv) gt 0 then begin
-      recalc = 1B
+      recalc = !true
       self.zcoord_conv = zcoord_conv
    endif
 
@@ -437,10 +448,9 @@ pro MGHgrBarb::CalculateDimensions
 
    ;; Handle missing vertex values. An IDLgrPolyline does not permit
    ;; non-finite vertices so set them to 0 (the associated line segments
-   ;; will be omitted from the connectivity array.
+   ;; will be omitted from the connectivity array).
 
-   l_miss = where(~ finite(vert), n_miss)
-   if n_miss gt 0 then vert[l_miss] = 0
+   vert[where(~ finite(vert), /NULL)] = 0
 
    ;; Specify connections between polyline vertices.
 
@@ -514,6 +524,7 @@ pro MGHgrBarb::CalculateDimensions
       self->GetProperty, DOUBLE=double
 
       hs = self.head_size
+      he = self.head_exponent
 
       lenu = datau*data_scale[0]
       lenv = datav*data_scale[1]
@@ -530,31 +541,30 @@ pro MGHgrBarb::CalculateDimensions
 
       if use_z then begin
          vert = make_array(3, 3*n_barb, DOUBLE=double)
-         vert[9*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
-         vert[9*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
+         vert[9*lindgen(n_barb)  ] = datax + lenu + hs*(len^he)*cos(a1)
+         vert[9*lindgen(n_barb)+1] = datay + lenv + hs*(len^he)*sin(a1)
          vert[9*lindgen(n_barb)+2] = dataz + lenw
          vert[9*lindgen(n_barb)+3] = datax + lenu
          vert[9*lindgen(n_barb)+4] = datay + lenv
          vert[9*lindgen(n_barb)+5] = dataz + lenw
-         vert[9*lindgen(n_barb)+6] = datax + lenu + len*hs*cos(a2)
-         vert[9*lindgen(n_barb)+7] = datay + lenv + len*hs*sin(a2)
+         vert[9*lindgen(n_barb)+6] = datax + lenu + hs*(len^he)*cos(a2)
+         vert[9*lindgen(n_barb)+7] = datay + lenv + hs*(len^he)*sin(a2)
          vert[9*lindgen(n_barb)+8] = dataz + lenw
       endif else begin
          vert = make_array(2, 3*n_barb, DOUBLE=double)
-         vert[6*lindgen(n_barb)  ] = datax + lenu + len*hs*cos(a1)
-         vert[6*lindgen(n_barb)+1] = datay + lenv + len*hs*sin(a1)
+         vert[6*lindgen(n_barb)  ] = datax + lenu + hs*(len^he)*cos(a1)
+         vert[6*lindgen(n_barb)+1] = datay + lenv + hs*(len^he)*sin(a1)
          vert[6*lindgen(n_barb)+2] = datax + lenu
          vert[6*lindgen(n_barb)+3] = datay + lenv
-         vert[6*lindgen(n_barb)+4] = datax + lenu + len*hs*cos(a2)
-         vert[6*lindgen(n_barb)+5] = datay + lenv + len*hs*sin(a2)
+         vert[6*lindgen(n_barb)+4] = datax + lenu + hs*(len^he)*cos(a2)
+         vert[6*lindgen(n_barb)+5] = datay + lenv + hs*(len^he)*sin(a2)
       endelse
 
       ;; Handle missing vertex values. An IDLgrPolyline does not permit
       ;; non-finite vertices so set them to 0. The associated line segments
       ;; will be omitted from the connectivity array below.
 
-      l_miss = where(~ finite(vert), n_miss)
-      if n_miss gt 0 then vert[l_miss] = 0
+      vert[where(~ finite(vert), /NULL)] = 0
 
       ;; Specify connections between polyline vertices.
 
@@ -643,7 +653,7 @@ pro MGHgrBarb__Define
          norm_scale: bytarr(3), $
          datax: ptr_new(), datay: ptr_new(), dataz: ptr_new(), $
          datau: ptr_new(), datav: ptr_new(), dataw: ptr_new(), $
-         head_size: 0.0, show_head: 0B, $
+         head_size: 0.0, head_exponent: 0.0, show_head: !false, $
          xcoord_conv: dblarr(2), $
          ycoord_conv: dblarr(2), $
          zcoord_conv: dblarr(2)}

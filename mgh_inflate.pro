@@ -15,7 +15,7 @@
 ; POSITIONAL PARAMETERS:
 ;   dim (input, integer vector)
 ;     The dimensions of the output array. The number of elements in the
-;     data array, x, must equal dim[n[, where n is the third positional
+;     data array, x, must equal dim[n], where n is the third positional
 ;     parameter, below.
 ;
 ;   a (input, numeric array)
