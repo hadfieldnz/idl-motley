@@ -80,7 +80,7 @@ function mgh_get_ct, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    id_type = size(table_id, /TYPE)
 
-   case 1B of
+   case !true of
 
       id_type eq 7: begin
          table_index = where(strmatch(table_names, table_id, /FOLD_CASE), n_match)

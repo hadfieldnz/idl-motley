@@ -62,76 +62,81 @@
 ;     - Changed order of parameters: points to be tested come before
 ;       polygon.
 ;     - Polygon can now be specified as a [2,n] array.
+;   Mark Hadfield, 2016-04:
+;     - Fixed a bug discovered by Matt Considine and Andrew Cool: the calculation
+;       of the inverse slope (invslope) variable is broken when the vertices are of
+;       integer type.
+;     - Miscellaneous source code reformatting.
+;     - Returns a boolean value.
 ;-
 function mgh_pnpoly_calculate, x, y, xp, yp
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
-  compile_opt HIDDEN
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
+   compile_opt HIDDEN
 
-  n_pol = n_elements(xp)
+   n_pol = n_elements(xp)
 
-  if n_pol lt 3 then $
-    message, 'Need at least 3 points to define polygon.'
+   if n_pol lt 3 then $
+      message, 'Need at least 3 points to define polygon.'
 
-  inside = mgh_reproduce(0, x)
+   inside = mgh_reproduce(0, x)
 
-  j = n_pol-1
-  for i=0,n_pol-1 do begin
-    betw = where(((yp[i] le y) and (y lt yp[j])) or $
-      ((yp[j] le y) and (y lt yp[i])), count)
-    if count gt 0 then begin
-      invslope = (xp[j]-xp[i]) / (yp[j]-yp[i])
-      cond = where((x[betw]-xp[i]) lt invslope * (y[betw]-yp[i]), count)
+   j = n_pol-1
+   for i=0,n_pol-1 do begin
+      betw = where(((yp[i] le y) and (y lt yp[j])) or ((yp[j] le y) and (y lt yp[i])), count)
       if count gt 0 then begin
-        incr = betw[cond]
-        inside[incr] ++
+         invslope = (xp[j]-xp[i]) / double(yp[j]-yp[i])
+         cond = where((x[betw]-xp[i]) lt invslope * (y[betw]-yp[i]), count)
+         if count gt 0 then begin
+            incr = betw[cond]
+            inside[incr] ++
+         endif
       endif
-    endif
-    j = i
-  endfor
+      j = i
+   endfor
 
-  return, byte(inside mod 2)
+   return, boolean(inside mod 2)
 
 end
 
 function mgh_pnpoly, x, y, xp, yp
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if n_elements(x) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'x'
-  if n_elements(y) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'y'
+   if n_elements(x) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'x'
+   if n_elements(y) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'y'
 
-  if ~ array_equal(size(x, /DIMENSIONS), size(y, /DIMENSIONS)) then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'x', 'y'
+   if ~ array_equal(size(x, /DIMENSIONS), size(y, /DIMENSIONS)) then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'x', 'y'
 
-  if n_elements(xp) eq 0 then $
-    message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xp'
+   if n_elements(xp) eq 0 then $
+      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'xp'
 
-  ;; Calculations are carried out in a separate function so that
-  ;; temporary arrays are created only when necessary.
+   ;; Calculations are carried out in a separate function so that
+   ;; temporary arrays are created only when necessary.
 
-  xyp2d = size(xp, /N_DIMENSIONS) eq 2
+   xyp2d = size(xp, /N_DIMENSIONS) eq 2
 
-  if xyp2d then begin
-    if (size(xp, /DIMENSIONS))[0] ne 2 then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgdimsize', 'xp'
-    return, mgh_pnpoly_calculate(x, y, xp[0,*], xp[1,*])
-  endif else begin
-    if size(xp, /N_DIMENSIONS) ne 1 then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'xp'
-    if n_elements(yp) eq 0 then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'yp'
-    if ~ array_equal(size(xp, /DIMENSIONS), size(yp, /DIMENSIONS)) then $
-      message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'xp', 'yp'
-    return, mgh_pnpoly_calculate(x, y, xp, yp)
-  endelse
+   if xyp2d then begin
+      if (size(xp, /DIMENSIONS))[0] ne 2 then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgdimsize', 'xp'
+      return, mgh_pnpoly_calculate(x, y, reform(xp[0,*]), reform(xp[1,*]))
+   endif else begin
+      if size(xp, /N_DIMENSIONS) ne 1 then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'xp'
+      if n_elements(yp) eq 0 then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'yp'
+      if ~ array_equal(size(xp, /DIMENSIONS), size(yp, /DIMENSIONS)) then $
+         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_mismatcharr', 'xp', 'yp'
+      return, mgh_pnpoly_calculate(x, y, xp, yp)
+   endelse
 
 end
