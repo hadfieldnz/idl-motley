@@ -1,4 +1,3 @@
-; svn $Id$
 ;+
 ; NAME:
 ;   MGH_RESOLVE_INDICES
@@ -11,12 +10,12 @@
 ;   model-analysis code so I put it in a separate procedure. The idea
 ;   is that we have a vector of known size and we want to specify a
 ;   subset of its elements. We can specify this subset using range and
-;   stride parameters or my listing the indices. A negative value for
+;   stride parameters or by listing the indices. A negative value for
 ;   any of these parameters indicates a position relative to the end
 ;   of the vector
 ;
 ; CALLING SEQUENCE:
-;   MGH_RESOLVE_INDIcES, num, range, stride, indices
+;   MGH_RESOLVE_INDICES, num, range, stride, indices
 ;
 ; POSITIONAL PARAMETERS:
 ;   num (input, compulsory, integer, scalar)
