@@ -358,7 +358,7 @@ function MGHncReadFile::DimInfo, dim, DIMSIZE=dimsize, IS_UNLIMITED=is_unlimited
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   case 1 of
+   case !true of
       keyword_set(dimsize): self->DimInfo, dim, DIMSIZE=result
       keyword_set(is_unlimited): self->DimInfo, dim, IS_UNLIMITED=result
       else: self->DimInfo, dim, ALL=result

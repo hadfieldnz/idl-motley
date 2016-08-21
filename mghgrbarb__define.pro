@@ -132,9 +132,9 @@ function MGHgrBarb::Init, $
 
    ;; Set defaults
 
-   self.norm_scale = 0
+   self.norm_scale = !false
 
-   self.scale = 1
+   self.scale = 1.0
 
    self.show_head = !false
    self.head_size = 0.3
@@ -314,7 +314,7 @@ pro MGHgrBarb::SetProperty, $
 
    if n_elements(norm_scale) gt 0 then begin
       recalc = !true
-      if n_elements(scale) eq 1 then begin
+      if n_elements(norm_scale) eq 1 then begin
          self.norm_scale = norm_scale[0]   ;;; Assign single value to all 3 elements
       endif else begin
          self.norm_scale = norm_scale   ;;; Assign vector to vector
@@ -649,8 +649,8 @@ pro MGHgrBarb__Define
    struct_hide, $
         {MGHgrBarb, inherits IDLgrModel, $
          barb_atom: obj_new(), barb_colors: ptr_new(), $
-         head_atom: obj_new(), symbol_atom: obj_new(), scale: dblarr(3), $
-         norm_scale: bytarr(3), $
+         head_atom: obj_new(), symbol_atom: obj_new(), $
+         scale: dblarr(3), norm_scale: boolarr(3), $
          datax: ptr_new(), datay: ptr_new(), dataz: ptr_new(), $
          datau: ptr_new(), datav: ptr_new(), dataw: ptr_new(), $
          head_size: 0.0, head_exponent: 0.0, show_head: !false, $

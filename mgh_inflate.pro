@@ -67,9 +67,10 @@ function mgh_inflate, dim, a, n
 
    n_val = size(a, /N_ELEMENTS)
 
-   if n_val ne dim[n-1] then $
-        message, 'Number of elements '+strtrim(n_val,2)+ $
-                 ' does not match specified dimensions'
+   if n_val ne dim[n-1] then begin
+      fmt = '(%"Number of elements %d does not match specified dimensions")
+      message, string(FORMaT=fmt, n_val)
+   endif
 
    ;; Generate a copy of the data in a, arranged so that values vary
    ;; along dimension n

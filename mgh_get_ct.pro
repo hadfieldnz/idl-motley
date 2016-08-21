@@ -68,7 +68,7 @@ function mgh_get_ct, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    openr, lun, file, /BLOCK, /GET_LUN
 
-   n_tables = 0b
+   n_tables = 0B
    readu, lun, n_tables
 
    table_names = bytarr(32, n_tables)
@@ -95,7 +95,7 @@ function mgh_get_ct, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    endcase
 
-   if table_index lt 0 or table_index gt n_tables-1 then $
+   if table_index lt 0 || table_index gt n_tables-1 then $
       message, BLOCK='mgh_mblk_motley', NAME='mgh_m_badindex', table_index
 
    aa=assoc(lun, bytarr(256), 1)
@@ -105,6 +105,6 @@ function mgh_get_ct, table_id, FILE=file, NAMES=names, SYSTEM=system
 
    free_lun, lun
 
-   return, {name: table_names[table_index], n_colors:256S, red: r, green: g, blue: b}
+   return, {name: table_names[table_index], n_colors: 256S, red: r, green: g, blue: b}
 
 end

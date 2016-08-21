@@ -49,7 +49,7 @@ function mgh_struct_merge, struct0, struct1
    ;; array holding tag names and a pointer array holding values. The
    ;; arrays will be rebuilt into a structure below using MGH_STRUCT_BUILD.
    ;; I suspect this operation could be done much more simply these days
-   ;; using hash objects.
+   ;; using dictionary objects.
 
    n0 = n_tags(struct0)
    n1 = n_tags(struct1)

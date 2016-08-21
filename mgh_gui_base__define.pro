@@ -685,12 +685,12 @@ pro MGH_GUI_Base::GetProperty, $
       widget_control, self.base, GET_UVALUE=uvalue
    endif else begin
       geometry = 0B
-      managed = 0B
-      realized = 0B
-      sensitive = 0B
-      tlb_size_events = 0B
+      managed = !false
+      realized = !false
+      sensitive = !false
+      tlb_size_events = !false
       uname = 0B
-      update = 0B
+      update = !false
    endelse
 
    if arg_present(all) then begin
@@ -1084,19 +1084,13 @@ pro MGH_GUI_Base::Finalize, final
 
    if strmatch(obj_class(self), final, /FOLD_CASE) then begin
 
-      case self->IsTLB() of
-
-         0: begin
-            if widget_info(self.parent, /REALIZED) then self->NotifyRealize
-         end
-
-         1: begin
-            self->Realize
-            self->Update
-            if ~ (self.block || self.modal) then self->Manage
-         end
-
-      endcase
+      if self->IsTLB() then begin
+         self->Realize
+         self->Update
+         if ~ (self.block || self.modal) then self->Manage
+      endif else begin
+         if widget_info(self.parent, /REALIZED) then self->NotifyRealize
+      endelse
 
    endif
 
@@ -1243,52 +1237,33 @@ function MGH_GUI_Base::NewChild, widget, arg0, arg1, arg2, $
 
    case n_params() of
       1: begin
-         case keyword_set(object) of
-            0: begin
-               return, call_function(widget, parentID, $
-                                     _STRICT_EXTRA=extra)
-            end
-            1: begin
-               return, obj_new(widget, PARENT=parentID, $
-                               _STRICT_EXTRA=extra)
-            end
-         endcase
+         if keyword_set(object) then begin
+            return, obj_new(widget, PARENT=parentID, _STRICT_EXTRA=extra)
+
+         endif else begin
+            return, call_function(widget, parentID, _STRICT_EXTRA=extra)
+         endelse
       end
       2: begin
-         case keyword_set(object) of
-            0: begin
-               return, call_function(widget, parentID, arg0, $
-                                     _STRICT_EXTRA=extra)
-            end
-            1: begin
-               return, obj_new(widget, arg0, PARENT=parentID, $
-                               _STRICT_EXTRA=extra)
-            end
-         endcase
+         if keyword_set(object) then begin
+            return, obj_new(widget, arg0, PARENT=parentID, _STRICT_EXTRA=extra)
+         endif else begin
+            return, call_function(widget, parentID, arg0, _STRICT_EXTRA=extra)
+         endelse
       end
       3: begin
-         case keyword_set(object) of
-            0: begin
-               return, call_function(widget, parentID, arg0, arg1, $
-                                     _STRICT_EXTRA=extra)
-            end
-            1: begin
-               return, obj_new(widget, arg0, arg1, PARENT=parentID, $
-                               _STRICT_EXTRA=extra)
-            end
-         endcase
+         if keyword_set(object) then begin
+            return, obj_new(widget, arg0, arg1, PARENT=parentID, _STRICT_EXTRA=extra)
+         endif else begin
+            return, call_function(widget, parentID, arg0, arg1, _STRICT_EXTRA=extra)
+         endelse
       end
       4: begin
-         case keyword_set(object) of
-            0: begin
-               return, call_function(widget, parentID, arg0, arg1, arg2, $
-                                     _STRICT_EXTRA=extra)
-            end
-            1: begin
-               return, obj_new(widget, arg0, arg1, arg2, PARENT=parentID, $
-                               _STRICT_EXTRA=extra)
-            end
-         endcase
+         if keyword_set(object) then begin
+            return, obj_new(widget, arg0, arg1, arg2, PARENT=parentID, _STRICT_EXTRA=extra)
+         endif else begin
+            return, call_function(widget, parentID, arg0, arg1, arg2, _STRICT_EXTRA=extra)
+         endelse
       end
    endcase
 
@@ -1349,7 +1324,7 @@ pro MGH_GUI_Base::Show, flag
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   if n_elements(flag) eq 0 then flag = 1B
+   if n_elements(flag) eq 0 then flag = !true
    if flag then widget_control, self.base, ICONIFY=0
    widget_control, self.base, SHOW=flag
 
