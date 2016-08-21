@@ -88,7 +88,7 @@
 ;     Computations are now in double precision. I should really do
 ;     this in a more flexible way!
 ;-
-function MGH_STAGGER, a, DELTA=delta
+function mgh_stagger, a, DELTA=delta
 
    compile_opt DEFINT32
    compile_opt STRICTARR

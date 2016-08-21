@@ -46,6 +46,8 @@
 ;   Mark Hadfield, 2013-05:
 ;     Tags now processed with MGH_STR_VANILLA before building structure. If a
 ;     tag is not a valid identifier, then an error is raised.
+;   Mark Hadfield, 2016-07:
+;     Minor changes.
 ;-
 function mgh_struct_build, tags, values, POINTER=pointer
 
@@ -80,19 +82,17 @@ function mgh_struct_build, tags, values, POINTER=pointer
 
       cmd = 'result=create_struct(result,{'
 
-      m = 0B
+      m = !false
       for i=n0,n1 do begin
          tag = mgh_str_vanilla(tags[i])
          if strlen(tag) eq 0 then continue
-         if ~ mgh_str_isidentifier(tag) then $
-              message, 'Invalid identifier'
-         if ~ ptr_valid(values[i]) then $
-              message, 'Invalid pointer'
+         if ~ mgh_str_isidentifier(tag) then message, 'Invalid identifier'
+         if ~ ptr_valid(values[i]) then message, 'Invalid pointer'
          if m then cmd += ','
          cmd += tag+':'
          if ~ keyword_set(pointer) then cmd += '*'
          cmd += 'values['+strtrim(i,2)+']'
-         m = 1B
+         m = !true
       endfor
 
       cmd = cmd+'})'

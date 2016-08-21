@@ -105,7 +105,6 @@ function MGH_Density::Init, values, datax, datay, $
 
    if n_elements(data_values) eq 0 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_undefvar', 'data_values'
-
    if size(data_values, /N_DIMENSIONS) ne 2 then $
         message, BLOCK='mgh_mblk_motley', NAME='mgh_m_wrgnumdim', 'data_values'
 
@@ -226,7 +225,6 @@ function MGH_Density::Init, values, datax, datay, $
    self.plane = oplane
 
    ok = self->MGH_Window::Init(ograph, _STRICT_EXTRA=extra)
-
    if ~ ok then $
         message, BLOCK='MGH_MBLK_MOTLEY', NAME='MGH_M_INITFAIL', 'MGH_Window'
 
