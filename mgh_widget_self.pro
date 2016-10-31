@@ -104,8 +104,7 @@ function mgh_widget_self, arg, FOUND=found, STORE_OBJECT=store_object
    ;; it in a MGH_WIDGET_SELF structure and return the structure
 
    if n_elements(store_object) then begin
-      if not obj_valid(store_object) then $
-           message, 'Object is not valid'
+      if ~ obj_valid(store_object) then message, 'Object is not valid'
       result = {MGH_WIDGET_SELF}
       result.self = store_object
       return, result
@@ -118,7 +117,7 @@ function mgh_widget_self, arg, FOUND=found, STORE_OBJECT=store_object
         message, 'The argument must be a single MGH_WIDGET_SELF structure or ' + $
                  'a single widget ID'
 
-   found = 0B
+   found = !false
 
    case size(arg, /TYPE) of
 
@@ -126,7 +125,7 @@ function mgh_widget_self, arg, FOUND=found, STORE_OBJECT=store_object
 
       8: begin
          if tag_names(arg, /STRUCTURE_NAME) eq 'MGH_WIDGET_SELF' then begin
-            found = 1B
+            found = !true
             return, arg.self
          endif
       end
@@ -144,7 +143,7 @@ function mgh_widget_self, arg, FOUND=found, STORE_OBJECT=store_object
             widget_control, id, GET_UVALUE=uvalue
             if size(uvalue, /TYPE) eq 8 then begin
                if tag_names(uvalue, /STRUCTURE_NAME) eq 'MGH_WIDGET_SELF' then begin
-                  found = 1B
+                  found = !true
                   return, uvalue.self
                endif
             endif
