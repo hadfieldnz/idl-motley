@@ -25,17 +25,17 @@ w\:* {behavior:url(#default#VML);}
   <o:Author>Mark Hadfield</o:Author>
   <o:Template>658EF369.dotm</o:Template>
   <o:LastAuthor>Mark Hadfield</o:LastAuthor>
-  <o:Revision>3</o:Revision>
+  <o:Revision>2</o:Revision>
   <o:TotalTime>1</o:TotalTime>
   <o:Created>2016-04-26T03:11:00Z</o:Created>
-  <o:LastSaved>2016-10-31T02:11:00Z</o:LastSaved>
+  <o:LastSaved>2016-04-26T03:12:00Z</o:LastSaved>
   <o:Pages>10</o:Pages>
-  <o:Words>2661</o:Words>
-  <o:Characters>15172</o:Characters>
+  <o:Words>2660</o:Words>
+  <o:Characters>15165</o:Characters>
   <o:Company>NIWA</o:Company>
   <o:Lines>126</o:Lines>
   <o:Paragraphs>35</o:Paragraphs>
-  <o:CharactersWithSpaces>17798</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>17790</o:CharactersWithSpaces>
   <o:Version>15.00</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
@@ -61,7 +61,6 @@ w\:* {behavior:url(#default#VML);}
    <w:BreakWrappedTables/>
    <w:SplitPgBreakAndParaMark/>
   </w:Compatibility>
-  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
   <m:mathPr>
    <m:mathFont m:val="Cambria Math"/>
    <m:brkBin m:val="before"/>
@@ -666,9 +665,10 @@ w\:* {behavior:url(#default#VML);}
 	{font-family:Consolas;
 	panose-1:2 11 6 9 2 2 4 3 2 4;
 	mso-font-charset:0;
-	mso-generic-font-family:modern;
-	mso-font-pitch:fixed;
-	mso-font-signature:-520092929 1073806591 9 0 415 0;}
+	mso-generic-font-family:roman;
+	mso-font-format:other;
+	mso-font-pitch:auto;
+	mso-font-signature:0 0 0 0 0 0;}
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{mso-style-unhide:no;
@@ -802,12 +802,11 @@ span.HTMLPreformattedChar
 	mso-style-unhide:no;
 	mso-style-locked:yes;
 	mso-style-link:"HTML Preformatted";
-	font-family:Consolas;
+	font-family:"Consolas",serif;
 	mso-ascii-font-family:Consolas;
 	mso-fareast-font-family:"Times New Roman";
 	mso-fareast-theme-font:minor-fareast;
 	mso-hansi-font-family:Consolas;
-	mso-bidi-font-family:Consolas;
 	color:black;}
 .MsoChpDefault
 	{mso-style-type:export-only;
@@ -944,12 +943,12 @@ ul
 <div class=WordSection1>
 
 <h1><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
-mso-ansi-language:EN-US'>Change log for the MGH-Motley Library <o:p></o:p></span></h1>
+mso-ansi-language:EN-US'>Change log for the Motley Library <o:p></o:p></span></h1>
 
 <p><span lang=EN-US style='mso-ansi-language:EN-US'><a
 href="mailto:m.hadfield@niwa.co.nz%20%28Mark%20Hadfield%29">Mark Hadfield</a> <o:p></o:p></span></p>
 
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>MGH-Motley is a library of <a
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Motley is a library of <a
 href="http://www.rsinc.com/idl/">IDL</a> code written largely by Mark Hadfield
 at <a href="http://www.niwa.co.nz/">NIWA</a>. This document describes major
 and/or widespread changes to the routines in the library. For a
@@ -997,8 +996,8 @@ works on Win32, and I think doesn't work on that anymore either.<o:p></o:p></spa
 <h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
 mso-ansi-language:EN-US'>2011-07-26<o:p></o:p></span></h2>
 
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>A lot more IDL 8 dependencies
-have been introduced.<o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>A lot more IDL 8
+dependencies have been introduced.<o:p></o:p></span></p>
 
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>The ToArray method of the
 MGH_Vector class has been overhauled and now supports a FLATTEN keyword,
@@ -1046,21 +1045,21 @@ mso-ansi-language:EN-US'>2010-09-15 <o:p></o:p></span></h2>
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>There have been quite a few
 undocumented changes over the last year.<o:p></o:p></span></p>
 
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>One significant recent one is
-the fixing of a performance bug in the MGHncSequence class: the VarGet method
-was calling a function that effectively looped over the files in the sequence,
-inside a loop over the same files. This crippled performance when the number of
-files in the sequence approached 1000 or so.<o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>One significant recent one
+is the fixing of a performance bug in the MGHncSequence class: the VarGet
+method was calling a function that effectively looped over the files in the
+sequence, inside a loop over the same files. This crippled performance when the
+number of files in the sequence approached 1000 or so.<o:p></o:p></span></p>
 
 <h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
 mso-ansi-language:EN-US'>2009-09-28 <o:p></o:p></span></h2>
 
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>In an effort to streamline
 code for dealing with grids, I added two new functions: MGH_SUBSET2 (a 2D
-counterpart for MGH_SUBSET) and MGH_PERIM. Also, the “point inside polygon”
-functions MGH_POLY_INSIDE and MGH_PNPOLY were made more flexible in how they
-require the polygon vertex data and the argument order was changed: the polygon
-vertex array(s) come at the end. <o:p></o:p></span></p>
+counterpart for MGH_SUBSET) and MGH_PERIM. Also, the “point inside polygon” functions
+MGH_POLY_INSIDE and MGH_PNPOLY were made more flexible in how they require the
+polygon vertex data and the argument order was changed: the polygon vertex
+array(s) come at the end. <o:p></o:p></span></p>
 
 <h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
 mso-ansi-language:EN-US'>2009-08-24 <o:p></o:p></span></h2>
@@ -1129,11 +1128,11 @@ mso-ansi-language:EN-US'>2004-11-08 <o:p></o:p></span></h2>
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>I am starting to add
 “sticky directory” support to the file-saving process. A new system variable,
 !MGH_PREFS, is now created by MGH_MOTLEY. It has a tag called “sticky” that
-specifies if sticky directories are to be enabled. Code is being added to the file-saving
-code for various GUIs to change the directory name if necessary. This is all
-currently in prototype form: it has not been implemented fully and details may
-change. Other preferences may be added and I may try to use the IDL 6.1 support
-for application user directories. <o:p></o:p></span></p>
+specifies if sticky directories are to be enabled. Code is being added to the
+file-saving code for various GUIs to change the directory name if necessary.
+This is all currently in prototype form: it has not been implemented fully and
+details may change. Other preferences may be added and I may try to use the IDL
+6.1 support for application user directories. <o:p></o:p></span></p>
 
 <h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
 mso-ansi-language:EN-US'>2004-08-30 <o:p></o:p></span></h2>
@@ -1225,9 +1224,9 @@ mso-ansi-language:EN-US'>2002-12-23 <o:p></o:p></span></h2>
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>The library now does a
 better job of supporting alternative colour-table files. It recognises a
 routine, MGH_CT_FILE, which returns the name of colour-table files and a system
-variable, !MGH_CT_FILE, which specifies the user's default. The MGH_GUI_Palette_Editor
-widget application recognises this variable and requires a modified palette
-editor, MGH_CW_PALETTE_EDITOR. <o:p></o:p></span></p>
+variable, !MGH_CT_FILE, which specifies the user's default. The
+MGH_GUI_Palette_Editor widget application recognises this variable and requires
+a modified palette editor, MGH_CW_PALETTE_EDITOR. <o:p></o:p></span></p>
 
 <h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
 mso-ansi-language:EN-US'>2002-12-18 <o:p></o:p></span></h2>
@@ -1326,7 +1325,7 @@ Schultz's GUI objects I am revisiting some of my widget-object code (see
 MGHwidgetBase). Changes made so far include: <o:p></o:p></span></p>
 
 <p style='margin-top:5.0pt;margin-right:0cm;margin-bottom:0cm;margin-left:36.0pt;
-margin-bottom:.0001pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;tab-stops:
+margin-bottom:.0001pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1;tab-stops:
 list 36.0pt'><![if !supportLists]><span lang=EN-US style='font-size:10.0pt;
 mso-bidi-font-size:12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;
 mso-bidi-font-family:Symbol;mso-ansi-language:EN-US'><span style='mso-list:
@@ -1335,7 +1334,7 @@ Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbs
 each widget to specify its own event-handler method by&nbsp; storing a
 structure in the UVALUE. <o:p></o:p></span></p>
 
-<p style='margin-left:36.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo2;
+<p style='margin-left:36.0pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1;
 tab-stops:list 36.0pt'><![if !supportLists]><span lang=EN-US style='font-size:
 10.0pt;mso-bidi-font-size:12.0pt;font-family:Symbol;mso-fareast-font-family:
 Symbol;mso-bidi-font-family:Symbol;mso-ansi-language:EN-US'><span
@@ -1345,8 +1344,8 @@ the convention for the return values of event-handler methods. They used to
 return 1 to indicate that the event has been handled, otherwise 0. Now they
 follow the convention used by IDL's event-handler functions, i.e. return any
 non-structure value (conventionally 0) to indicate that the event has been
-handled, otherwise return a structure (often the original event structure) which
-can then be handled by other event-handlers. <o:p></o:p></span></p>
+handled, otherwise return a structure (often the original event structure)
+which can then be handled by other event-handlers. <o:p></o:p></span></p>
 
 <p><span lang=EN-US style='mso-ansi-language:EN-US'>The latter change
 introduces a significant backward-incompatibility. I have modified the main
@@ -1385,181 +1384,150 @@ case of MGHgrDensityPlane objects, code like the following <o:p></o:p></span></p
 <pre><span lang=EN-US style='mso-ansi-language:EN-US'><span style='mso-spacerun:yes'>      </span>odensity-&gt;GetProperty, PARENT=parent<o:p></o:p></span></pre><pre><span
 lang=EN-US style='mso-ansi-language:EN-US'><span style='mso-spacerun:yes'>   </span><o:p></o:p></span></pre>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>was returning a reference to the
-embedded atom's parent, whereas MGHgrAnimator was expecting (reasonably) that
-it would return the MGHgrDensityPlane's parent. I have fixed the behaviour of
-MGHgrDensityPlane &amp; a few other similar classes so that they give the
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>was returning a reference
+to the embedded atom's parent, whereas MGHgrAnimator was expecting (reasonably)
+that it would return the MGHgrDensityPlane's parent. I have fixed the behaviour
+of MGHgrDensityPlane &amp; a few other similar classes so that they give the
 latter behaviour. I note it here because similar pitfalls have bitten me before
 and probably will do again. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2001-01-31: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2001-01-31: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Mouse-event handling for the
-MGHgrWindow and MGHgrAnimator classes has been overhauled. The event handers
-are now objects; the classes defining these objects are now collected in the
-procedure MGH_MOUSE_HANDLER_LIBRARY. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Mouse-event handling for
+the MGHgrWindow and MGHgrAnimator classes has been overhauled. The event
+handers are now objects; the classes defining these objects are now collected
+in the procedure MGH_MOUSE_HANDLER_LIBRARY. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-12-15: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-12-15: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Various improvements to the
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Various improvements to the
 MGHgrAnimator class including the CUMULATIVE and DISPLAY keywords. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-12-08: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-12-08: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>I added the MGHgrImageAnimator class
-and an example program. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>I added the
+MGHgrImageAnimator class and an example program. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-11-30: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-11-30: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>I added a new function called
-MGH_STRUCT_BUILD that builds up an anonymous structure from a list of tag names
-and a pointer array of the same size containing data. I took advantage of this
-function to rewrite the MGHncFile class's Retrieve method, which becomes much more
-readable and flexible as a result. I moved my MGH_NCDF_RESTORE and
-MGH_NCDF_SAVE (which I have used for many years) into the library. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>I added a new function
+called MGH_STRUCT_BUILD that builds up an anonymous structure from a list of
+tag names and a pointer array of the same size containing data. I took
+advantage of this function to rewrite the MGHncFile class's Retrieve method,
+which becomes much more readable and flexible as a result. I moved my
+MGH_NCDF_RESTORE and MGH_NCDF_SAVE (which I have used for many years) into the
+library. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-11-07: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-11-07: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Copied files to
-http://katipo.niwa.cri.nz/~hadfield/gust/software/idl/. <o:p></o:p></span></p>
-
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>IDL 5.3 version moved to http://katipo.niwa.cri.nz/~hadfield/gust/software/idl53/.
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Copied files to http://katipo.niwa.cri.nz/~hadfield/gust/software/idl/.
 <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-10-24: <o:p></o:p></span></h2>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>IDL 5.3 version moved to
+http://katipo.niwa.cri.nz/~hadfield/gust/software/idl53/. <o:p></o:p></span></p>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Various minor changes following
-release of IDL 5.4. The MGHgrGLaxis class and the MGH_EXAMPLE_GLAXIS routine
-have been pulled from the library because 5.4 final appears to have removed
-support for subclassing of the (undocumented) IDLgrAxis::Draw method. <o:p></o:p></span></p>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-10-24: <o:p></o:p></span></h2>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-09-04: <o:p></o:p></span></h2>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Various minor changes
+following release of IDL 5.4. The MGHgrGLaxis class and the MGH_EXAMPLE_GLAXIS
+routine have been pulled from the library because 5.4 final appears to have
+removed support for subclassing of the (undocumented) IDLgrAxis::Draw method. <o:p></o:p></span></p>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Code-timing routines
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-09-04: <o:p></o:p></span></h2>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Code-timing routines
 MGH_TIME_FUNCTION and MGH_TIME_PROCEDURE have been yanked from the library and
 replaced by the much simpler MGH_TIC and MGH_TOC. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-28: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-28: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>I have been revisiting keyword
-precedence. If one can rely on inherited keywords always overriding explicit
-keywords then one can simplify code and achieve more flexible control of the
-components of complicated objects (e.g. MGH_Plot). In doing so I discovered
-what I think is a bug in the implementation of inheritance by reference. See
-routine MGH_EXAMPLE_KEYWORDS and recent newsgroup discussions. The upshot of
-this is, I think, that when keywords are used only to pass information into a
-routine (e.g. a SetProperty or Init method) then value inheritance should
-always be used, even if this entails some performance cost. I have had a quick
-run through the code applying this convention. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>I have been revisiting
+keyword precedence. If one can rely on inherited keywords always overriding
+explicit keywords then one can simplify code and achieve more flexible control
+of the components of complicated objects (e.g. MGH_Plot). In doing so I
+discovered what I think is a bug in the implementation of inheritance by
+reference. See routine MGH_EXAMPLE_KEYWORDS and recent newsgroup discussions.
+The upshot of this is, I think, that when keywords are used only to pass
+information into a routine (e.g. a SetProperty or Init method) then value
+inheritance should always be used, even if this entails some performance cost.
+I have had a quick run through the code applying this convention. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-14: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-14: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Added a couple of date-time
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Added a couple of date-time
 routines, MGH_DT_JULDAY and MGH_DT_CALDAT to the library. Added an example
 using MGHgrGLaxis for date-time plotting.&nbsp; This example requires IDL 5.4
 or later. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-10: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-10: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>I introduced the MGHgrMSaxis class
-(&quot;MS&quot; stands for &quot;master-slave&quot;). An axis belonging to the
-class can keep track of objects (slaves) that have been associated with it and
-updates the slaves if any of the its relevant properties are changed. The
-MGHgrGraph classes have been modified so they can use master-slave axes--the
-default is still not to.&nbsp; The modifications were surprisingly easy and
-localised because the graph class already scales atoms to axes when it adds the
-atoms to the graph.&nbsp; The purpose of the MS axes is to make it easier to
-organise modify complex graphs, without having to keep information about
-associations at the higher levels. I have already used it to good effect in the
-MGH_Plot class. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>I introduced the
+MGHgrMSaxis class (&quot;MS&quot; stands for &quot;master-slave&quot;). An axis
+belonging to the class can keep track of objects (slaves) that have been
+associated with it and updates the slaves if any of the its relevant properties
+are changed. The MGHgrGraph classes have been modified so they can use
+master-slave axes--the default is still not to.&nbsp; The modifications were
+surprisingly easy and localised because the graph class already scales atoms to
+axes when it adds the atoms to the graph.&nbsp; The purpose of the MS axes is
+to make it easier to organise modify complex graphs, without having to keep
+information about associations at the higher levels. I have already used it to
+good effect in the MGH_Plot class. <o:p></o:p></span></p>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>In the course of checking library
-integrity I discovered to my surprise that the PRODUCT routine that I have used
-here &amp; there is not* a standard IDL routine. I checked around for good
-PRODUCT routines and eventually created an MGH_PRODUCT based on Craig
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>In the course of checking
+library integrity I discovered to my surprise that the PRODUCT routine that I
+have used here &amp; there is not* a standard IDL routine. I checked around for
+good PRODUCT routines and eventually created an MGH_PRODUCT based on Craig
 Markwardt's CMPRODUCT. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-08: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-08: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Renamed RefreshWidgets methods
-throughout the library to UpdateWidgets.&nbsp; This method reviews and updates
-widget appearance based on the state of the application. I think the new name
-reflects this better. The method should not normally be called from outside the
-object methods so the name change should not cause a problem. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Renamed RefreshWidgets
+methods throughout the library to UpdateWidgets.&nbsp; This method reviews and
+updates widget appearance based on the state of the application. I think the
+new name reflects this better. The method should not normally be called from
+outside the object methods so the name change should not cause a problem. <o:p></o:p></span></p>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Removed the NewText method from the
-MGHgrGraph2D and MGHgrGraph2D classes (which therefore now inherit
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Removed the NewText method
+from the MGHgrGraph2D and MGHgrGraph2D classes (which therefore now inherit
 MGHgrGraph::NewText unchanged). The ability to add titles is now provided in a
 separate method called NewTitle. For rationale see documentation for
-MGHgrGraph2D or MGHgrGraph2D. This change will cause older codes to put titles in
-the wrong place. <o:p></o:p></span></p>
+MGHgrGraph2D or MGHgrGraph2D. This change will cause older codes to put titles
+in the wrong place. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-04: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-04: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Did a bit of cleaning up,
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Did a bit of cleaning up,
 eliminating a few routines of doubtful utility and also getting rid of
 procedure wrappers for graphics objects. <o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-03: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-03: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Pulled out all the date-time
-(MGHDT...) routines plus related graphics routines pending a rewrite. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Pulled out all the
+date-time (MGHDT...) routines plus related graphics routines pending a rewrite.
+<o:p></o:p></span></p>
 
-<h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>2000-08-02: <o:p></o:p></span></h2>
+<h2><span lang=EN-US style='mso-fareast-font-family:"Times New Roman";
+mso-ansi-language:EN-US'>2000-08-02: <o:p></o:p></span></h2>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>Created this file. The library
-currently includes 25889 lines of code &amp; comments (but a lot of them are
-empty!) in 134 .pro files. <o:p></o:p></span></p>
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>Created this file. The
+library currently includes 25889 lines of code &amp; comments (but a lot of
+them are empty!) in 134 .pro files. <o:p></o:p></span></p>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'>I recently did a pretty major
-restructuring of the graph classes, replacing existing classes MGHgrView,
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>I recently did a pretty
+major restructuring of the graph classes, replacing existing classes MGHgrView,
 MGHgrGraph, MGHgrFixedGraph &amp; MGHgrGraph3D with MGHgrGraph (similar to the
 old MGHgrView), MGHgrGraph2D (merges the old MGHgrGraph &amp; MGHgrFixedGraph)
 and MGHgrGraph3D (similar to the old class of the same name but much of the
@@ -1567,16 +1535,14 @@ logic has been moved to the superclass MGHgrGraph). Nevertheless most codes
 built on the old classes should work fine, once names MGHgrFixedGraph and
 MGHgrView are replaced by MGHgrGraph2D and MGHgrGraph, respectively. <o:p></o:p></span></p>
 
-<div class=MsoNormal align=center style='text-align:center;tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:
-EN-US'>
+<div class=MsoNormal align=center style='text-align:center'><span lang=EN-US
+style='mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US'>
 
 <hr size=3 width="100%" align=center>
 
 </span></div>
 
-<p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-lang=EN-US style='mso-ansi-language:EN-US'><a
+<p><span lang=EN-US style='mso-ansi-language:EN-US'><a
 href="mailto:m.hadfield@niwa.co.nz%20%28Mark%20Hadfield%29">Mark Hadfield</a> <o:p></o:p></span></p>
 
 </div>
