@@ -1,4 +1,4 @@
- ;+
+;+
 ; NAME:
 ;   MGH_EXAMPLE_NCSEQUENCE
 ;
@@ -18,7 +18,6 @@
 ;   Mark Hadfield, 2015-11:
 ;     Removed a reference to the obsolete MGHncFileVar class.
 ;-
-
 pro mgh_example_ncsequence, N_FILES=n_files, N_RECORDS=n_records
 
    compile_opt DEFINT32

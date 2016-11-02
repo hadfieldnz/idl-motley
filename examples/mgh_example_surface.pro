@@ -1,5 +1,4 @@
-; svn $Id$
- ;+
+;+
 ; NAME:
 ;   MGH_EXAMPLE_SURFACE
 ;
@@ -7,19 +6,10 @@
 ;   Surface plot example.
 ;
 ;###########################################################################
-;
-; This software is provided subject to the following conditions:
-;
-; 1.  NIWA makes no representations or warranties regarding the
-;     accuracy of the software, the use to which the software may
-;     be put or the results to be obtained from the use of the
-;     software.  Accordingly NIWA accepts no liability for any loss
-;     or damage (whether direct of indirect) incurred by any person
-;     through the use of or reliance on the software.
-;
-; 2.  NIWA is to be acknowledged as the original author of the
-;     software where the software is used or presented in any form.
-;
+; Copyright (c) 2016 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
 ;###########################################################################
 ;
 ; MODIFICATION HISTORY:
@@ -28,7 +18,6 @@
 ;   Mark Hadfield, 2004-07:
 ;     Removed call to the axes' obsolete SetInPlace method.
 ;-
-
 pro mgh_example_surface, m, n, $
      STYLE=style, SURFACE_PROPERTIES=surface_properties
 

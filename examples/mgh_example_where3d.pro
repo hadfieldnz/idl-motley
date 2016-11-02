@@ -1,4 +1,4 @@
- ;+
+;+
 ; NAME:
 ;   MGH_EXAMPLE_WHERE3D
 ;

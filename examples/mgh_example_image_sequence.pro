@@ -42,7 +42,7 @@ pro mgh_example_image_sequence, option
 
       0: begin
 
-         animator = obj_new('MGH_Imagator', DIMENSIONS=dims[0:1])
+         animator = obj_new('MGH_Imagator', NAME='Imagator option 0', DIMENSIONS=dims[0:1])
 
          ;; Add images
 
