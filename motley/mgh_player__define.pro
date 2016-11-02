@@ -278,8 +278,7 @@ pro MGH_Player::BuildMenuBar
    if widget_info(self.menu_bar, /CHILD) gt 0 then $
         message, 'The menu bar already has children'
 
-   iswin = !version.os_family eq 'Windows'
-   iswin32 = iswin && !version.arch eq 'x86'
+   iswin = strcmp(!version.os_family, 'Windows', /FOLD_CASE)
 
    ;; Create a pulldown menu object with top-level items.
 
@@ -535,7 +534,7 @@ function MGH_Player::EventMenuBar, event
             if strlen(filename) gt 0 then begin
                widget_control, HOURGLASS=1
                mgh_cd_sticky, file_dirname(filename)
-               self->WriteAnimationToVideoFile, filename, DISPLAY=0
+               self->WriteAnimationToVideoFile, filename, DISPLAY=!false
             endif
          endif
          return, 0
@@ -1331,7 +1330,7 @@ pro MGH_Player::WriteAnimationToVideoFile, file, $
    if ~ mgh_class_exists('IDLffVideoWrite') then $
         message, 'IDLffVideoWrite class is not available'
 
-   if n_elements(display) eq 0 then display = 1B
+   if n_elements(display) eq 0 then display = !true
 
    if n_elements(fps) eq 0 then fps = 15
 

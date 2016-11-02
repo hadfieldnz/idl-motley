@@ -44,6 +44,9 @@
 ;   Mark Hadfield, 2015-05:
 ;     Removed the facility to launch a clipboard viewer: the viewer is no
 ;     longer available in Windows.
+;   Mark Hadfield, 2016-11:
+;     AVI files are now written (MPEG4 codec) using the IDLffVideoWrite
+;     object.
 ;-
 
 ; MGH_DGplayer::Init
@@ -59,8 +62,7 @@ function MGH_DGplayer::Init, anim, $
 
    ;; Process animation arguments
 
-   if n_elements(animation) eq 0 and n_elements(anim) gt 0 then $
-        animation = anim
+   if n_elements(animation) eq 0 && n_elements(anim) gt 0 then animation = anim
 
    ;; Properties
 
@@ -240,17 +242,16 @@ pro MGH_DGplayer::BuildMenuBar
         MENU=[0,1,1,0,0], SEPARATOR=[0,1,0,1,1], $
         ACCELERATOR=['Ctrl+S','','','Ctrl+P','Ctrl+F4']
 
-   case iswin && file_test(mgh_avi_dll()) of
-      0B: fmts = ['FLC...','TIFF...','ZIP...']
-      1B: fmts = ['AVI...','FLC...','TIFF...','ZIP...']
-   endcase
-   obar->NewItem, PARENT='File.Export Animation', temporary(fmts)
+   fmt = ['FLC...','TIFF...','ZIP...']
+   if mgh_has_video(FORMAT='avi', CODEC='mpeg4') then fmt = [fmt,'AVI...']
+   if mgh_has_video(FORMAT='mp4') then fmt = [fmt,'MP4...']
+   obar->NewItem, PARENT='File.Export Animation', fmt[uniq(fmt, sort(fmt))]
+   mgh_undefine, fmt
 
-   case iswin of
-      0B: fmts = ['EPS...','JPEG...','PNG...']
-      1B: fmts = ['EPS...','JPEG...','PNG...','WMF...']
-   endcase
-   obar->NewItem, PARENT='File.Export Frame', temporary(fmts)
+   fmt = ['EPS...','JPEG...','PNG...']
+   if iswin then fmt = [fmt,'WMF...']
+   obar->NewItem, PARENT='File.Export Frame', fmt[uniq(fmt, sort(fmt))]
+   mgh_undefine, fmt
 
    ;; ...Edit menu
 
@@ -330,23 +331,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT ANIMATION.AVI': begin
          self->GetProperty, NAME=name
          ext = '.avi'
-         case strlen(name) gt 0 of
-            0: default_file = ''
-            else: default_file = mgh_str_vanilla(name)+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
-         if strlen(filename) gt 1 then begin
-            if !mgh_prefs.sticky then begin
-               dir = file_dirname(filename)
-               if strlen(dir) gt 0 then begin
-                  cd, CURRENT=old_dir
-                  if dir ne old_dir then begin
-                     message, /INFORM, 'Changing to directory '+dir
-                     cd, dir
-                  endif
-               endif
-            endif
-            self->WriteAnimationToAVIFile, filename
+         if strlen(filename) gt 0 then begin
+            mgh_cd_sticky, file_dirname(filename)
+            self->WriteAnimationToVideoFile, filename, DISPLAY=!false, FORMAT='avi', CODEC='mpeg4'
          endif
          return, 0
       end
@@ -354,25 +343,25 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT ANIMATION.FLC': begin
          self->GetProperty, NAME=name
          ext = '.flc'
-         case strlen(name) gt 0 of
-            0: default_file = ''
-            else: default_file = mgh_str_vanilla(name)+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 1 then begin
             widget_control, HOURGLASS=1
-            if !mgh_prefs.sticky then begin
-               dir = file_dirname(filename)
-               if strlen(dir) gt 0 then begin
-                  cd, CURRENT=old_dir
-                  if dir ne old_dir then begin
-                     print, FORMAT='(%"%s: changing to directory %s)")', $
-                            mgh_obj_string(self), dir
-                     cd, dir
-                  endif
-               endif
-            endif
+            mgh_cd_sticky, file_dirname(filename)
             self->WriteAnimationToMovieFile, filename, TYPE='FLC'
+         endif
+         return, 0
+      end
+
+      'FILE.EXPORT ANIMATION.MP4': begin
+         self->GetProperty, NAME=name
+         ext = '.mp4'
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
+         filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
+         if strlen(filename) gt 0 then begin
+            widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
+            self->WriteAnimationToVideoFile, filename, DISPLAY=!false
          endif
          return, 0
       end
@@ -380,24 +369,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT ANIMATION.TIFF': begin
          self->GetProperty, NAME=name
          ext = '.tif'
-         case strlen(name) gt 0 of
-            0: default_file = ''
-            else: default_file = mgh_str_vanilla(name)+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 1 then begin
             widget_control, HOURGLASS=1
-            if !mgh_prefs.sticky then begin
-               dir = file_dirname(filename)
-               if strlen(dir) gt 0 then begin
-                  cd, CURRENT=old_dir
-                  if dir ne old_dir then begin
-                     print, FORMAT='(%"%s: changing to directory %s)")', $
-                            mgh_obj_string(self), dir
-                     cd, dir
-                  endif
-               endif
-            endif
+            mgh_cd_sticky, file_dirname(filename)
             self->WriteAnimationToMovieFile, filename, TYPE='TIFF'
          endif
          return, 0
@@ -406,24 +382,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT ANIMATION.ZIP': begin
          self->GetProperty, NAME=name
          ext = '.zip'
-         case strlen(name) gt 0 of
-            0: default_file = ''
-            else: default_file = mgh_str_vanilla(name)+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 1 then begin
             widget_control, HOURGLASS=1
-            if !mgh_prefs.sticky then begin
-               dir = file_dirname(filename)
-               if strlen(dir) gt 0 then begin
-                  cd, CURRENT=old_dir
-                  if dir ne old_dir then begin
-                     print, FORMAT='(%"%s: changing to directory %s)")', $
-                            mgh_obj_string(self), dir
-                     cd, dir
-                  endif
-               endif
-            endif
+            mgh_cd_sticky, file_dirname(filename)
             self->WriteAnimationToMovieFile, filename, TYPE='ZIP'
          endif
          return, 0
@@ -432,23 +395,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT FRAME.EPS': begin
          self->GetProperty, NAME=name
          ext = '.eps'
-         case strlen(name) of
-            0: default_file = ''
-            else: default_file = mgh_str_subst(name,' ','_')+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
-               if !mgh_prefs.sticky then begin
-                  dir = file_dirname(filename)
-                  if strlen(dir) gt 0 then begin
-                     cd, CURRENT=old_dir
-                     if dir ne old_dir then begin
-                        message, /INFORM, 'Changing to directory '+dir
-                        cd, dir
-                     endif
-                  endif
-               endif
             widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
             self->WritePictureToPostscriptFile, filename
          endif
          return, 0
@@ -457,23 +408,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT FRAME.JPEG': begin
          self->GetProperty, NAME=name
          ext = '.jpg'
-         case strlen(name) of
-            0: default_file = ''
-            else: default_file = mgh_str_subst(name,' ','_')+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
-               if !mgh_prefs.sticky then begin
-                  dir = file_dirname(filename)
-                  if strlen(dir) gt 0 then begin
-                     cd, CURRENT=old_dir
-                     if dir ne old_dir then begin
-                        message, /INFORM, 'Changing to directory '+dir
-                        cd, dir
-                     endif
-                  endif
-               endif
             widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
             self->WritePictureToImageFile, filename, /JPEG
          endif
          return, 0
@@ -482,23 +421,11 @@ function MGH_DGplayer::EventMenuBar, event
       'FILE.EXPORT FRAME.PNG': begin
          self->GetProperty, NAME=name
          ext = '.png'
-         case strlen(name) of
-            0: default_file = ''
-            else: default_file = mgh_str_subst(name,' ','_')+ext
-         endcase
+         default_file = strlen(name) gt 0 ? mgh_str_vanilla(name)+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
-               if !mgh_prefs.sticky then begin
-                  dir = file_dirname(filename)
-                  if strlen(dir) gt 0 then begin
-                     cd, CURRENT=old_dir
-                     if dir ne old_dir then begin
-                        message, /INFORM, 'Changing to directory '+dir
-                        cd, dir
-                     endif
-                  endif
-               endif
             widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
             self->WritePictureToImageFile, filename, /PNG
          endif
          return, 0
@@ -510,17 +437,8 @@ function MGH_DGplayer::EventMenuBar, event
          default_file = strlen(name) gt 0 ? mgh_str_subst(name,' ','_')+ext : ''
          filename = dialog_pickfile(/WRITE, FILE=default_file, FILTER='*'+ext)
          if strlen(filename) gt 0 then begin
-               if !mgh_prefs.sticky then begin
-                  dir = file_dirname(filename)
-                  if strlen(dir) gt 0 then begin
-                     cd, CURRENT=old_dir
-                     if dir ne old_dir then begin
-                        message, /INFORM, 'Changing to directory '+dir
-                        cd, dir
-                     endif
-                  endif
-               endif
             widget_control, HOURGLASS=1
+            mgh_cd_sticky, file_dirname(filename)
             self->WritePictureToMetaFile, filename
          endif
          return, 0
@@ -550,8 +468,7 @@ function MGH_DGplayer::EventMenuBar, event
 
       'TOOLS.EXPORT DATA': begin
          self->ExportData, values, labels
-         ogui = obj_new('MGH_GUI_Export', values, labels, /BLOCK $
-                        , /FLOATING, GROUP_LEADER=self.base)
+         ogui = obj_new('MGH_GUI_Export', values, labels, /BLOCK, /FLOATING, GROUP_LEADER=self.base)
          ogui->Manage
          obj_destroy, ogui
          return, 0
@@ -719,119 +636,6 @@ pro MGH_DGplayer::UpdateMenuBar
 
 end
 
-; MGH_DGplayer::WriteAnimationToAVIFile
-;
-pro MGH_DGplayer::WriteAnimationToAVIFile, File, $
-     DISPLAY=display, RESOLUTION=resolution, RANGE=range, STRIDE=stride
-
-   compile_opt DEFINT32
-   compile_opt STRICTARR
-   compile_opt STRICTARRSUBS
-   compile_opt LOGICAL_PREDICATE
-
-   if n_elements(type) eq 0 then type = 'FLC'
-
-   type = strupcase(type)
-
-   if n_elements(display) eq 0 then display = 1B
-
-   ;; Establish frames to be plotted
-
-   self.animation->GetProperty, N_FRAMES=n_frames
-
-   self.animator->GetPlayBack, RANGE=play_range, USE_RANGE=play_use_range
-
-   case play_use_range of
-      0: begin
-         if n_elements(range) eq 0 then range = [0,n_frames-1]
-         if n_elements(stride) eq 0 then stride = 1
-      end
-      1: begin
-         if n_elements(range) eq 0 then range = play_range[0:1]
-         if n_elements(stride) eq 0 then stride = play_range[2]
-      end
-   endcase
-
-   n_written = 1 + (range[1]-range[0])/stride
-
-   ;; Save the Direct Graphics state
-
-   d_name = !d.name
-
-   set_plot, self.display_name
-
-   tvlct, r, g, b, /GET
-
-   d_window = !d.window
-
-   ;; Work through frames, rendering the commands to the pixmap, taking snapshots
-
-   wset, self.pixmap
-
-   for pos=range[0],range[1],stride do begin
-
-      if self.erase then erase, COLOR=self.background
-
-      self->SetProperty, COMMANDS=self.animation->AssembleFrame(pos)
-
-      if display then self->Draw
-
-      for i=0,self.commands->Count()-1 do begin
-         command = self.commands->Get(POSITION=i)
-         if obj_valid(command) then command->Execute
-      endfor
-
-      snapshot = tvrd(/TRUE)
-
-      dim = size(snapshot, /DIMENSIONS)
-
-      if pos eq range[0] then begin
-
-         ;; Determine dimensions of image data. The snapshot has been
-         ;; produced from a true-colour buffer, so we know it is
-         ;; dimensioned [3,m,n]
-
-         dim = (size(snapshot, /DIMENSIONS))[1:2]
-
-         fmt ='(%"Writing %d frames of %d x %d to AVI file %s")'
-         message, /INFORM, string(n_written, dim, file, FORMAT=fmt)
-
-         ;; Get default AVI option from !mgh_prefs system variable
-
-         defsysv, '!mgh_prefs', EXISTS=has_mgh_prefs
-         if has_mgh_prefs then begin
-            if mgh_struct_has_tag(!mgh_prefs, 'avi_options') then $
-                 avi_options = !mgh_prefs.avi_options
-         endif
-
-         avi = obj_new('MGHaviWriteFile', file, dim, /TRUE_COLOR, $
-                       _STRICT_EXTRA=avi_options)
-
-      endif
-
-      avi->Put, snapshot
-
-   endfor
-
-   ;; Restore the direct graphics state
-
-   tvlct, r, g, b
-
-   wset, d_window
-
-   set_plot, d_name
-
-   ;; Close AVI file and update
-
-   obj_destroy, avi
-
-   self->Update
-
-   fmt ='(%"Finished saving AVI file %s")'
-   message, /INFORM, string(file, FORMAT=fmt)
-
-end
-
 ; MGH_DGplayer::WriteAnimationToMovieFile
 ;
 pro MGH_DGplayer::WriteAnimationToMovieFile, File, $
@@ -925,6 +729,111 @@ pro MGH_DGplayer::WriteAnimationToMovieFile, File, $
    obj_destroy, omovie
 
    self->Update
+
+end
+
+; MGH_DGplayer::WriteAnimationToVideoFile
+;
+pro MGH_DGplayer::WriteAnimationToVideoFile, File, $
+   CODEC=codec, DISPLAY=display, FORMAT=format, FPS=fps, $
+   QUALITY=quality, RESOLUTION=resolution, RANGE=range, STRIDE=stride
+
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
+
+   if ~ mgh_class_exists('IDLffVideoWrite') then $
+      message, 'IDLffVideoWrite class is not available'
+
+   if n_elements(display) eq 0 then display = !true
+
+   if n_elements(fps) eq 0 then fps = 15
+
+   if n_elements(quality) eq 0 then quality = 0.15
+
+   ;; Establish frames to be plotted
+
+   self.animation->GetProperty, N_FRAMES=n_frames
+
+   self.animator->GetPlayBack, RANGE=play_range, USE_RANGE=play_use_range
+
+   if play_use_range then begin
+      if n_elements(range) eq 0 then range = play_range[0:1]
+      if n_elements(stride) eq 0 then stride = play_range[2]
+   endif else begin
+      if n_elements(range) eq 0 then range = [0,n_frames-1]
+      if n_elements(stride) eq 0 then stride = 1
+   endelse
+
+   n_written = 1 + (range[1]-range[0])/stride
+
+   ;; Save the Direct Graphics state
+
+   d_name = !d.name
+
+   set_plot, self.display_name
+
+   tvlct, r, g, b, /GET
+
+   d_window = !d.window
+
+   ;; Work through frames, rendering the commands to the pixmap, taking snapshots
+
+   wset, self.pixmap
+
+   n_written = 1 + (range[1]-range[0])/stride
+
+   for pos=range[0],range[1],stride do begin
+
+      if self.erase then erase, COLOR=self.background
+
+      self->SetProperty, COMMANDS=self.animation->AssembleFrame(pos)
+
+      if display then self->Draw
+
+      for i=0,self.commands->Count()-1 do begin
+         command = self.commands->Get(POSITION=i)
+         if obj_valid(command) then command->Execute
+      endfor
+
+      snapshot = tvrd(/TRUE)
+
+      if pos eq range[0] then begin
+
+         ;; Determine dimensions of image data. The snapshot has been
+         ;; produced from a true-colour buffer, so we know it is
+         ;; dimensioned [3,m,n]
+
+         dim = (size(snapshot, /DIMENSIONS))[1:2]
+
+         fmt ='(%"Writing %d frames of %d x %d to video file %s")'
+         message, /INFORM, string(n_written, dim, file, FORMAT=fmt)
+
+         ovid = obj_new('IDLffVideoWrite', FORMAT=format, file)
+
+         bit_rate = quality*dim[0]*dim[1]*24*fps
+
+         stream = ovid.AddVideoStream(dim[0], dim[1], fps, BIT_RATE=bit_rate, CODEC=codec)
+
+      endif
+
+      !null = oVid.Put(stream, snapshot)
+
+   endfor
+
+   obj_destroy, ovid
+
+   ;; Restore the direct graphics state
+
+   tvlct, r, g, b
+
+   wset, d_window
+
+   set_plot, d_name
+
+   fmt ='(%"Finished saving video file %s")'
+   message, /INFORM, string(file, FORMAT=fmt)
 
 end
 
