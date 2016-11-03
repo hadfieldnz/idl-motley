@@ -22,6 +22,13 @@
 ;    pixel node registration:
 ;      http://gmt.soest.hawaii.edu/gmt/html/GMT_Docs.html#x1-188000B.2.2
 ;
+;###########################################################################
+; Copyright (c) 2011 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
+;###########################################################################
+;
 ; CALLING SEQUENCE:
 ;    result = mgh_blockmean(x, y, z, w)
 ;

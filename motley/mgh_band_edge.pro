@@ -6,21 +6,16 @@
 ;   Given a 2D array as input, return a copy in which there is a band
 ;   adjacent to the edge with zero gradient normal to the edge
 ;
-; POSITIONAL PARAMETERS:
+;###########################################################################
+; Copyright (c) 2011 NIWA:
+;   http://www.niwa.co.nz/
+; Licensed under the MIT open source license:
+;   http://www.opensource.org/licenses/mit-license.php
+;###########################################################################
+;
+; POSITIONAL ARGUMENTS:
 ;   data (input, 2D array)
 ;     The input array, can be any data type
-;
-; KEYWORD PARAMETERS:
-;   WIDTH (input, integer scalar)
-;     The width of the band in which values are changed. Default is 1.
-;     If WIDTH is less than 1, the result is just a copy of the input.
-;
-; RETURN VALUE:
-;   The function returns an array of the same type and dimensions as
-;   the input.
-;
-; PROCEDURE
-;   Copy interior values into the band.
 ;
 ; KEYWORD ARGUMENTS:
 ;   WIDTH (input, integer with one or 4 elements)
@@ -28,6 +23,13 @@
 ;     vector, the same value is used on all boundaries. If WIDTH is
 ;     a 4-element vector, the values are applied to the south, east, north
 ;     and west boundaries in turn.
+;
+; RETURN VALUE:
+;   The function returns an array of the same type and dimensions as
+;   the input.
+;
+; PROCEDURE
+;   Copy interior values into the band.
 ;
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2006-03:
