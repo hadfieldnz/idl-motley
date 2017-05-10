@@ -5,7 +5,8 @@
 ; PURPOSE:
 ;   This function generates a 1-D array of values between specified limits.
 ;
-;   It has now been largely superseded by the colon operator.
+;   It has now been superseded by the colon operator, which has the advantage of
+;   supporting decreasing sequences.
 ;
 ; CATEGORY:
 ;   Array processing.

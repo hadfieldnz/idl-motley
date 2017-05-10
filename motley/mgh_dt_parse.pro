@@ -72,108 +72,108 @@
 ;-
 function mgh_dt_parse, iso_string
 
-  compile_opt DEFINT32
-  compile_opt STRICTARR
-  compile_opt STRICTARRSUBS
-  compile_opt LOGICAL_PREDICATE
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
 
-  if n_elements(iso_string) ne 1 || size(iso_string, /TYPE) ne 7 then $
-    message, 'Date-time argument must be a scalar string in ISO format'
+   if n_elements(iso_string) ne 1 || size(iso_string, /TYPE) ne 7 then $
+      message, 'Date-time argument must be a scalar string in ISO format'
 
-  ;; Separate the input string into date and time parts. Accept
-  ;; either "T" or " " as separators--they may not appear elsewhere
-  ;; in the string.
+   ;; Separate the input string into date and time parts. Accept
+   ;; either "T" or " " as separators--they may not appear elsewhere
+   ;; in the string.
 
-  iso_trim = strtrim(iso_string, 2)
+   iso_trim = strtrim(iso_string, 2)
 
-  pSep = strpos(iso_trim,'T')
-  if pSep lt 0 then pSep = strpos(iso_trim,' ')
+   pSep = strpos(iso_trim,'T')
+   if pSep lt 0 then pSep = strpos(iso_trim,' ')
 
-  if pSep ge 0 then begin
-    ;; Separator found
-    sDate = strtrim(strmid(iso_trim,0,pSep),2)
-    sTime = strmid(strmid(iso_trim,pSep-1),2)
-  endif else begin
-    ;; Separator not found. This could be a date or a time
-    pTimeSep = strpos(iso_trim,':')
-    if pTimeSep ge 0 then begin
-      ;; It's a time
-      sDate = ''
-      sTime = iso_trim
-    endif else begin
-      ;; It's a date
-      sDate = iso_trim
-      sTime = ''
-    endelse
-  endelse
+   if pSep ge 0 then begin
+      ;; Separator found
+      sDate = strtrim(strmid(iso_trim,0,pSep),2)
+      sTime = strmid(strmid(iso_trim,pSep-1),2)
+   endif else begin
+      ;; Separator not found. This could be a date or a time
+      pTimeSep = strpos(iso_trim,':')
+      if pTimeSep ge 0 then begin
+         ;; It's a time
+         sDate = ''
+         sTime = iso_trim
+      endif else begin
+         ;; It's a date
+         sDate = iso_trim
+         sTime = ''
+      endelse
+   endelse
 
-  ;; Default output, if no date-time elements are found, is an
-  ;; empty structure
+   ;; Default output, if no date-time elements are found, is an
+   ;; empty structure
 
-  result = {}
+   result = {}
 
-  ;; Parse date string
+   ;; Parse date string
 
-  if strlen(sDate) gt 0 then begin
+   if strlen(sDate) gt 0 then begin
 
-    sDate = strsplit(sDate, '-', /EXTRACT)
+      sDate = strsplit(sDate, '-', /EXTRACT)
 
-    if strlen(sDate[0]) gt 0 then $
-      result = create_struct(result, 'year', fix(sDate[0]))
-    if n_elements(sDate) ge 2 && strlen(sDate[1]) gt 0 then $
-      result = create_struct(result, 'month', fix(sDate[1]))
-    if n_elements(sDate) ge 3 && strlen(sDate[2]) gt 0 then $
-      result = create_struct(result, 'day', fix(sDate[2]))
+      if strlen(sDate[0]) gt 0 then $
+         result = create_struct(result, 'year', fix(sDate[0]))
+      if n_elements(sDate) ge 2 && strlen(sDate[1]) gt 0 then $
+         result = create_struct(result, 'month', fix(sDate[1]))
+      if n_elements(sDate) ge 3 && strlen(sDate[2]) gt 0 then $
+         result = create_struct(result, 'day', fix(sDate[2]))
 
-  endif
+   endif
 
-  ;; Parse time &/or time-zone string
+   ;; Parse time &/or time-zone string
 
-  if strlen(sTime) gt 0 then begin
+   if strlen(sTime) gt 0 then begin
 
-    ;; Split at time-zone separator, if any
+      ;; Split at time-zone separator, if any
 
-    pZone = strpos(sTime,'Z')
-    if pZone lt 0 then $
-      pZone = strpos(sTime,'+')
-    if pZone lt 0 then $
-      pZone = strpos(sTime,'-')
+      pZone = strpos(sTime,'Z')
+      if pZone lt 0 then $
+         pZone = strpos(sTime,'+')
+      if pZone lt 0 then $
+         pZone = strpos(sTime,'-')
 
-    if pZone ge 0 then begin
-      sTmp = strtrim(strmid(sTime,0,pZone),2)
-      sZone = strtrim(strmid(sTime,pZone),2)
-      sTime = sTmp
-    endif
-
-    ;; Parse time string
-
-    sTime = strsplit(sTime, ':', /EXTRACT)
-
-    if strlen(sTime[0]) gt 0 then $
-      result = create_struct(result, 'hour', fix(sTime[0]))
-    if n_elements(sTime) ge 2 && strlen(sTime[1]) gt 0 then $
-      result = create_struct(result, 'minute', fix(sTime[1]))
-    if n_elements(sTime) ge 3 && strlen(sTime[2]) gt 0 then $
-      result = create_struct(result, 'second', float(sTime[2]))
-
-    ;; Parse time-zone string
-
-    if n_elements(sZone) gt 0 then begin
-      if strmid(sZone,0,1) eq 'Z' then $
-        sZone = strmid(sZone,1)
-      if strlen(sZone) gt 0 then begin
-        case 1B of
-          strmatch(szone, '[+-]??'): zone = fix(strmid(szone, 1))
-          strmatch(szone, '[+-]??:??'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 4, 2))/60D
-          strmatch(szone, '[+-]????'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 3, 2))/60D
-        endcase
-        if strmid(szone, 0, 1) eq '-' then zone *= -1
-        result = create_struct(result, 'zone', zone)
+      if pZone ge 0 then begin
+         sTmp = strtrim(strmid(sTime,0,pZone),2)
+         sZone = strtrim(strmid(sTime,pZone),2)
+         sTime = sTmp
       endif
-    endif
 
-  endif
+      ;; Parse time string
 
-  return, result
+      sTime = strsplit(sTime, ':', /EXTRACT)
+
+      if strlen(sTime[0]) gt 0 then $
+         result = create_struct(result, 'hour', fix(sTime[0]))
+      if n_elements(sTime) ge 2 && strlen(sTime[1]) gt 0 then $
+         result = create_struct(result, 'minute', fix(sTime[1]))
+      if n_elements(sTime) ge 3 && strlen(sTime[2]) gt 0 then $
+         result = create_struct(result, 'second', float(sTime[2]))
+
+      ;; Parse time-zone string
+
+      if n_elements(sZone) gt 0 then begin
+         if strmid(sZone,0,1) eq 'Z' then $
+            sZone = strmid(sZone,1)
+         if strlen(sZone) gt 0 then begin
+            case 1B of
+               strmatch(szone, '[+-]??'): zone = fix(strmid(szone, 1))
+               strmatch(szone, '[+-]??:??'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 4, 2))/60D
+               strmatch(szone, '[+-]????'): zone = fix(strmid(szone, 1, 2))+fix(strmid(szone, 3, 2))/60D
+            endcase
+            if strmid(szone, 0, 1) eq '-' then zone *= -1
+            result = create_struct(result, 'zone', zone)
+         endif
+      endif
+
+   endif
+
+   return, result
 
 end
