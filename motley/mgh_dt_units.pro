@@ -27,6 +27,13 @@
 ; MODIFICATION HISTORY:
 ;   Mark Hadfield, 2004-10:
 ;     Written.
+;   Mark Hadfield, 2017-05:
+;     Removed special case code for a reference year of 0001. I think this
+;     was introduced (but I'm not sure when) because some software uses
+;     this reference year for non-calendar time data. Howwever some
+;     software (eg. NCEP Reanalysis) uses it for calendar data. Why anyone
+;     would use it for either purpose I have no idea, but the software that
+;     uses it for non-calendar data may now break.
 ;-
 function mgh_dt_units, ustring
 
@@ -82,7 +89,9 @@ function mgh_dt_units, ustring
         dts.year = 1
         result.offset = mgh_dt_julday(dts) - mgh_dt_julday(YEAR=dts.year)
       endif else if dts.year eq 1 then begin
-        result.offset = mgh_dt_julday(dts) - mgh_dt_julday(YEAR=dts.year)
+        ;; Bypass special handling for year 1 (see MODIFICATION HISTORY).
+        ;; result.offset = mgh_dt_julday(dts) - mgh_dt_julday(YEAR=dts.year)
+        result.offset = mgh_dt_julday(dts)
       endif else begin
         result.offset = mgh_dt_julday(dts)
       endelse
