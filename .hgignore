@@ -1,5 +1,0 @@
-syntax: glob
-*.pro~
-*.pro.bak
-Thumbs.db
-desktop.ini
