@@ -704,7 +704,7 @@ end
 ;
 pro MGHncFile::VarAdd, var, Dims, $
      BYTE=kbyte, CHAR=kchar, INT=kint, SHORT=kshort, LONG=klong, FLOAT=kfloat, $
-     DOUBLE=kdouble, NCTYPE=nctype
+     DOUBLE=kdouble, STRING=kstring, NCTYPE=nctype
 
    compile_opt DEFINT32
    compile_opt STRICTARR
@@ -725,6 +725,7 @@ pro MGHncFile::VarAdd, var, Dims, $
          'LONG'  : klong = 1
          'FLOAT' : kfloat = 1
          'DOUBLE': kdouble = 1
+         'STRING': kstring = 1
       endcase
    endif
 
@@ -739,11 +740,11 @@ pro MGHncFile::VarAdd, var, Dims, $
          pos[i] = ncdf_dimid(self.ncid, dims[i])
       varid = ncdf_vardef(self.ncid, var, pos, $
          BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
-         FLOAT=kfloat, DOUBLE=kdouble)
+         FLOAT=kfloat, DOUBLE=kdouble, STRING=kstring)
    endif else begin
       varid = ncdf_vardef(self.ncid, var, $
          BYTE=kbyte, CHAR=kchar, SHORT=kshort, LONG=klong, $
-         FLOAT=kfloat, DOUBLE=kdouble)
+         FLOAT=kfloat, DOUBLE=kdouble, STRING=kstring)
    endelse
 
 end
