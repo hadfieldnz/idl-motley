@@ -40,6 +40,8 @@
 ;   Mark Hadfield, 2015-11:
 ;     - Substitution map is now a hash object.
 ;     - The value "_" is now used for all substitution map keys.
+;   Mark Hadfield, 2017-10:
+;     Added a substitution for '.'.
 ;-
 function mgh_str_vanilla, instr
 
@@ -67,6 +69,7 @@ function mgh_str_vanilla, instr
    map['<'] = '_'
    map['&'] = '_'
    map[','] = '_'
+   map['.'] = '_'
    map['?'] = '_'
    map['@'] = '_'
    map['+'] = '_'
