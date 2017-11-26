@@ -10,7 +10,7 @@
 ;   into a multiple-image file (Save method) by spawning one of the following
 ;   programs:
 ;
-;    - The ImageMagick "convert" command (http://www.imagemagick.org/)
+;    - The GraphicsMagick "gm convert" command (http://www.graphicsmagick.org/)
 ;
 ;    - Klaus Ehrenfried's program "ppm2fli" for generating FLC
 ;      animations, (http://vento.pi.tu-berlin.de/fli.html).
@@ -132,6 +132,10 @@
 ;     - File lists used by the Save method are now all written in Unix text file
 ;       format, with backslashes path seprators replaced by forward slashes. The
 ;       latter change was needed to get things working with the Cygwin ZIP command.
+;   Mark Hadfield, 2017-11:
+;     - Now uses GraphicsMagick (gm convert) instead of ImageMagick (convert)
+;       to produce multi-image TIFFs. This is to avoid problems on Windows with
+;       convert being masked by the system command of th same name.
 ;-
 function MGHgrMovieFile::Init, $
      FILE=file, FORMAT=format
@@ -341,7 +345,7 @@ pro MGHgrMovieFile::Save
     end
 
     else: begin
-      fmt = '(%"convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
+      fmt = '(%"gm convert -verbose -adjoin -delay 7 @\"%s\" %s:\"%s\"")'
       if !version.os_family eq 'Windows' then begin
         ;; This command will fail if the size of the list file exceeds
         ;; 8192 characters. One could work around this limit by
