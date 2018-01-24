@@ -46,6 +46,8 @@ function mgh_ssh_file_search, pattern, COUNT=count
     if n_elements(pp) ne 2 then $
       message, 'Each search pattern must be in host:path form'
 
+    ;; The use of a Bash for loop in the following command does not
+    ;; seem to work for some remote hosts.
     fmt = '(%"ssh %s \"for match in %s; do (test -a $match && echo $match); done\"")'
     cmd = string(FORMAT=fmt, pp)
 
