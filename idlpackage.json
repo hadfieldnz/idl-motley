@@ -1,0 +1,12 @@
+{
+  "Name": "IDL-Motley",
+  "Version": "1.0",
+  "Author": "Mark Hadfield",
+  "Date": "2018-08-06",
+  "Dependencies": [
+    {
+      "Name": "IDL",
+      "Version": ">8.5"
+    }
+  ]
+}
