@@ -31,6 +31,8 @@
 ;     Converted to a script (to allow use of the .compile executive function).
 ;   Mark Hadfield, 2004-05:
 ;     Back to a routine.
+;   Mark Hadfield, 2018-08:
+;     Removed the avi_options preference, as it is obsolete.
 ;-
 pro mgh_motley
 
@@ -39,8 +41,8 @@ pro mgh_motley
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
 
-   ;; Load message block. The .msg file must be in the same directory
-   ;; as the MGH_MOTLEY code.
+   ;; Load the mgh_blk_motley message block. The .msg file must be in the same
+   ;; directory as this routine.
 
    src = routine_info('mgh_motley', /SOURCE)
 
@@ -56,9 +58,7 @@ pro mgh_motley
    defsysv, '!mgh_prefs', EXISTS=exists
 
    if ~ exists then begin
-      defsysv, '!mgh_prefs', $
-               {avi_options: {codec: 'MSVC', quality: 85, iframe_gap: 10, frame_rate: 15}, $
-                sticky: 1B}
+      defsysv, '!mgh_prefs', {sticky: !true}
    endif
 
 end

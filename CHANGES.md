@@ -2,16 +2,25 @@
 
 Mark Hadfield
 
-Motley is a library of IDL code written largely by Mark Hadfield at NIWA. This document describes major and/or widespread changes to the routines in the library. For a routine-specific change log, see the individual documentation headers.
+Motley is a library of IDL code written largely by Mark Hadfield at NIWA. This document describes major and/or widespread changes to the
+routines in the library. For a routine-specific change log, see the individual documentation headers.
+
 Entries are in reverse chronological order (most recent first).
+
+### *2017-08-06*
+
+The library can now be installed with the new IDL Package Manager, to be bundled with IDL 8.7.1. Version 1.0 has been released.
 
 ### *2017-06-30*
 
-The library is now being maintained by Git and stored on GitHub (hadfieldns/idl-motley). It contains 59238 lines of code and comments (including empty lines) in 252 .pro files.
+The library is now being maintained by Git and stored on GitHub (hadfieldnz/idl-motley). It contains 59238 lines of code and comments
+(including empty lines) in 252 .pro files.
 
 ### *2016-11-02*
 
-Moved all routines in the library to one of three new subdirectories: motley, examples and external. The new directory structure is more elegant, in my opinion. However the change has the unfortunate side effect of breaking the connection between the old and new file locations in Mercurial (for which a rename or move is implemented as deleting one file and adding another).
+Moved all routines in the library to one of three new subdirectories: motley, examples and external. The new directory structure is more elegant,
+in my opinion. However the change has the unfortunate side effect of breaking the connection between the old and new file locations in Mercurial
+(for which a rename or move is implemented as deleting one file and adding another).
 
 ### *2016-04-26*
 
@@ -29,38 +38,50 @@ Added a copy of CHECKSUM32 from the IDL Astronomy Library, required by MGH_STRUC
 ### *2015-02-10*
 
 Preparing for uploading code to Sourceforge.
+
 The MGH_LINE_COEFF and MGH_POLYFILLA have been moved into the Motley library from my personal IDL library.
+
 Removed avi.dll, as it only works on Win32, and I think doesn't work on that anymore either.
 
 ### *2011-07-26*
 
 A lot more IDL 8 dependencies have been introduced.
-The ToArray method of the MGH_Vector class has been overhauled and now supports a FLATTEN keyword, directing it to generate a 1D array from a collection of arrays of different sizes and shapes. This proves very useful in compiling and processing large collections of bathymetry data.
+
+The ToArray method of the MGH_Vector class has been overhauled and now supports a FLATTEN keyword, directing it to generate a 1D array from a
+collection of arrays of different sizes and shapes. This proves very useful in compiling and processing large collections of bathymetry data.
 
 ### *2010-11-08*
 
-Getting ready to publish the code on David Fanning's site, if he'll let me. The code now depends on IDL 8 in several places, and on IDL 8.0.1 in at least one place (multi-page PDF output of animations in MGH_Player).
+Getting ready to publish the code on David Fanning's site, if he'll let me. The code now depends on IDL 8 in several places, and on
+IDL 8.0.1 in at least one place (multi-page PDF output of animations in MGH_Player).
 
 ### *2010-10-28*
 
-The MGHncFile and MGHncReadFile classes can now handle either 'INT' or 'SHORT' as the datatype specifier for 2-byte, integer netCDF variables. This is to cope with changes in the NCDF_VARINQ function, which has returned one or other in different IDL versions and now (IDL 8.0) returns 'INT'.
+The MGHncFile and MGHncReadFile classes can now handle either 'INT' or 'SHORT' as the datatype specifier for 2-byte, integer netCDF variables.
+This is to cope with changes in the NCDF_VARINQ function, which has returned one or other in different IDL versions and now (IDL 8.0) returns 'INT'.
 
 ### *2010-10-20*
 
-I made the first backwards-incompatible changes: class MGH_GUI_Base now inherits IDL_Object (giving instances of the class access to operator overloading and the dot notation); MGH_Window now exports to PDF using the new IDLgrPDF class.
+I made the first backwards-incompatible changes: class MGH_GUI_Base now inherits IDL_Object (giving instances of the class access to
+operator overloading and the dot notation); MGH_Window now exports to PDF using the new IDLgrPDF class.
 
 ### *2010-10-18*
 
-I have (finally) installed IDL 8.0 on my computer. All code to date is compatible with IDL 7.1 or earlier (most of it works with versions back to 6.x). With the big changes in 8.0, I will not be attempting to maintain compatibility with pre-8.0 versions in future.
+I have (finally) installed IDL 8.0 on my computer. All code to date is compatible with IDL 7.1 or earlier (most of it works with
+versions back to 6.x). With the big changes in 8.0, I will not be attempting to maintain compatibility with pre-8.0 versions in future.
 
 ### *2010-09-15*
 
 There have been quite a few undocumented changes over the last year.
-One significant recent one is the fixing of a performance bug in the MGHncSequence class: the VarGet method was calling a function that effectively looped over the files in the sequence, inside a loop over the same files. This crippled performance when the number of files in the sequence approached 1000 or so.
+One significant recent one is the fixing of a performance bug in the MGHncSequence class: the VarGet method was calling a function that
+effectively looped over the files in the sequence, inside a loop over the same files. This crippled performance when the number of files in the
+sequence approached 1000 or so.
 
 ### *2009-09-28*
 
-In an effort to streamline code for dealing with grids, I added two new functions: MGH_SUBSET2 (a 2D counterpart for MGH_SUBSET) and MGH_PERIM. Also, the “point inside polygon” functions MGH_POLY_INSIDE and MGH_PNPOLY were made more flexible in how they require the polygon vertex data and the argument order was changed: the polygon vertex array(s) come at the end.
+In an effort to streamline code for dealing with grids, I added two new functions: MGH_SUBSET2 (a 2D counterpart for MGH_SUBSET) and MGH_PERIM.
+Also, the “point inside polygon” functions MGH_POLY_INSIDE and MGH_PNPOLY were made more flexible in how they require the polygon vertex data
+and the argument order was changed: the polygon vertex array(s) come at the end.
 
 ### *2009-08-24*
 
@@ -72,7 +93,8 @@ Fixed a few netCDF bugs reported by Foldy Lajos.
 
 ### *2009-04-28*
 
-Changes have been made to the MGHgrGraph class to accommodate the change in IDLgrWindow resolution in IDL version 7.1. (Previously the value was queried from the OS but in 7.1 it is set to a fixed 72 dpi). A new routine called MGH_GRAPH_DEFAULT provides defaults for several of MGHgrGraph's properties. In the case of the SCALE and FONTSIZE properties these are version-dependent.
+Changes have been made to the MGHgrGraph class to accommodate the change in IDLgrWindow resolution in IDL version 7.1. (Previously the value
+was queried from the OS but in 7.1 it is set to a fixed 72 dpi). A new routine called MGH_GRAPH_DEFAULT provides defaults for several of MGHgrGraph's properties. In the case of the SCALE and FONTSIZE properties these are version-dependent.
 
 ### *2007-11-28*
 
@@ -86,7 +108,9 @@ I cleaned up a lot of broken or non-functional code in the MGH_DGplayer class. I
 
 ### *2006-05-08*
 
-This version of the library is now being used and developed under IDL 6.3 (however it does not yet include any features specific to that version). The AVI-writing code in MGH_Player now uses Oleg Kornilov's AVI DLL, called via a class called MGHaviWriteFile. There must be a copy of the DLL in the Motley library directory.
+This version of the library is now being used and developed under IDL 6.3 (however it does not yet include any features specific to that
+version). The AVI-writing code in MGH_Player now uses Oleg Kornilov's AVI DLL, called via a class called MGHaviWriteFile. There must be a
+copy of the DLL in the Motley library directory.
 
 ### *2006-03-10*
 
@@ -94,7 +118,10 @@ Getting ready for another release. Sticky-directory code has been added to the f
 
 ### *2004-11-08*
 
-I am starting to add “sticky directory” support to the file-saving process. A new system variable, !MGH_PREFS, is now created by MGH_MOTLEY. It has a tag called “sticky” that specifies if sticky directories are to be enabled. Code is being added to the file-saving code for various GUIs to change the directory name if necessary. This is all currently in prototype form: it has not been implemented fully and details may change. Other preferences may be added and I may try to use the IDL 6.1 support for application user directories.
+I am starting to add “sticky directory” support to the file-saving process. A new system variable, !MGH_PREFS, is now created by MGH_MOTLEY.
+It has a tag called “sticky” that specifies if sticky directories are to be enabled. Code is being added to the file-saving code for various
+GUIs to change the directory name if necessary. This is all currently in prototype form: it has not been implemented fully and details may change.
+Other preferences may be added and I may try to use the IDL 6.1 support for application user directories.
 
 ### *2004-08-30*
 

@@ -38,8 +38,12 @@ $ cd ${HOME}/IDL
 $ git clone https://github.com/hadfieldnz/idl-motley.git
 ```
 
-You will then need to add IDL-Motley directory (in the above case this is ${HOME}/IDL/idl-motley) to the [!PATH](https://www.harrisgeospatial.com/docs/Managing_IDL_Paths.html)
-using the usual IDL Preferences mechanism.
+You will then need to add the three code subdirectories (motley, external and examples) to your [!PATH](https://www.harrisgeospatial.com/docs/Managing_IDL_Paths.html).
+The simplest way to do this is to add an entry like the following to IDL path preferences dialogue:
+
+```
+'+/home/hadfield/IDL/idl-motley'
+```
 
 ### Installation Method 3: Downloading a Zip archive
 
@@ -48,7 +52,8 @@ You then need to extract the code into a suitable directory and modify the !PATH
 
 ### Library Initialisation
 
-Before using any of the routines in the library in any IDL session, run the initialisation routine with the command "mgh_motley".
+Before using any of the routines in the library in any IDL session, run the initialisation routine with the command
+[mgh_motley](https://github.com/hadfieldnz/idl-motley/blob/master/motley/mgh_motley.pro).
 You may eventually want to add this command to your startup script.
 
 ## Dependencies
