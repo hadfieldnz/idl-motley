@@ -6,7 +6,11 @@
 ;   This function is similar to the IDL built-in FILE_SEARCH function but
 ;   operates on remote file systems via SSH
 ;
-;   The login shell on the remote host must be GNU bash
+;   The login shell on the remote host must be GNU Bash (to support a for
+;   loop in the remotely executed command. The SSH connection must succeed
+;   without password or security prompts.
+;   
+;   Hidden files are not found.
 ;
 ; CALLING SEQUENCE:
 ;   result = mgh_ssh_file_search(pattern)
@@ -46,8 +50,7 @@ function mgh_ssh_file_search, pattern, COUNT=count
     if n_elements(pp) ne 2 then $
       message, 'Each search pattern must be in host:path form'
 
-    ;; The use of a Bash for loop in the following command does not
-    ;; seem to work for some remote hosts.
+    ;; Search for the files using SSH with a Bash for loop.
     fmt = '(%"ssh %s \"for match in %s; do (test -a $match && echo $match); done\"")'
     cmd = string(FORMAT=fmt, pp)
 
