@@ -7,7 +7,7 @@ routines in the library. For a routine-specific change log, see the individual d
 
 Entries are in reverse chronological order (most recent first).
 
-### *2017-08-06*
+### *2018-08-06*
 
 The library can now be installed with the new IDL Package Manager, to be bundled with IDL 8.7.1. Version 1.0 has been released.
 

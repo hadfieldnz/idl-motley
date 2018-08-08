@@ -39,7 +39,7 @@ $ git clone https://github.com/hadfieldnz/idl-motley.git
 ```
 
 You will then need to add the three code subdirectories (motley, external and examples) to your [!PATH](https://www.harrisgeospatial.com/docs/Managing_IDL_Paths.html).
-The simplest way to do this is to add an entry like the following to IDL path preferences dialogue:
+The simplest way to do this is to add an entry like the following to the IDL path preferences dialogue:
 
 ```
 '+/home/hadfield/IDL/idl-motley'
