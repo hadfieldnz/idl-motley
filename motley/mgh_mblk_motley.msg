@@ -1,7 +1,7 @@
 ; Message definition file for message block MGH_MBLK_MOTLEY
 ;
 ; This message block can be loaded using
-; 
+;
 ;   define_msgblk_from_file, file_which("mgh_mblk_motley.msg")
 ;
 ; and a message can be issued as follows
@@ -18,6 +18,8 @@
 @ INITFAIL      "Initialisation of superclass %s failed."
 
 @ OBJREF_BAD    "Object reference %s is invalid"
+
+@ OBJWRGCLASS   "Object %s is not a member of the required class"
 
 @ UNDEFVAR      "Variable %s is undefined"
 
