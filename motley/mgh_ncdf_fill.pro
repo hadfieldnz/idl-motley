@@ -26,6 +26,9 @@
 ;   Mark Hadfield, 2010-10:
 ;     Added an entry for type 'INT', which seems to be an alias, introduced
 ;     in IDL 8.0, for 'SHORT'.
+;   Mark Hadfield, 2019-05:
+;     Added an entry for type 'STRING'. This is supported only by the NETCF4
+;     format and cannot be read by Fortran programs.
 ;-
 function mgh_ncdf_fill, type
 
@@ -45,6 +48,7 @@ function mgh_ncdf_fill, type
    case strupcase(type) of
       'BYTE'  : result = byte(-127)
       'CHAR'  : result = ''
+      'STRING': result = ''
       'INT'   : result = -32767S
       'SHORT' : result = -32767S
       'LONG'  : result = -2147483647L

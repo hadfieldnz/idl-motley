@@ -82,6 +82,9 @@
 ;     - THICK keyword now passed to IDLgrPolygon for style 0.
 ;   Mark Hadfield, 2014-12:
 ;     - Added ZVALUE keyword, used for vertical positioning.
+;   Mark Hadfield, 2019-05:
+;     - The ZVALUE keyword was implemented only for style 0 (circle).
+;       Now it is also implemented for style 2 (star). 
 ;-
 function MGHgrSymbol::Init, pstyle, $
      COLOR=color, FILL=fill, N_VERTICES=n_vertices, NORM_SIZE=norm_size, $
@@ -140,6 +143,7 @@ function MGHgrSymbol::Init, pstyle, $
       ;; Star
       2: begin
          if n_elements(n_vertices) eq 0 then n_vertices = 5
+         if n_elements(zvalue) eq 0 then zvalue = 0
          x = fltarr(2*n_vertices)
          y = fltarr(2*n_vertices)
          a = 2.*!pi*findgen(n_vertices)/n_vertices
@@ -150,13 +154,14 @@ function MGHgrSymbol::Init, pstyle, $
          y[1:*:2] = 0.6*cos(a)
          if keyword_set(fill) then begin
             otess = obj_new('IDLgrTessellator')
-            otess->AddPolygon, x, y, replicate(0.,2*n_vertices)
+            otess->AddPolygon, x, y, replicate(zvalue,2*n_vertices)
             if ~ otess->Tessellate(vert, conn) then $
                  message, 'Tessellation failed.'
             obj_destroy, otess
             self.atom = obj_new('IDLgrPolygon', COLOR=color, DATA=vert, POLY=conn)
          endif else begin
-            self.atom = obj_new('IDLgrPolyline' , [x,x[0]], [y,y[0]], COLOR=color)
+            self.atom = obj_new('IDLgrPolyline' , [x,x[0]], [y,y[0]], replicate(zvalue,2*n_vertices+1), $
+               COLOR=color)
          endelse
       end
 

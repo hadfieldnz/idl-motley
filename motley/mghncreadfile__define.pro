@@ -92,6 +92,9 @@
 ;       no attributes.
 ;   Mark Hadfield, 2015-11:
 ;     - Simplified the code in the VarGet method considerably.
+;   Mark Hadfield, 2019-05:
+;     - In the VariInfo method, added an entry for type 'STRING'. This is supported
+;       only by the NETCF4 format and cannot be read by Fortran programs.
 ;-
 
 ; MGHncReadFile::Init
@@ -812,6 +815,7 @@ pro MGHncReadFile::VarInfo, var, $
          case info.datatype of
             'BYTE'  : fill_value = -127B ; Huh?
             'CHAR'  : fill_value = ''
+            'STRING': fill_value = ''
             'SHORT' : fill_value = -32767S
             'INT'   : fill_value = -32767S
             'LONG'  : fill_value = -2147483647L

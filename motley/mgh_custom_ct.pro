@@ -69,6 +69,70 @@
 ;   Mark Hadfield, 2015-03:
 ;     - Added the 'Paul Tol Sunset' table, see http://www.sron.nl/~pault/.
 ;-
+function mgh_custom_ct_read_rgb, name
+
+   compile_opt DEFINT32
+   compile_opt STRICTARR
+   compile_opt STRICTARRSUBS
+   compile_opt LOGICAL_PREDICATE
+   compile_opt HIDDEN
+
+   ;; Read RGB values from a data file.
+
+   file = filepath(name, ROOT=file_dirname(routine_filepath('mgh_custom_ct')), $
+      SUB=['..','colormaps'])
+
+   if ~ file_test(file, /READ) then $
+      message, 'Colour map data file '+file+' not readable'
+
+   ;; Open the file
+
+   message, /INFORM, 'Reading colour map data from '+file
+
+   openr, lun, file, /GET_LUN
+
+   line = ''
+
+   ;; Read the file once to count colours
+
+   l = 0
+   while ~ eof(lun) do begin
+      readf, lun, line
+      if mgh_str_iswhite(line) then continue
+      if strmid(line, 0, 1) eq '#' then continue
+      l ++
+   endwhile
+
+   n_colors = l
+
+   rgb = fltarr(3, n_colors)
+
+   ;; Rewind the file and read color data
+
+   point_lun, lun, 0
+
+   l = 0
+   while ~ eof(lun) do begin
+      readf, lun, line
+      if mgh_str_iswhite(line) then continue
+      if strmid(line, 0, 1) eq '#' then continue
+      items = strsplit(line, /EXTRACT, COUNT=n_items)
+      if n_items ne 3 then $
+         message, 'Unexpected line in data file: '+line
+      rgb[*,l] = float(items[0:2])
+      l ++
+   endwhile
+
+   free_lun, lun
+   
+   ;; Convert to byte values
+
+   return, byte(round(255*rgb))
+
+end
+
+
+
 pro mgh_custom_ct, $
      BACKUP=backup, CLOBBER=clobber, FILE=file, RESTORE=restore, START=start
 
@@ -214,6 +278,13 @@ pro mgh_custom_ct, $
         g = round(255.*(0.108932-1.22635*x+27.284*x^2-98.577*x^3+163.3*x^4-131.395*x^5+40.634*x^6))
         b = round(255./(1.97+3.54*x-68.5*x^2+243*x^3-297*x^4+125*x^5))
         ct = mgh_make_ct(NAME=name, indgen(256), transpose([[r],[g],[b]]))
+      end
+      13: begin
+         ;; The cmocean balance scale
+         ;;   https://github.com/matplotlib/cmocean
+         name = 'CMOCEAN Balance'
+         rgb = mgh_custom_ct_read_rgb('balance-rgb.txt')
+         ct = mgh_make_ct(NAME=name, indgen(256), rgb)
       end
       else: mgh_undefine, ct
     endcase
