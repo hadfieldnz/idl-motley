@@ -68,6 +68,8 @@
 ;       end.
 ;   Mark Hadfield, 2015-03:
 ;     - Added the 'Paul Tol Sunset' table, see http://www.sron.nl/~pault/.
+;   Mark Hadfield, 2019-06:
+;     - Added the 'CMOCEAN Balance' table, see https://matplotlib.org/cmocean/
 ;-
 function mgh_custom_ct_read_rgb, name
 
