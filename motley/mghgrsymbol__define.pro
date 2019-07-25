@@ -84,7 +84,7 @@
 ;     - Added ZVALUE keyword, used for vertical positioning.
 ;   Mark Hadfield, 2019-05:
 ;     - The ZVALUE keyword was implemented only for style 0 (circle).
-;       Now it is also implemented for style 2 (star). 
+;       Now it is also implemented for style 2 (star).
 ;-
 function MGHgrSymbol::Init, pstyle, $
      COLOR=color, FILL=fill, N_VERTICES=n_vertices, NORM_SIZE=norm_size, $

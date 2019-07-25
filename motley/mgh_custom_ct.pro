@@ -126,7 +126,7 @@ function mgh_custom_ct_read_rgb, name
    endwhile
 
    free_lun, lun
-   
+
    ;; Convert to byte values
 
    return, byte(round(255*rgb))
@@ -286,6 +286,13 @@ pro mgh_custom_ct, $
          ;;   https://github.com/matplotlib/cmocean
          name = 'CMOCEAN Balance'
          rgb = mgh_custom_ct_read_rgb('balance-rgb.txt')
+         ct = mgh_make_ct(NAME=name, indgen(256), rgb)
+      end
+      14: begin
+         ;; The cmocean speed scale
+         ;;   https://github.com/matplotlib/cmocean
+         name = 'CMOCEAN Speed'
+         rgb = mgh_custom_ct_read_rgb('speed-rgb.txt')
          ct = mgh_make_ct(NAME=name, indgen(256), rgb)
       end
       else: mgh_undefine, ct
