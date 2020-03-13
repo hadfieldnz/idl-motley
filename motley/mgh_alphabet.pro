@@ -36,21 +36,21 @@ function mgh_alphabet, UPPERCASE=uppercase
    compile_opt STRICTARR
    compile_opt STRICTARRSUBS
    compile_opt LOGICAL_PREDICATE
-   
+
    ;; Retain generality so this could potentially be adapted for
    ;; other sequences of ASCII characters.
-   
+
    n_result = 26
-   
+
    result = strarr(n_result)
 
    start = byte(keyword_set(uppercase) ? 'A' : 'a')
-   
-   ;; This could be vectorised, but it is surprisingly awkward 
+
+   ;; This could be vectorised, but it is surprisingly awkward
    ;; to do so. Note that the loop counter must be a byte integer.
-   
+
    for b=0B,n_result-1 do result[b] = string(start[0]+b)
-   
+
    return, result
-  
+
 end
